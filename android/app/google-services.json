@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "954873531504",
+    "project_id": "parla-italiano-bf214",
+    "storage_bucket": "parla-italiano-bf214.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:954873531504:android:dcde48727ee54402fcf8b5",
+        "android_client_info": {
+          "package_name": "com.example.parla_italiano"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHNNCNDGZqDFx2wEQBGJhwI3_YjU2PWFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
