@@ -1,12 +1,13 @@
 import 'dart:js_util';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
+//import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:parla_italiano/table.dart';
+import 'package:parla_italiano/handler/table.dart';
 import 'package:parla_italiano/screen_one.dart';
-import 'package:parla_italiano/vocabulary.dart';
+import 'package:parla_italiano/handler/vocabulary.dart';
+import 'package:parla_italiano/handler/vocabularyHandler.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _controllerLevel = TextEditingController();
   List<Vocabulary> vocabularylist = [];
   List<Tables> tableList = [];
+  final _vocabularyHandler = VocabularyHandler();
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: const InputDecoration(hintText: 'Name der Tabelle eingeben'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Enter your message to continue';
+                      return 'Gib den Namen der Tabelle an';
                     }
                     return null;
                   },
@@ -72,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: const InputDecoration(hintText: 'Level eingeben'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Enter your message to continue';
+                      return 'Gib der Tabelle ein Level';
                     }
                     return null;
                   },
@@ -83,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       if (_formKey.currentState!.validate()) {
                         final title = _controllerTitle.text;
                         final level = int.parse(_controllerLevel.text);
-                        createTable(title: title, level: level);
+                        _vocabularyHandler.createTable(title: title, level: level);
                         _controllerTitle.clear();
                         _controllerLevel.clear();
                       }
@@ -108,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.black87,
                   ),),
               StreamBuilder(
-                stream: readVocabularies(), 
+                stream: _vocabularyHandler.readVocabularies(), 
                 builder: (context, snapshot) {
                   if (snapshot.hasData){
                     vocabularylist = snapshot.data!;
@@ -119,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 }),
                 SingleChildScrollView(child: 
               StreamBuilder(
-                stream: readTables(), 
+                stream: _vocabularyHandler.readTables(), 
                 builder: (context, snapshot) {
                   if (snapshot.hasData){
                     tableList = snapshot.data!;
@@ -135,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           title: Row(children: [
                             Text(tableList[index].title, textAlign: TextAlign.center,),
                             SizedBox(width: 30),
-                            Text('${calculateAmounts(tableList[index].id, vocabularylist).toString()} Wörter', textAlign: TextAlign.center,),
+                            Text('${_vocabularyHandler.calculateAmounts(tableList[index].id, vocabularylist).toString()} Wörter', textAlign: TextAlign.center,),
                           ], mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center,),
                           trailing: Row(children: <Widget>[
                             IconButton(
@@ -149,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   .collection('tables')
                                   .doc(tableList[index].id);
                                 docUser.delete();
-                                deleteVocabularyIdsByTableId(tableList[index].id);
+                                _vocabularyHandler.deleteVocabularyIdsByTableId(tableList[index].id, vocabularylist);
                               })
                           ], mainAxisSize: MainAxisSize.min,))); 
                       });
@@ -162,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
               
               ), physics: ScrollPhysics(),));
   }
-
+/*
   deleteVocabularyIdsByTableId(String tableId){
     for (Vocabulary vocabulary in vocabularylist){
       if (vocabulary.table_id == tableId){
@@ -206,4 +208,5 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return amount;
   }
+*/
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:parla_italiano/home_screen.dart';
-import 'package:parla_italiano/table.dart';
+import 'package:parla_italiano/handler/table.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:parla_italiano/widgets.dart';
-import 'package:parla_italiano/vocabulary.dart';
+import 'package:parla_italiano/handler/vocabulary.dart';
 
 class ScreenOne extends StatefulWidget {
   String? id;

@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:parla_italiano/table.dart';
+import 'package:parla_italiano/handler/table.dart';
 
 class VocabularyWidget extends StatelessWidget {
   const VocabularyWidget(this.italian, this.german, this.additional, {super.key});
