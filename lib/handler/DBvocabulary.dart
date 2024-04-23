@@ -4,15 +4,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:parla_italiano/handler/table.dart';
+import 'package:parla_italiano/handler/DBtable.dart';
 
-class Vocabulary {
+class DBVocabulary {
   String italian;
   String german;
   String additional;
   String table_id;
   String id;
-  Vocabulary({required this.italian, required this.german, required this.additional, required this.table_id, required this.id});
+  DBVocabulary({required this.italian, required this.german, required this.additional, required this.table_id, required this.id});
 
   Map<String, dynamic> toJson() => {
     'italian': italian,
@@ -21,9 +21,9 @@ class Vocabulary {
     'table_id': id,
   };
 
-  static Vocabulary fromJson(QueryDocumentSnapshot<Map<String, dynamic>> doc){
+  static DBVocabulary fromJson(QueryDocumentSnapshot<Map<String, dynamic>> doc){
     Map<String, dynamic> json = doc.data();
-    return Vocabulary(
+    return DBVocabulary(
       italian: json['italian'],
       german: json['german'],
       additional: json['additional'],

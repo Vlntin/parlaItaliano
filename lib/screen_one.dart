@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:parla_italiano/home_screen.dart';
-import 'package:parla_italiano/handler/table.dart';
+import 'package:parla_italiano/handler/DBtable.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:parla_italiano/widgets.dart';
-import 'package:parla_italiano/handler/vocabulary.dart';
+import 'package:parla_italiano/handler/DBvocabulary.dart';
+import 'package:parla_italiano/handler/vocabularyHandler.dart';
 
 class ScreenOne extends StatefulWidget {
   String? id;
@@ -21,6 +22,7 @@ class ScreenOneState extends State<ScreenOne> {
   final _controllerGerman = TextEditingController();
   final _controllerItalian = TextEditingController();
   final _controllerAdditional = TextEditingController();
+  final _vocabularyHandler = VocabularyHandler();
 
   @override
   Widget build(BuildContext context){
@@ -95,7 +97,7 @@ class ScreenOneState extends State<ScreenOne> {
                         final italian = _controllerItalian.text;
                         final german = _controllerGerman.text;
                         final additional = _controllerAdditional.text;
-                        createVocabulary(italian: italian, german: german, additonal: additional, id: widget.id!);
+                        _vocabularyHandler.createVocabulary(italian: italian, german: german, additonal: additional, id: widget.id!);
                         _controllerItalian.clear();
                         _controllerGerman.clear();
                         _controllerAdditional.clear();
@@ -120,9 +122,9 @@ class ScreenOneState extends State<ScreenOne> {
                     fontSize: 28,
                     color: Colors.black87,
                   ),),
-              const VocabularyWidget('italienisch', 'deutsch', 'zusätzliches'),
+              const VocabularyWidget('italienisch', 'deutsch', 'zusätzliches', true),
             StreamBuilder(
-                stream: readVocabularies(), 
+                stream: _vocabularyHandler.readVocabularies(), 
                 builder: (context, snapshot) {
                   if (snapshot.hasData){
                     final vocabularies = snapshot.data!;
@@ -133,7 +135,7 @@ class ScreenOneState extends State<ScreenOne> {
                       itemCount: filtered_vocabularies.length,
                       itemBuilder: (context, index){
                         return ListTile(
-                          title: VocabularyWidget(filtered_vocabularies[index].italian, filtered_vocabularies[index].german, filtered_vocabularies[index].additional),
+                          title: VocabularyWidget(filtered_vocabularies[index].italian, filtered_vocabularies[index].german, filtered_vocabularies[index].additional, false),
                           trailing: Row(children: <Widget>[
                             IconButton(
                               icon: Icon(Icons.border_color),
@@ -158,29 +160,13 @@ class ScreenOneState extends State<ScreenOne> {
         ), physics: ScrollPhysics(),),
     );
   }
-  Widget buildTables(Tables table) => ListTile(
+  Widget buildTables(DBTables table) => ListTile(
     leading: CircleAvatar(child:Text('${table.level}')),
     title: Text(table.title));
 
-  Stream<List<Vocabulary>> readVocabularies() => FirebaseFirestore.instance
-    .collection('vocabularies')
-    .snapshots()
-    .map((snapshot) => snapshot.docs.map((doc) => Vocabulary.fromJson(doc)).toList());
-
-  Future createVocabulary({required String italian, required String german, required String additonal, required String id}) async{
-    var vocabularies = FirebaseFirestore.instance.collection('vocabularies').doc();
-    final json = {
-            'italian': italian,
-            'german': german,
-            'additional': additonal,
-            'table_id': id,
-          };
-    await vocabularies.set(json);
-  }
-
-  List<Vocabulary> filterVocabularies(List<Vocabulary> vocabularies){
-    List<Vocabulary> filtered_vocabularies = [];
-    for (Vocabulary vocabulary in vocabularies){
+  List<DBVocabulary> filterVocabularies(List<DBVocabulary> vocabularies){
+    List<DBVocabulary> filtered_vocabularies = [];
+    for (DBVocabulary vocabulary in vocabularies){
       if (vocabulary.table_id == widget.id) {
         filtered_vocabularies.add(vocabulary);
       }

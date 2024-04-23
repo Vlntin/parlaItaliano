@@ -1,15 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:parla_italiano/handler/table.dart';
-import 'package:parla_italiano/handler/vocabulary.dart';
+import 'package:parla_italiano/handler/DBtable.dart';
+import 'package:parla_italiano/handler/DBvocabulary.dart';
 import 'package:flutter/material.dart';
+import 'package:parla_italiano/globals/vocabularyRepository.dart' as repository;
 
 class VocabularyHandler {
 
   VocabularyHandler();
 
-  deleteVocabularyIdsByTableId(String tableId, List<Vocabulary> vocabularylist){
-    for (Vocabulary vocabulary in vocabularylist){
+  void startConfiguration(List<DBVocabulary> dbVocabularies, List<DBTables> dbTables){
+    for (DBTables table in dbTables){
+      repository.VocabularyTable newTable = repository.VocabularyTable(table.title, table.level, table.id);
+      repository.vocabularyTables.add(newTable);
+    }
+    for (DBVocabulary vocabulary in dbVocabularies){
+      repository.Vocabulary newVocabulary = repository.Vocabulary(vocabulary.german, vocabulary.italian, vocabulary.additional);
+      for (repository.VocabularyTable table in repository.vocabularyTables){
+        if (table.db_id == vocabulary.table_id){
+          table.addVocabulary(newVocabulary);
+          break;
+        }
+      }
+    }
+    repository.vocabularyTables.sort((a, b) => a.level.compareTo(b.level));
+  }
+
+  deleteVocabularyIdsByTableId(String tableId, List<DBVocabulary> vocabularylist){
+    for (DBVocabulary vocabulary in vocabularylist){
       if (vocabulary.table_id == tableId){
         final docUser = FirebaseFirestore.instance
                                   .collection('vocabularies')
@@ -19,19 +37,19 @@ class VocabularyHandler {
     }
   }
 
-  Stream<List<Vocabulary>> readVocabularies() => FirebaseFirestore.instance
+  Stream<List<DBVocabulary>> readVocabularies() => FirebaseFirestore.instance
     .collection('vocabularies')
     .snapshots()
-    .map((snapshot) => snapshot.docs.map((doc) => Vocabulary.fromJson(doc)).toList());
+    .map((snapshot) => snapshot.docs.map((doc) => DBVocabulary.fromJson(doc)).toList());
 
-  Widget buildTables(Tables table) => ListTile(
+  Widget buildTables(DBTables table) => ListTile(
     leading: CircleAvatar(child:Text('${table.level}')),
     title: Text(table.title));
 
-  Stream<List<Tables>> readTables() => FirebaseFirestore.instance
+  Stream<List<DBTables>> readTables() => FirebaseFirestore.instance
     .collection('tables')
     .snapshots()
-    .map((snapshot) => snapshot.docs.map((doc) => Tables.fromJson(doc)).toList());
+    .map((snapshot) => snapshot.docs.map((doc) => DBTables.fromJson(doc)).toList());
 
   Future createTable({required String title, required int level}) async{
     var tables = FirebaseFirestore.instance.collection('tables').doc();
@@ -42,9 +60,20 @@ class VocabularyHandler {
     await tables.set(json);
   }
 
-  int calculateAmounts(String tableId, List<Vocabulary> vocabularylist){
+  Future createVocabulary({required String italian, required String german, required String additonal, required String id}) async{
+    var vocabularies = FirebaseFirestore.instance.collection('vocabularies').doc();
+    final json = {
+            'italian': italian,
+            'german': german,
+            'additional': additonal,
+            'table_id': id,
+          };
+    await vocabularies.set(json);
+  }
+
+  int calculateAmounts(String tableId, List<DBVocabulary> vocabularylist){
     int amount = 0;
-    for (Vocabulary vocabulary in vocabularylist){
+    for (DBVocabulary vocabulary in vocabularylist){
       if (vocabulary.table_id == tableId){
         amount = amount + 1;
       }
