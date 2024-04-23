@@ -28,6 +28,10 @@ class _StartScreenState extends State<StartScreen> {
             ElevatedButton(
             onPressed: () => context.go('/vocabularyListsScreen'), 
             child: const Text('Zur Vokabelübersicht')
+            ),
+            ElevatedButton(
+            onPressed: () => context.go('/signInScreen'), 
+            child: const Text('Zur Anmeldung')
             )
           ],
         ), physics: ScrollPhysics(),),

@@ -4,6 +4,7 @@ import 'package:parla_italiano/globals/appBar.dart';
 import 'package:parla_italiano/widgets.dart';
 import 'package:parla_italiano/globals/vocabularyRepository.dart' as repository;
 
+
 class VocabularyDetailsScreen extends StatefulWidget {
   String? tablename;
   String? table_id;
