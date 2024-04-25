@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:parla_italiano/globals/appBar.dart';
 import 'package:parla_italiano/widgets.dart';
 import 'package:parla_italiano/globals/vocabularyRepository.dart' as repository;
+import 'package:parla_italiano/globals/navigationBar.dart';
 
 
 class VocabularyDetailsScreen extends StatefulWidget {
@@ -26,6 +27,7 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
+      bottomNavigationBar: CustomNavigationBar(),
       appBar: CustomAppBar(),
         body: Container(
           decoration: new BoxDecoration(
@@ -69,7 +71,7 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
                   color: Colors.black
                 ),
                 const SizedBox(height: 10),
-                VocabularyWidget('italienisch', 'deutsch', 'zusätzliches', true),
+                VocabularyWidget('0','italienisch', 'deutsch', 'zusätzliches', true),
                 const Divider(
                   color: Colors.black,
                 ),
@@ -80,7 +82,7 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
                     shrinkWrap: true,
                     itemCount: this._getAllVocabularies().length,
                     itemBuilder: (context, index){
-                      return VocabularyWidget(_getAllVocabularies()[index].italian, _getAllVocabularies()[index].german, _getAllVocabularies()[index].additional, false)      
+                      return VocabularyWidget(_getAllVocabularies()[index].id, _getAllVocabularies()[index].italian, _getAllVocabularies()[index].german, _getAllVocabularies()[index].additional, false)      
                       ;
                     }
                   )

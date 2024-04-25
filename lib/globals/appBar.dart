@@ -43,7 +43,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 Icons.emoji_events,
               ),
               const SizedBox(width: 4),
-              Text(userData.level.toString(), style: TextStyle(fontSize: 16)),
+              Text(userData.user!.level.toString(), style: TextStyle(fontSize: 16)),
               const SizedBox(width: 20),
               Icon(
                 Icons.group,

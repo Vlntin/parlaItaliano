@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:parla_italiano/handler/DBtable.dart';
-import 'package:parla_italiano/handler/DBvocabulary.dart';
+import 'package:parla_italiano/models/DBtable.dart';
+import 'package:parla_italiano/models/DBvocabulary.dart';
 import 'package:flutter/material.dart';
 import 'package:parla_italiano/globals/vocabularyRepository.dart' as repository;
 
@@ -15,7 +15,7 @@ class VocabularyHandler {
       repository.vocabularyTables.add(newTable);
     }
     for (DBVocabulary vocabulary in dbVocabularies){
-      repository.Vocabulary newVocabulary = repository.Vocabulary(vocabulary.german, vocabulary.italian, vocabulary.additional);
+      repository.Vocabulary newVocabulary = repository.Vocabulary(vocabulary.german, vocabulary.italian, vocabulary.additional, vocabulary.id);
       for (repository.VocabularyTable table in repository.vocabularyTables){
         if (table.db_id == vocabulary.table_id){
           table.addVocabulary(newVocabulary);

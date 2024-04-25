@@ -1,5 +1,13 @@
 library vocabularyRepository;
+
+import 'package:parla_italiano/globals/userData.dart' as userData;
+import 'package:parla_italiano/handler/userHandler.dart';
+import 'package:parla_italiano/models/appUser.dart';
+
+
+
 List<VocabularyTable> vocabularyTables = [];
+VocabularyTable favouritesTable = VocabularyTable('Meine Favoriten', 0, '0');
 
 int calculateLexis(int actualLevel){
   int lexis = 0;
@@ -21,12 +29,49 @@ int calculatemaximalLexis(){
   return lexis;
 }
 
+void fillFavouriteTable(){
+  AppUser currentUser = userData.user!;
+  for(String wordId in currentUser.favouriteVocabulariesIDs){
+    for (VocabularyTable vocabularytable in vocabularyTables){
+      for (Vocabulary vocabulary in vocabularytable.vocabularies){
+        if (vocabulary.id == wordId){
+          favouritesTable.vocabularies.add(Vocabulary(vocabulary.german, vocabulary.italian, vocabulary.additional, vocabulary.id));
+        }
+      }
+    }
+  }
+}
+
+void deleteFavouriteVocabulary(String vocabularyId){
+  for (Vocabulary vocabulary in favouritesTable.vocabularies){
+    if (vocabulary.id == vocabularyId){
+      favouritesTable.vocabularies.remove(vocabulary);
+    }
+  }
+  UserHandler().deleteFavouriteIds(vocabularyId);
+}
+
+void addVocabularyToFavorites(String vocabularyId, String italian, String german, String additional){
+  favouritesTable.vocabularies.add(Vocabulary(german, italian, additional, vocabularyId));
+  UserHandler().addFavouriteIds(vocabularyId);
+}
+
+bool isVocabularyInFavorites(String vocabularyId){
+  for (Vocabulary vocabulary in favouritesTable.vocabularies){
+    if (vocabulary.id == vocabularyId){
+      return true;
+    }
+  }
+  return false;
+}
+
 class Vocabulary{
   String german;
   String italian;
   String additional;
+  String id;
 
-  Vocabulary(this.german, this.italian, this.additional);
+  Vocabulary(this.german, this.italian, this.additional, this.id);
 
   String getGerman(){
     return this.german;

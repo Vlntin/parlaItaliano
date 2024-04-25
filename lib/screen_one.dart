@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:parla_italiano/home_screen.dart';
-import 'package:parla_italiano/handler/DBtable.dart';
+import 'package:parla_italiano/screens/ugoScreen.dart';
+import 'package:parla_italiano/models/DBtable.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:parla_italiano/widgets.dart';
-import 'package:parla_italiano/handler/DBvocabulary.dart';
+import 'package:parla_italiano/models/DBvocabulary.dart';
 import 'package:parla_italiano/handler/vocabularyHandler.dart';
 
 class ScreenOne extends StatefulWidget {
@@ -122,7 +122,7 @@ class ScreenOneState extends State<ScreenOne> {
                     fontSize: 28,
                     color: Colors.black87,
                   ),),
-              const VocabularyWidget('italienisch', 'deutsch', 'zusätzliches', true),
+              const VocabularyWidget('0', 'italienisch', 'deutsch', 'zusätzliches', true),
             StreamBuilder(
                 stream: _vocabularyHandler.readVocabularies(), 
                 builder: (context, snapshot) {
@@ -135,7 +135,7 @@ class ScreenOneState extends State<ScreenOne> {
                       itemCount: filtered_vocabularies.length,
                       itemBuilder: (context, index){
                         return ListTile(
-                          title: VocabularyWidget(filtered_vocabularies[index].italian, filtered_vocabularies[index].german, filtered_vocabularies[index].additional, false),
+                          title: VocabularyWidget(filtered_vocabularies[index].id, filtered_vocabularies[index].italian, filtered_vocabularies[index].german, filtered_vocabularies[index].additional, false),
                           trailing: Row(children: <Widget>[
                             IconButton(
                               icon: Icon(Icons.border_color),

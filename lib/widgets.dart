@@ -1,65 +1,105 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:parla_italiano/handler/DBtable.dart';
+import 'package:parla_italiano/models/DBtable.dart';
 import 'package:parla_italiano/globals/userData.dart' as userData;
+import 'package:parla_italiano/globals/vocabularyRepository.dart' as vocabularyRepo;
 
 import 'package:go_router/go_router.dart';
 
 import 'package:flutter_tts/flutter_tts.dart';
 
-class VocabularyWidget extends StatelessWidget {
-  const VocabularyWidget(this.italian, this.german, this.additional, this.isTitleLine, {super.key});
+class VocabularyWidget extends StatefulWidget {
+  const VocabularyWidget(this.id, this.italian, this.german, this.additional, this.isTitleLine, {super.key});
 
   final String additional;
   final String italian;
   final String german;
   final bool isTitleLine;
+  final String id;
+
+  @override
+  State<VocabularyWidget> createState() => _VocabularyWidgetState();
+
+}
+class _VocabularyWidgetState extends State<VocabularyWidget> {
+
+  bool pressAttention = false;
+  
+  
 
   @override
   Widget build(BuildContext context) {
+    bool pressAttention = vocabularyRepo.isVocabularyInFavorites(widget.id);
     return Padding(
         padding: EdgeInsets.all(0),
-        child: Row(
-          children: [
-            Expanded(
-              child: Center(
-                child: Text(
-                  italian,
-                  style: _getTextStyle(isTitleLine)
-                ),
-              ) ,
-              flex: 5),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Center(
-                child: Text(
-                  german,
-                  style: _getTextStyle(isTitleLine)
-                ),
-              ) ,
-              flex: 5),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Center(
-                child: Text(
-                  additional,
-                  style: _getTextStyle(isTitleLine)
-                ),
-              ) ,
-              flex: 5),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 4,
+                child: Center(
+                  child: Text(
+                    widget.italian,
+                    style: _getTextStyle(widget.isTitleLine)
+                  ),
+                ) ,
+              ),
               const SizedBox(width: 8),
-            Expanded(
-              flex: 1,
-              child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: _getRightColumn(isTitleLine)
-                ),
-              ) ,             
-            ),
-          ],
-        ));
+              Expanded(
+                flex: 4,
+                child: Center(
+                  child: Text(
+                    widget.german,
+                    style: _getTextStyle(widget.isTitleLine)
+                  ),
+                ) ,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 4,
+                child: Center(
+                  child: Text(
+                    widget.additional,
+                    style: _getTextStyle(widget.isTitleLine)
+                  ),
+                ) ,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 1,
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      //if (isTitleLine){
+                      //  <Widget>[Text('')],
+                      //} else {
+                      //  <Widget>[
+                            IconButton(
+                              icon: pressAttention ? Icon(Icons.star_sharp) : Icon(Icons.star_border),
+                              onPressed: () => {
+                                pressAttention ? vocabularyRepo.deleteFavouriteVocabulary(widget.id) : vocabularyRepo.addVocabularyToFavorites(widget.id, widget.italian, widget.german, widget.additional),
+                                setState(() => pressAttention = !pressAttention)
+                              },
+                            ),
+                            IconButton(
+                            icon: Icon(Icons.mic),
+                            onPressed:() async {
+                              FlutterTts flutterTts = FlutterTts(); 
+                              flutterTts.setLanguage('it-IT');
+                              flutterTts.setSpeechRate(1.0); 
+                              flutterTts.setVolume(1.0); 
+                              flutterTts.setPitch(1.0);
+                              await flutterTts.speak(widget.italian);
+                            }
+                          )
+                    ]
+                  ),
+                ) ,             
+              ),
+            ],
+          )
+    );
   }
 
   _getTextStyle(bool isTitleLine){
@@ -74,17 +114,21 @@ class VocabularyWidget extends StatelessWidget {
       );
     }
   }
-
-  _getRightColumn(bool isTitleline){
+  /** 
+  _getRightColumn(bool isTitleline, String vocabularyId, String german, String italian, String additional){
+    bool pressAttention = vocabularyRepo.isVocabularyInFavorites(vocabularyId);
     if (isTitleLine){
       return <Widget>[Text('')];
-    } else {
+    } else if (pressAttention) {
       return <Widget>[
-        IconButton(
-          icon: Icon(Icons.star_sharp),
-          onPressed: () => {},
-        ),
-        IconButton(
+          IconButton(
+            icon: pressAttention ? Icon(Icons.star_sharp) : Icon(Icons.star_border),
+            onPressed: () => {
+              pressAttention ? vocabularyRepo.deleteFavouriteVocabulary(vocabularyId) : vocabularyRepo.addVocabularyToFavorites(vocabularyId, italian, german, additional),
+              pressAttention = !pressAttention
+            },
+          ),
+          IconButton(
           icon: Icon(Icons.mic),
           onPressed:() async {
             FlutterTts flutterTts = FlutterTts(); 
@@ -94,10 +138,32 @@ class VocabularyWidget extends StatelessWidget {
             flutterTts.setPitch(1.0);
             await flutterTts.speak(italian);
           }
-        )
-      ];
+        )];
+    } 
+    else {
+      return <Widget>[
+          IconButton(
+            icon: Icon(Icons.star_border),
+            onPressed: () => {
+              vocabularyRepo.addVocabularyToFavorites(vocabularyId, italian, german, additional)
+              
+            },
+          ),
+          IconButton(
+          icon: Icon(Icons.mic),
+          onPressed:() async {
+            FlutterTts flutterTts = FlutterTts(); 
+            flutterTts.setLanguage('it-IT');
+            flutterTts.setSpeechRate(1.0); 
+            flutterTts.setVolume(1.0); 
+            flutterTts.setPitch(1.0);
+            await flutterTts.speak(italian);
+          }
+        )];
     }
+    
   }
+  */
 }
 
 class ListWidget extends StatelessWidget {

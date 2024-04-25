@@ -1,8 +1,8 @@
 import 'package:go_router/go_router.dart';
 
-import 'home_screen.dart';
+import 'screens/ugoScreen.dart';
 import 'screen_one.dart';
-import 'start_screen.dart';
+import 'screens/start_screen.dart';
 import 'screens/vocabularyListScreen.dart';
 import 'screens/vocabularyDetailsScreen.dart';
 import 'screens/signInScreen.dart';

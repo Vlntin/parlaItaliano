@@ -6,11 +6,12 @@ import 'package:parla_italiano/globals/appBar.dart';
 import 'package:parla_italiano/globals/userData.dart' as userData;
 import 'package:parla_italiano/globals/vocabularyRepository.dart' as repository;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:parla_italiano/handler/DBtable.dart';
+import 'package:parla_italiano/models/DBtable.dart';
 import 'package:parla_italiano/screen_one.dart';
-import 'package:parla_italiano/handler/DBvocabulary.dart';
+import 'package:parla_italiano/models/DBvocabulary.dart';
 import 'package:parla_italiano/handler/vocabularyHandler.dart';
 import 'package:parla_italiano/widgets.dart';
+import 'package:parla_italiano/globals/navigationBar.dart';
 
 class VocabularyListsScreen extends StatefulWidget {
   const VocabularyListsScreen({super.key});
@@ -34,10 +35,11 @@ class _VocabularyListsScreenState extends State<VocabularyListsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: CustomNavigationBar(),
       appBar: CustomAppBar(),
       body:
       Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(25),
         child:
         Column(children: [
             Expanded(
@@ -154,18 +156,6 @@ class _VocabularyListsScreenState extends State<VocabularyListsScreen> {
                   )
                 ]
               ),   //physics: ScrollPhysics(),))]]),  
-            ),    
-            Expanded(
-                flex: 2,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 8),
-                    TextButton(
-                      child: Text('zu Start screen'),
-                      onPressed:() => context.go('/startScreen')
-                    ),
-                  ]
-              )
             )
         ])        
       ) 
@@ -173,54 +163,3 @@ class _VocabularyListsScreenState extends State<VocabularyListsScreen> {
   }
 
 }
-
-/**ListTile(
-                            ${if tableList[index].level > userData.level:};
-                            tileColor: Colors.red[200],
-                            leading: Text('${_vocabularyHandler.calculateAmounts(tableList[index].id, vocabularylist).toString()} Wörter', textAlign: TextAlign.center,),
-                            title: 
-                              Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 1,
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                        Icon (Icons.emoji_events, ),
-                                        SizedBox(width: 4,),
-                                        Text ('${tableList[index].level.toString()}', textAlign: TextAlign.start,)
-                                      ]),
-                                    ),
-                                    Expanded(
-                                      child: Text ('${tableList[index].title}', textAlign: TextAlign.center,),
-                                      flex: 10),
-                                  ],
-                                )
-                              ),
-                            trailing:
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(width: 10),
-                                  Icon(Icons.done_outlined),
-                                  SizedBox(width: 10), 
-                                  IconButton(
-                                    icon: Icon(Icons.search),
-                                    tooltip: 'Vokabeln anschauen',
-                                    onPressed:() => context.goNamed('screen_one', pathParameters: {'id': tableList[index].id, 'tablename': tableList[index].title})),
-                                  SizedBox(width: 10),
-                                  IconButton(
-                                    icon: Icon(Icons.download),
-                                    tooltip: 'PDF generieren',
-                                    onPressed:() {
-                                      //final docUser = FirebaseFirestore.instance
-                                      //  .collection('tables')
-                                      //  .doc(tableList[index].id);
-                                      //docUser.delete();
-                                      //_vocabularyHandler.deleteVocabularyIdsByTableId(tableList[index].id, vocabularylist);
-                                    }
-                                  )
-                              ]) 
-                          )*/
