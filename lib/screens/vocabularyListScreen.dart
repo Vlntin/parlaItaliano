@@ -28,9 +28,9 @@ class _VocabularyListsScreenState extends State<VocabularyListsScreen> {
   List<DBTables> tableList = [];
   final _vocabularyHandler = VocabularyHandler();
   bool _vocabularyListLocked = true;
-  int actualLexis = repository.calculateLexis(userData.level);
+  int actualLexis = repository.calculateLexis(userData.user!.level);
   int maxLexis = repository.calculatemaximalLexis();
-  double proportionalLexis = repository.calculateLexis(userData.level) / repository.calculatemaximalLexis();
+  double proportionalLexis = repository.calculateLexis(userData.user!.level) / repository.calculatemaximalLexis();
 
   @override
   Widget build(BuildContext context) {
@@ -48,13 +48,27 @@ class _VocabularyListsScreenState extends State<VocabularyListsScreen> {
                 Expanded(
                   flex: 6,
                   child: Center(
-                    child: const Text(
-                      'Vorhandene Vokabellisten',
-                      style: TextStyle(
-                      fontSize: 28,
-                      color: Colors.black87,
+                    child: Column(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              'Vorhandene Vokabellisten:', 
+                              style: TextStyle(
+                                fontSize: 20
+                              ) 
+                            )
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Card(
+                                child: ListWidget(repository.favouritesTable.vocabularies.length, repository.favouritesTable.level, repository.favouritesTable.title, repository.favouritesTable.db_id),
+                              
+                            )
+                            
+                          ),
+                        ],
                       )
-                    )
                   )
                 ),
                 Expanded(

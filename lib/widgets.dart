@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:parla_italiano/handler/userHandler.dart';
 import 'package:parla_italiano/models/DBtable.dart';
 import 'package:parla_italiano/globals/userData.dart' as userData;
 import 'package:parla_italiano/globals/vocabularyRepository.dart' as vocabularyRepo;
@@ -10,12 +11,11 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 class VocabularyWidget extends StatefulWidget {
-  const VocabularyWidget(this.id, this.italian, this.german, this.additional, this.isTitleLine, {super.key});
+  const VocabularyWidget(this.id, this.italian, this.german, this.additional, {super.key});
 
   final String additional;
   final String italian;
   final String german;
-  final bool isTitleLine;
   final String id;
 
   @override
@@ -40,7 +40,9 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
                 child: Center(
                   child: Text(
                     widget.italian,
-                    style: _getTextStyle(widget.isTitleLine)
+                    style: TextStyle(
+                      fontSize: 12,
+                    )
                   ),
                 ) ,
               ),
@@ -50,7 +52,9 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
                 child: Center(
                   child: Text(
                     widget.german,
-                    style: _getTextStyle(widget.isTitleLine)
+                    style: TextStyle(
+                      fontSize: 12,
+                    )
                   ),
                 ) ,
               ),
@@ -60,7 +64,9 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
                 child: Center(
                   child: Text(
                     widget.additional,
-                    style: _getTextStyle(widget.isTitleLine)
+                    style: TextStyle(
+                      fontSize: 12,
+                    )
                   ),
                 ) ,
               ),
@@ -81,7 +87,8 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
                                 pressAttention ? vocabularyRepo.deleteFavouriteVocabulary(widget.id) : vocabularyRepo.addVocabularyToFavorites(widget.id, widget.italian, widget.german, widget.additional),
                                 setState(() => pressAttention = !pressAttention)
                               },
-                            ),
+                            )
+                            ,
                             IconButton(
                             icon: Icon(Icons.mic),
                             onPressed:() async {
@@ -101,69 +108,71 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
           )
     );
   }
+}
 
-  _getTextStyle(bool isTitleLine){
-    if (isTitleLine){
-      return TextStyle(
-        fontSize: 15,
-        fontWeight: FontWeight.bold
-      );
-    } else {
-      return TextStyle(
-        fontSize: 12,
-      );
-    }
+class VocabularyListTileWidget extends StatefulWidget {
+
+
+  @override
+  State<VocabularyListTileWidget> createState() => _VocabularyListTileWidgetState();
+
+}
+class _VocabularyListTileWidgetState extends State<VocabularyListTileWidget> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: EdgeInsets.all(0),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 4,
+                child: Center(
+                  child: Text(
+                    'italienisch',
+                    style:TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold
+                    )
+                  ),
+                ) ,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 4,
+                child: Center(
+                  child: Text(
+                    'deutsch',
+                    style:TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold
+                    )
+                  ),
+                ) ,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 4,
+                child: Center(
+                  child: Text(
+                    'zusätzliches',
+                    style:TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold
+                    )
+                  ),
+                ) ,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 1,
+                child: Center(
+                )  ,            
+              ),
+            ],
+          )
+    );
   }
-  /** 
-  _getRightColumn(bool isTitleline, String vocabularyId, String german, String italian, String additional){
-    bool pressAttention = vocabularyRepo.isVocabularyInFavorites(vocabularyId);
-    if (isTitleLine){
-      return <Widget>[Text('')];
-    } else if (pressAttention) {
-      return <Widget>[
-          IconButton(
-            icon: pressAttention ? Icon(Icons.star_sharp) : Icon(Icons.star_border),
-            onPressed: () => {
-              pressAttention ? vocabularyRepo.deleteFavouriteVocabulary(vocabularyId) : vocabularyRepo.addVocabularyToFavorites(vocabularyId, italian, german, additional),
-              pressAttention = !pressAttention
-            },
-          ),
-          IconButton(
-          icon: Icon(Icons.mic),
-          onPressed:() async {
-            FlutterTts flutterTts = FlutterTts(); 
-            flutterTts.setLanguage('it-IT');
-            flutterTts.setSpeechRate(1.0); 
-            flutterTts.setVolume(1.0); 
-            flutterTts.setPitch(1.0);
-            await flutterTts.speak(italian);
-          }
-        )];
-    } 
-    else {
-      return <Widget>[
-          IconButton(
-            icon: Icon(Icons.star_border),
-            onPressed: () => {
-              vocabularyRepo.addVocabularyToFavorites(vocabularyId, italian, german, additional)
-              
-            },
-          ),
-          IconButton(
-          icon: Icon(Icons.mic),
-          onPressed:() async {
-            FlutterTts flutterTts = FlutterTts(); 
-            flutterTts.setLanguage('it-IT');
-            flutterTts.setSpeechRate(1.0); 
-            flutterTts.setVolume(1.0); 
-            flutterTts.setPitch(1.0);
-            await flutterTts.speak(italian);
-          }
-        )];
-    }
-    
-  }
-  */
 }
 
 class ListWidget extends StatelessWidget {
@@ -189,9 +198,9 @@ class ListWidget extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon (Icons.emoji_events, ),
+                        _getLevelIcon(this.level),
                         SizedBox(width: 4,),
-                        Text ('${this.level.toString()}', textAlign: TextAlign.start,)
+                        _getLevelText(this.level)
                       ]
                   ),
                 ),
@@ -207,7 +216,7 @@ class ListWidget extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   SizedBox(width: 14),
-                                  _getLockedUnlockedItem(this.level),
+                                  _getLockedUnlockedItem(this.level, context),
                                   SizedBox(width: 14), 
                                   IconButton(
                                     icon: Icon(Icons.search),
@@ -217,37 +226,120 @@ class ListWidget extends StatelessWidget {
                                   IconButton(
                                     icon: Icon(Icons.download),
                                     tooltip: 'PDF generieren',
-                                    onPressed:() {
-                                      //final docUser = FirebaseFirestore.instance
-                                      //  .collection('tables')
-                                      //  .doc(tableList[index].id);
-                                      //docUser.delete();
-                                      //_vocabularyHandler.deleteVocabularyIdsByTableId(tableList[index].id, vocabularylist);
-                                    }
+                                    onPressed:() {}
                                   )
                               ]) 
                           );
   }
 
+  Icon _getLevelIcon(int vocabularyListLevel){
+    if (vocabularyListLevel == 0){
+      return Icon(Icons.star_sharp);
+    } else {
+      return Icon(Icons.emoji_events);
+    }
+  }
+
+  Text _getLevelText(int vocabularyListLevel){
+    if (vocabularyListLevel == 0){
+      return Text("");
+    } else {
+      return Text('${vocabularyListLevel.toString()}', textAlign: TextAlign.start,);
+    }
+  }
+
   Color? _getTileColor(int vocabularyListLevel){
-    if (vocabularyListLevel > userData.level){
+    if (vocabularyListLevel > userData.user!.level){
       return Colors.grey[300];
     } else {
       return Colors.white;
     }
   }
 
-  IconButton _getLockedUnlockedItem(int vocabularyListLevel){
-    if (vocabularyListLevel > userData.level){
+  IconButton _getLockedUnlockedItem(int vocabularyListLevel, BuildContext context){
+    if (vocabularyListLevel > userData.user!.level){
       return IconButton(
         icon: Icon(Icons.lock),
-        onPressed: (){},);
+        onPressed: (){
+          if (vocabularyListLevel == userData.user!.level + 1){
+            _dialogBuilder(context);
+          }
+        },);
     } else {
       return IconButton(
         icon: Icon(Icons.done_rounded),
         onPressed: (){},);
     }
   }
+
+  Future<void> _dialogBuilder(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          
+          title: const Center(
+            child: Text('Nächstes Level freischalten')
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Center(
+                child: const Text(
+                  'Du kannst nur einen Test pro Tag absolvieren. Möchtest du diesen jetzt starten?',
+                ),
+              ),
+            ]
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('Starten'),
+              // vorher noch checken ob heute schon ein Test gestartet wurde
+              onPressed:() async {
+                var startBool = await _checkIfTestCanStart(context);
+                if (startBool){
+                  UserHandler().updateTestDate();
+                  context.go('/vocabularies_test');
+                } else {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Du hast heute schon einen Test gestartet'))
+                  );
+                }
+                //to delte:
+                context.go('/vocabularies_test');
+              }
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('Schließen'),
+              // vorher noch checken ob heute schon ein Test gestartet wurde
+              onPressed:() => Navigator.pop(context)
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> _checkIfTestCanStart(BuildContext context) async{
+    String lastTest = await UserHandler().getUsersLastTest();
+    DateTime now = new DateTime.now();
+    DateTime date = new DateTime(now.year, now.month, now.day);
+    if (lastTest == date.toString()){
+      return false;
+    } 
+    else {
+      return true;
+    }
+    
+  }
+
 
 }
 

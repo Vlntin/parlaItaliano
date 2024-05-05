@@ -4,7 +4,7 @@ import 'package:parla_italiano/globals/userData.dart' as userData;
 import 'package:parla_italiano/handler/userHandler.dart';
 import 'package:parla_italiano/models/appUser.dart';
 
-
+import 'dart:math';
 
 List<VocabularyTable> vocabularyTables = [];
 VocabularyTable favouritesTable = VocabularyTable('Meine Favoriten', 0, '0');
@@ -65,6 +65,74 @@ bool isVocabularyInFavorites(String vocabularyId){
   return false;
 }
 
+List<Vocabulary> selectOldVocabularies(int amountOfWords, int currentLevel){
+  print('selectOld');
+  List<Vocabulary> vocabularyListForTest = [];
+  List<int> selectedLevelIndizes = [];
+  while (selectedLevelIndizes.length < amountOfWords){
+    Random random = new Random();
+    int randomNumber = random.nextInt(currentLevel - 1)+1;
+    selectedLevelIndizes.add(randomNumber);
+  }
+  selectedLevelIndizes.sort();
+  for (var i = 1; i < currentLevel; i++) {
+    int counter = 0;
+    for(int levelIndex in selectedLevelIndizes){
+      if (i == levelIndex){
+        counter = counter + 1;
+      }
+    }
+    if (counter > 0){
+      List<Vocabulary> vocabularies = selectVocabulariesOfTable(counter, vocabularyTables.firstWhere((element) => element.level == i));
+      for (Vocabulary vocabulary in vocabularies){
+        vocabularyListForTest.add(vocabulary);
+      }
+    }
+  }
+  return vocabularyListForTest;
+}
+
+List<Vocabulary> selectVocabulariesOfTable(int amountOfWords, VocabularyTable vocabularyTable){
+  print('select');
+  List<Vocabulary> vocabularyListForTest = [];
+  int amountOfSelectedWords = 0;
+  List<int> selectedWordIndizes = [];
+  print('bevor while');
+  while (amountOfSelectedWords < amountOfWords){
+    print(amountOfSelectedWords);
+    Random random = new Random();
+    int randomNumber = random.nextInt(vocabularyTable.vocabularies.length);
+    if (!selectedWordIndizes.contains(randomNumber)){
+      selectedWordIndizes.add(randomNumber);
+      amountOfSelectedWords = amountOfSelectedWords + 1;
+    }
+  }
+  for (int index in selectedWordIndizes){
+    vocabularyListForTest.add(vocabularyTable.vocabularies[index]);
+  }
+  return vocabularyListForTest;
+}
+
+List<Vocabulary> createTestVocabularies(){
+  print('create');
+  int actualUserLevel = userData.user!.level;
+  VocabularyTable actualLevelTable = vocabularyTables.firstWhere((element) => element.level == actualUserLevel);
+  List<Vocabulary> vocabularyListForTest = [];
+  if (actualUserLevel == 1){
+    print('first if');
+    vocabularyListForTest = selectVocabulariesOfTable(20, actualLevelTable);
+  } else {
+    print('first else');
+    vocabularyListForTest = selectVocabulariesOfTable(10, actualLevelTable);
+    List<Vocabulary> oldVocabularies = selectOldVocabularies(10, actualUserLevel);
+    for(Vocabulary vocabulary in oldVocabularies){
+      vocabularyListForTest.add(vocabulary);
+    }
+  }
+  //vocabularyListForTest.shuffle();
+  return vocabularyListForTest;
+}
+
 class Vocabulary{
   String german;
   String italian;
@@ -93,7 +161,7 @@ class VocabularyTable{
   String db_id;
   List<Vocabulary> vocabularies = [];
 
-  VocabularyTable(this.title, this.level, this.db_id );
+  VocabularyTable(this.title, this.level, this.db_id);
 
   void addVocabulary(Vocabulary vocabulary){
     this.vocabularies.add(vocabulary);

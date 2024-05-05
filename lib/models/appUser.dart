@@ -13,8 +13,9 @@ class AppUser {
   List<String> friendsIDs;
   List<String> friendsIDsRequests;
   List<String> favouriteVocabulariesIDs;
+  String lastTestDate;
   
-  AppUser({required this.userID, required this.username, required this.level, required this.friendsIDs, required this.friendsIDsRequests, required this.favouriteVocabulariesIDs});
+  AppUser({required this.userID, required this.username, required this.level, required this.friendsIDs, required this.friendsIDsRequests, required this.favouriteVocabulariesIDs, required this.lastTestDate});
 
   Map<String, dynamic> toJson() => {
     'userID': userID,
@@ -23,6 +24,7 @@ class AppUser {
     'friendsIDs': friendsIDs,
     'friendsIDsRequests': friendsIDsRequests,
     'favouriteVocabulariesIDs': favouriteVocabulariesIDs,
+    'lastTestDate': lastTestDate
   };
 
   static AppUser fromJson(QueryDocumentSnapshot<Map<String, dynamic>> doc){
@@ -50,6 +52,7 @@ class AppUser {
       friendsIDs: friendsIds,
       friendsIDsRequests: friendsIdsRequests,
       favouriteVocabulariesIDs: favouriteVocabulariesIDs,
+      lastTestDate: json['lastTestDate']
     );
     return user;
   } 

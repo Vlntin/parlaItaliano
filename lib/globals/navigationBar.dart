@@ -29,6 +29,9 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
             if (userData.naviBarIndex == 1){
               context.go('/vocabularyListsScreen');
             }
+            if (userData.naviBarIndex == 3){
+              context.go('/vocabularies_test');
+            }
           });
         },
         indicatorColor: const Color.fromARGB(255, 238, 232, 216),

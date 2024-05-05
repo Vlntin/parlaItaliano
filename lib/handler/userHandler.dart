@@ -33,6 +33,32 @@ class UserHandler {
     FirebaseFirestore.instance.collection('users').doc(firestoreInstanceId).update({'favouriteVocabulariesIDs': actualFavorites});
   }
 
+  void updateUserLevel() async {
+    userData.user!.level = userData.user!.level + 1;
+    var query = await FirebaseFirestore.instance.collection('users').where('userID', isEqualTo: userData.user!.userID).get();
+    var firestoreInstanceId = query.docs.first.id;
+    FirebaseFirestore.instance.collection('users').doc(firestoreInstanceId).update({'level': userData.user!.level});
+  }
+
+  Future<String> getUsersLastTest() async {
+    await for (List<AppUser> list in readUsers()){
+      for (AppUser user in list){
+        if (user.userID == userData.user!.userID){
+          return user.lastTestDate;
+        }
+      }
+    }
+    return "";
+  }
+
+  void updateTestDate() async {
+    DateTime now = new DateTime.now();
+    DateTime date = new DateTime(now.year, now.month, now.day);
+    var query = await FirebaseFirestore.instance.collection('users').where('userID', isEqualTo: userData.user!.userID).get();
+    var firestoreInstanceId = query.docs.first.id;
+    FirebaseFirestore.instance.collection('users').doc(firestoreInstanceId).update({'lastTestDate': date.toString()});
+  }
+
   void deleteFavouriteIds(String id) async {
     List<String> actualFavorites = [];
     await for (List<AppUser> list in readUsers()){
@@ -50,7 +76,7 @@ class UserHandler {
     FirebaseFirestore.instance.collection('users').doc(firestoreInstanceId).update({'favouriteVocabulariesIDs': actualFavorites});
   }
 
-  Future createUser({required userID, required username, required level, required friendsIDs, required friendsIDsRequests, required favouriteVocabulariesIDs}) async{
+  Future createUser({required userID, required username, required level, required friendsIDs, required friendsIDsRequests, required favouriteVocabulariesIDs, required lastTestDate}) async{
     var users = FirebaseFirestore.instance.collection('users').doc();
     final json = {
       'userID': userID,
@@ -59,6 +85,7 @@ class UserHandler {
       'friendsIDs': friendsIDs,
       'friendsIDsRequests': friendsIDsRequests,
       'favouriteVocabulariesIDs': favouriteVocabulariesIDs,
+      'lastTestDate' : lastTestDate
       };
     await users.set(json);
   }

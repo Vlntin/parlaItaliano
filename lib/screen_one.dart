@@ -122,7 +122,7 @@ class ScreenOneState extends State<ScreenOne> {
                     fontSize: 28,
                     color: Colors.black87,
                   ),),
-              const VocabularyWidget('0', 'italienisch', 'deutsch', 'zusätzliches', true),
+              VocabularyListTileWidget(),
             StreamBuilder(
                 stream: _vocabularyHandler.readVocabularies(), 
                 builder: (context, snapshot) {
@@ -135,7 +135,7 @@ class ScreenOneState extends State<ScreenOne> {
                       itemCount: filtered_vocabularies.length,
                       itemBuilder: (context, index){
                         return ListTile(
-                          title: VocabularyWidget(filtered_vocabularies[index].id, filtered_vocabularies[index].italian, filtered_vocabularies[index].german, filtered_vocabularies[index].additional, false),
+                          title: VocabularyWidget(filtered_vocabularies[index].id, filtered_vocabularies[index].italian, filtered_vocabularies[index].german, filtered_vocabularies[index].additional),
                           trailing: Row(children: <Widget>[
                             IconButton(
                               icon: Icon(Icons.border_color),

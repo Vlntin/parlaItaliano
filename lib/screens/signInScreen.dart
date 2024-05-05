@@ -246,9 +246,9 @@ class _SignInScreenState extends State<SignInScreen> {
                       List<String> friendsIDs = [];
                       List<String> friendsIDsRequests = [];
                       List<String> favouriteVocabulariesIDs= [];
-                      _userHandler.createUser(userID: user!.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsIDsRequests: friendsIDsRequests, favouriteVocabulariesIDs: favouriteVocabulariesIDs);
+                      _userHandler.createUser(userID: user!.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsIDsRequests: friendsIDsRequests, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: '');
 
-                      UserDataGlobals.user = AppUser(userID: user.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsIDsRequests: friendsIDsRequests, favouriteVocabulariesIDs: favouriteVocabulariesIDs);
+                      UserDataGlobals.user = AppUser(userID: user.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsIDsRequests: friendsIDsRequests, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: "");
                       print(UserDataGlobals.user);
                       context.go('/ugoScreen');
                       } on FirebaseAuthException catch (e) {

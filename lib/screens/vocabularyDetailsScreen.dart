@@ -26,7 +26,9 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
 
   @override
   Widget build(BuildContext context){
-    return Scaffold(
+    return PopScope(
+    canPop: false,
+    child: Scaffold(
       bottomNavigationBar: CustomNavigationBar(),
       appBar: CustomAppBar(),
         body: Container(
@@ -57,13 +59,6 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
                             ),
                           ),
                         ),
-                        Expanded(
-                          flex: 1,
-                          child: ElevatedButton(
-                            onPressed: () => context.go('/vocabularyListsScreen'), 
-                            child: const Icon(Icons.arrow_back)
-                          )
-                        ),
                 ],
                 mainAxisAlignment: MainAxisAlignment.center,),
                 const SizedBox(height: 10),
@@ -71,7 +66,7 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
                   color: Colors.black
                 ),
                 const SizedBox(height: 10),
-                VocabularyWidget('0','italienisch', 'deutsch', 'zusätzliches', true),
+                VocabularyListTileWidget(),
                 const Divider(
                   color: Colors.black,
                 ),
@@ -82,7 +77,7 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
                     shrinkWrap: true,
                     itemCount: this._getAllVocabularies().length,
                     itemBuilder: (context, index){
-                      return VocabularyWidget(_getAllVocabularies()[index].id, _getAllVocabularies()[index].italian, _getAllVocabularies()[index].german, _getAllVocabularies()[index].additional, false)      
+                      return VocabularyWidget(_getAllVocabularies()[index].id, _getAllVocabularies()[index].italian, _getAllVocabularies()[index].german, _getAllVocabularies()[index].additional)      
                       ;
                     }
                   )
@@ -92,14 +87,21 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
             )
         )
       )
+    )
+  
     );
-  }
+
+   
+  } 
 
   List<repository.Vocabulary> _getAllVocabularies(){
     for (repository.VocabularyTable table in repository.vocabularyTables){
       if (table.db_id == table_id || table.title == tablename){
         return  table.vocabularies;
       }
+    }
+    if (table_id == '0'){
+      return repository.favouritesTable.vocabularies;
     }
     return [];
   }
