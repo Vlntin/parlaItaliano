@@ -8,7 +8,7 @@ import 'package:parla_italiano/globals/vocabularyRepository.dart' as vocabularyR
 
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_tts/flutter_tts.dart';
+import 'package:parla_italiano/handler/speaker.dart';
 
 class VocabularyWidget extends StatefulWidget {
   const VocabularyWidget(this.id, this.italian, this.german, this.additional, {super.key});
@@ -20,14 +20,11 @@ class VocabularyWidget extends StatefulWidget {
 
   @override
   State<VocabularyWidget> createState() => _VocabularyWidgetState();
-
 }
 class _VocabularyWidgetState extends State<VocabularyWidget> {
 
   bool pressAttention = false;
   
-  
-
   @override
   Widget build(BuildContext context) {
     bool pressAttention = vocabularyRepo.isVocabularyInFavorites(widget.id);
@@ -77,29 +74,19 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      //if (isTitleLine){
-                      //  <Widget>[Text('')],
-                      //} else {
-                      //  <Widget>[
-                            IconButton(
-                              icon: pressAttention ? Icon(Icons.star_sharp) : Icon(Icons.star_border),
-                              onPressed: () => {
-                                pressAttention ? vocabularyRepo.deleteFavouriteVocabulary(widget.id) : vocabularyRepo.addVocabularyToFavorites(widget.id, widget.italian, widget.german, widget.additional),
-                                setState(() => pressAttention = !pressAttention)
-                              },
-                            )
-                            ,
-                            IconButton(
-                            icon: Icon(Icons.mic),
-                            onPressed:() async {
-                              FlutterTts flutterTts = FlutterTts(); 
-                              flutterTts.setLanguage('it-IT');
-                              flutterTts.setSpeechRate(1.0); 
-                              flutterTts.setVolume(1.0); 
-                              flutterTts.setPitch(1.0);
-                              await flutterTts.speak(widget.italian);
-                            }
-                          )
+                      IconButton(
+                        icon: pressAttention ? Icon(Icons.star_sharp) : Icon(Icons.star_border),
+                        onPressed: () => {
+                          pressAttention ? vocabularyRepo.deleteFavouriteVocabulary(widget.id) : vocabularyRepo.addVocabularyToFavorites(widget.id, widget.italian, widget.german, widget.additional),
+                          setState(() => pressAttention = !pressAttention)
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.mic),
+                        onPressed:() async {
+                          VoiceSpeaker().speakItalianWord(widget.italian);
+                        }
+                      )
                     ]
                   ),
                 ) ,             
@@ -111,7 +98,6 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
 }
 
 class VocabularyListTileWidget extends StatefulWidget {
-
 
   @override
   State<VocabularyListTileWidget> createState() => _VocabularyListTileWidgetState();
@@ -166,8 +152,7 @@ class _VocabularyListTileWidgetState extends State<VocabularyListTileWidget> {
               const SizedBox(width: 8),
               Expanded(
                 flex: 1,
-                child: Center(
-                )  ,            
+                child: Center(),            
               ),
             ],
           )
@@ -211,25 +196,26 @@ class ListWidget extends StatelessWidget {
               ],
             )
         ),
-                            trailing:
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(width: 14),
-                                  _getLockedUnlockedItem(this.level, context),
-                                  SizedBox(width: 14), 
-                                  IconButton(
-                                    icon: Icon(Icons.search),
-                                    tooltip: 'Vokabeln anschauen',
-                                    onPressed:() => context.goNamed('vocabularies_details', pathParameters: {'tablename': this.title, 'table_id': this.id})),
-                                  SizedBox(width: 14),
-                                  IconButton(
-                                    icon: Icon(Icons.download),
-                                    tooltip: 'PDF generieren',
-                                    onPressed:() {}
-                                  )
-                              ]) 
-                          );
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(width: 14),
+            _getLockedUnlockedItem(this.level, context),
+            SizedBox(width: 14), 
+            IconButton(
+              icon: Icon(Icons.search),
+              tooltip: 'Vokabeln anschauen',
+              onPressed:() => context.goNamed('vocabularies_details', pathParameters: {'tablename': this.title, 'table_id': this.id})
+            ),
+            SizedBox(width: 14),
+            IconButton(
+              icon: Icon(Icons.download),
+              tooltip: 'PDF generieren',
+              onPressed:() {}
+            )
+          ]
+        ) 
+      );
   }
 
   Icon _getLevelIcon(int vocabularyListLevel){
@@ -264,11 +250,13 @@ class ListWidget extends StatelessWidget {
           if (vocabularyListLevel == userData.user!.level + 1){
             _dialogBuilder(context);
           }
-        },);
+        },
+      );
     } else {
       return IconButton(
         icon: Icon(Icons.done_rounded),
-        onPressed: (){},);
+        onPressed: (){},
+      );
     }
   }
 
@@ -277,7 +265,6 @@ class ListWidget extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          
           title: const Center(
             child: Text('Nächstes Level freischalten')
           ),
@@ -297,7 +284,6 @@ class ListWidget extends StatelessWidget {
                 textStyle: Theme.of(context).textTheme.labelLarge,
               ),
               child: const Text('Starten'),
-              // vorher noch checken ob heute schon ein Test gestartet wurde
               onPressed:() async {
                 var startBool = await _checkIfTestCanStart(context);
                 if (startBool){
@@ -309,7 +295,7 @@ class ListWidget extends StatelessWidget {
                     const SnackBar(content: Text('Du hast heute schon einen Test gestartet'))
                   );
                 }
-                //to delte:
+                //to delete:
                 context.go('/vocabularies_test');
               }
             ),
@@ -318,7 +304,6 @@ class ListWidget extends StatelessWidget {
                 textStyle: Theme.of(context).textTheme.labelLarge,
               ),
               child: const Text('Schließen'),
-              // vorher noch checken ob heute schon ein Test gestartet wurde
               onPressed:() => Navigator.pop(context)
             ),
           ],
@@ -331,15 +316,6 @@ class ListWidget extends StatelessWidget {
     String lastTest = await UserHandler().getUsersLastTest();
     DateTime now = new DateTime.now();
     DateTime date = new DateTime(now.year, now.month, now.day);
-    if (lastTest == date.toString()){
-      return false;
-    } 
-    else {
-      return true;
-    }
-    
+    return (lastTest != date.toString());
   }
-
-
 }
-

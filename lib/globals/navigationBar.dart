@@ -16,7 +16,6 @@ class CustomNavigationBar extends StatefulWidget {
 
 class CustomNavigationBarState extends State<CustomNavigationBar> {
 
-
   Widget build(BuildContext context){
     return NavigationBar(
         backgroundColor: Color.fromRGBO(248, 225, 174, 1),
