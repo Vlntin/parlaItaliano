@@ -284,8 +284,8 @@ class ListWidget extends StatelessWidget {
                 textStyle: Theme.of(context).textTheme.labelLarge,
               ),
               child: const Text('Starten'),
-              onPressed:() async {
-                var startBool = await _checkIfTestCanStart(context);
+              onPressed:() {
+                var startBool = _checkIfTestCanStart(context);
                 if (startBool){
                   UserHandler().updateTestDate();
                   context.go('/vocabularies_test');
@@ -312,8 +312,8 @@ class ListWidget extends StatelessWidget {
     );
   }
 
-  Future<bool> _checkIfTestCanStart(BuildContext context) async{
-    String lastTest = await UserHandler().getUsersLastTest();
+  bool _checkIfTestCanStart(BuildContext context) {
+    String lastTest = userData.user!.lastTestDate;
     DateTime now = new DateTime.now();
     DateTime date = new DateTime(now.year, now.month, now.day);
     return (lastTest != date.toString());

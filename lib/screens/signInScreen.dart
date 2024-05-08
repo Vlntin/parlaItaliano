@@ -8,6 +8,8 @@ import 'package:parla_italiano/models/appUser.dart';
 import 'package:parla_italiano/globals/userData.dart' as UserDataGlobals;
 import 'package:parla_italiano/handler/startLoader.dart';
 
+import 'package:parla_italiano/screens/start_screen.dart';
+
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
 
@@ -121,12 +123,46 @@ class _SignInScreenState extends State<SignInScreen> {
                                       final user = credential.user;
                                       if (await _userHandler.findUserByID(user!.uid) != null){
                                         AppUser? appUser = await _userHandler.findUserByID(user!.uid);
-                                        UserDataGlobals.user = appUser;
                                         _controllerEmail.clear();
                                         _controllerPassword.clear();
-                                        StartLoader().loadVocabularyData();
+                                        StartLoader().loadData(appUser!);
+                                        //context.goNamed('/startScreen', pathParameters: {'firstTime': 'true'});
+                                        //Navigator.pushReplacementNamed(context, '/ugoScreen');
+                                        //Navigator.of(context).popUntil((route) => route.isFirst);
+                                        //Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => StartScreen()));
+                                        print('a');
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => StartScreen(),
+                                          ),
+                                        );
+                                        /** 
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => StartScreen(),
+                                          ),
+                                        );
+                                        */
+                                        //Navigator.of(context).pop();
+                                        //print('b');
+                                        /** 
+                                        Navigator
+                                          .of(context)
+                                          .pushReplacement(
+                                            MaterialPageRoute(
+                                              builder: (BuildContext context) => StartScreen()
+                                          )
+                                        );
+                                        print('c');
+                                        //Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => StartScreen()));
+                                        print('blub');
                                         context.go('/startScreen');
-                                        Navigator.pushReplacementNamed(context, '/ugoScreen');
+                                        */
+                                        //Navigator.pushNamedAndRemoveUntil(context, "/startScreen", (r) => false);
+                                        //Navigator.of(context)
+                                        //  .pushNamedAndRemoveUntil('/startScreen', (Route<dynamic> route) => false);
                                       }
                                       
                                     } on FirebaseAuthException catch (e) {
@@ -244,11 +280,13 @@ class _SignInScreenState extends State<SignInScreen> {
                       final user = credential.user;
                       //user zu firestore liste hinzufügen
                       List<String> friendsIDs = [];
-                      List<String> friendsIDsRequests = [];
+                      List<String> friendsRequestsSend = [];
+                      List<String> friendsRequestsReceived = [];
                       List<String> favouriteVocabulariesIDs= [];
-                      _userHandler.createUser(userID: user!.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsIDsRequests: friendsIDsRequests, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: '');
-
-                      UserDataGlobals.user = AppUser(userID: user.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsIDsRequests: friendsIDsRequests, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: "");
+                      print('a');
+                      _userHandler.createUser(userID: user!.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsRequestsSend: friendsRequestsSend, friendsRequestsRecieved: friendsRequestsReceived, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: '');
+                      print('b');
+                      UserDataGlobals.user = AppUser(userID: user.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsRequestsSend: friendsRequestsSend, friendsRequestsReceived: friendsRequestsReceived, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: "");
                       print(UserDataGlobals.user);
                       context.go('/ugoScreen');
                       } on FirebaseAuthException catch (e) {

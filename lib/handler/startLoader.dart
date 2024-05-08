@@ -9,16 +9,13 @@ import 'package:parla_italiano/models/DBtable.dart';
 import 'package:parla_italiano/models/DBvocabulary.dart';
 import 'package:parla_italiano/handler/vocabularyHandler.dart';
 import 'package:parla_italiano/globals/vocabularyRepository.dart' as vocabularyRepo;
+import 'package:parla_italiano/globals/userData.dart' as userData;
 
 class StartLoader {
 
   StartLoader();
 
-  void loadUserData(){
-
-  }
-
-  void loadVocabularyData() async{
+  void _loadVocabularyData() async{
     VocabularyHandler vocabularyHandler = VocabularyHandler();
     List<DBTables>? tableList;
     List<DBVocabulary>? vocabularyList;
@@ -34,7 +31,17 @@ class StartLoader {
     vocabularyRepo.fillFavouriteTable();
   } 
 
-  void loadGameData(){
+  void _loadGameData(){
 
+  }
+
+  void _loadUserData(AppUser appUser){
+    userData.user = appUser;
+  }
+
+  void loadData(AppUser appUser){
+    _loadUserData(appUser);
+    _loadVocabularyData();
+    _loadGameData();
   }
 }
