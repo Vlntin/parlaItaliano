@@ -4,11 +4,12 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:parla_italiano/handler/userHandler.dart';
-import 'package:parla_italiano/models/appUser.dart';
-import 'package:parla_italiano/globals/userData.dart' as UserDataGlobals;
+import 'package:parla_italiano/dbModels/appUser.dart';
+import 'package:parla_italiano/globals/globalData.dart' as UserDataGlobals;
 import 'package:parla_italiano/handler/startLoader.dart';
 
 import 'package:parla_italiano/screens/start_screen.dart';
+import 'package:parla_italiano/widgets/personalizedTextformField.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -71,33 +72,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    Row(children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _controllerEmail,
-                          decoration: const InputDecoration(hintText: 'E-Mail'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'E-Mail eingeben du Hund!';
-                            }
-                            return null;
-                          },
-                        )
-                      ),
-                      const SizedBox(width: 30),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _controllerPassword,
-                          decoration: const InputDecoration(hintText: 'Passwort'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Passwort eingeben du Hund!';
-                            }
-                            return null;
-                          },
-                        )
-                      ),
-                    ]),
+                    _getInputFields(),
                     const SizedBox(height: 40),
                     Row(
                       children: [
@@ -122,49 +97,17 @@ class _SignInScreenState extends State<SignInScreen> {
                                       );
                                       final user = credential.user;
                                       if (await _userHandler.findUserByID(user!.uid) != null){
-                                        AppUser? appUser = await _userHandler.findUserByID(user!.uid);
+                                        AppUser? appUser = await _userHandler.findUserByID(user!.uid); 
                                         _controllerEmail.clear();
                                         _controllerPassword.clear();
                                         StartLoader().loadData(appUser!);
-                                        //context.goNamed('/startScreen', pathParameters: {'firstTime': 'true'});
-                                        //Navigator.pushReplacementNamed(context, '/ugoScreen');
-                                        //Navigator.of(context).popUntil((route) => route.isFirst);
-                                        //Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => StartScreen()));
-                                        print('a');
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => StartScreen(),
                                           ),
                                         );
-                                        /** 
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => StartScreen(),
-                                          ),
-                                        );
-                                        */
-                                        //Navigator.of(context).pop();
-                                        //print('b');
-                                        /** 
-                                        Navigator
-                                          .of(context)
-                                          .pushReplacement(
-                                            MaterialPageRoute(
-                                              builder: (BuildContext context) => StartScreen()
-                                          )
-                                        );
-                                        print('c');
-                                        //Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => StartScreen()));
-                                        print('blub');
-                                        context.go('/startScreen');
-                                        */
-                                        //Navigator.pushNamedAndRemoveUntil(context, "/startScreen", (r) => false);
-                                        //Navigator.of(context)
-                                        //  .pushNamedAndRemoveUntil('/startScreen', (Route<dynamic> route) => false);
                                       }
-                                      
                                     } on FirebaseAuthException catch (e) {
                                       if (e.code == 'user-not-found') {
                                         ScaffoldMessenger.of(context).showSnackBar(
@@ -227,6 +170,36 @@ class _SignInScreenState extends State<SignInScreen> {
       ),
     );
   }
+
+  Widget _getInputFields(){
+    return Row(children: [
+                      Expanded(
+                        child: PersonalizedTextformField(
+                          controller: _controllerEmail,
+                          hintText: 'E-Mail',
+                          newValidator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'E-Mail eingeben!';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 30),
+                      Expanded(
+                        child: PersonalizedTextformField(
+                          controller: _controllerPassword,
+                          hintText: 'Passwort',
+                          newValidator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Passwort eingeben!';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ]);
+  }
   
   Future<void> _dialogBuilder(BuildContext context) {
     return showDialog<void>(
@@ -241,16 +214,16 @@ class _SignInScreenState extends State<SignInScreen> {
               ),
               Form(
                 key: _usernameFormKey,
-                child: TextFormField(
+                child: PersonalizedTextformField(
                   controller: _controllerUsername,
-                  decoration: const InputDecoration(hintText: 'Benutzername'),
-                  validator: (value) {
+                  hintText: 'Benutzername',
+                  newValidator: (value) {
                     if (value == null || value.isEmpty) {
-                      return  'Benutzername eingeben du Hund!';
+                      return  'Benutzername eingeben!';
                     }
                       return null;
                   },
-                ) 
+                )
               ),
             ]
           ),
@@ -282,13 +255,21 @@ class _SignInScreenState extends State<SignInScreen> {
                       List<String> friendsIDs = [];
                       List<String> friendsRequestsSend = [];
                       List<String> friendsRequestsReceived = [];
+                      List<String> friendsRequestsAccepted = [];
+                      List<String> friendsRequestsRejected = [];
                       List<String> favouriteVocabulariesIDs= [];
-                      print('a');
-                      _userHandler.createUser(userID: user!.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsRequestsSend: friendsRequestsSend, friendsRequestsRecieved: friendsRequestsReceived, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: '');
-                      print('b');
-                      UserDataGlobals.user = AppUser(userID: user.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsRequestsSend: friendsRequestsSend, friendsRequestsReceived: friendsRequestsReceived, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: "");
-                      print(UserDataGlobals.user);
-                      context.go('/ugoScreen');
+                      _userHandler.createUser(userID: user!.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsRequestsSend: friendsRequestsSend, friendsRequestsRecieved: friendsRequestsReceived, friendsRequestsAccepted: friendsRequestsAccepted, friendsRequestsRejected: friendsRequestsRejected, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: '');
+                      UserDataGlobals.user = AppUser(userID: user.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsRequestsSend: friendsRequestsSend, friendsRequestsReceived: friendsRequestsReceived, friendsRequestsAccepted: friendsRequestsAccepted, friendsRequestsRejected: friendsRequestsRejected, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: "");
+                      if (await _userHandler.findUserByID(user!.uid) != null){
+                        AppUser? appUser = await _userHandler.findUserByID(user!.uid);
+                        StartLoader().loadData(appUser);
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => StartScreen(),
+                                            ),
+                                          );
+                      }
                       } on FirebaseAuthException catch (e) {
                         if (e.code == 'user-not-found') {} 
                         else if (e.code == 'wrong-password') {}

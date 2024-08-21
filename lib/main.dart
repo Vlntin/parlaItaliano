@@ -19,7 +19,28 @@ class App extends StatelessWidget{
     return MaterialApp.router(
       routerConfig: _router, 
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          background: Colors.white, 
+          error: Colors.red,
+          seedColor: Colors.black,
+        ).copyWith(
+            primary: Colors.black,
+        ),
+        //onTertiary: Colors.orange,
+        //onPrimary: Colors.blue
         scaffoldBackgroundColor: Colors.green[200],
+        primaryColor: Colors.black,
+        textTheme: TextTheme(
+          bodyMedium: TextStyle(
+            color: Colors.black
+          ),
+          bodySmall: TextStyle(
+            color: Colors.black
+          ),
+          labelLarge: TextStyle(
+            color: Colors.black
+          )
+        )
       ),
     );
   }

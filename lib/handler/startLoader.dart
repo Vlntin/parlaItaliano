@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:parla_italiano/globals/vocabularyRepository.dart' as repository;
-import 'package:parla_italiano/models/appUser.dart';
-import 'package:parla_italiano/models/DBtable.dart';
-import 'package:parla_italiano/models/DBvocabulary.dart';
+import 'package:parla_italiano/dbModels/appUser.dart';
+import 'package:parla_italiano/dbModels/DBtable.dart';
+import 'package:parla_italiano/dbModels/DBvocabulary.dart';
 import 'package:parla_italiano/handler/vocabularyHandler.dart';
-import 'package:parla_italiano/globals/vocabularyRepository.dart' as vocabularyRepo;
-import 'package:parla_italiano/globals/userData.dart' as userData;
+import 'package:parla_italiano/models/vocabularyRepo.dart';
+import 'package:parla_italiano/models/vocabularyTable.dart';
+import 'package:parla_italiano/globals/globalData.dart' as userData;
 
 class StartLoader {
 
@@ -27,8 +27,10 @@ class StartLoader {
       vocabularyList = list;
       break;
     }
-    vocabularyHandler.startConfiguration(vocabularyList!, tableList!);
-    vocabularyRepo.fillFavouriteTable();
+    List<VocabularyTable> vocabularyTables = vocabularyHandler.startConfiguration(vocabularyList!, tableList!);
+    VocabularyRepo repo = VocabularyRepo(vocabularyTables, VocabularyTable('Meine Favoriten', 0, '0'));
+    repo.fillFavouriteTable();
+    userData.vocabularyRepo = repo;
   } 
 
   void _loadGameData(){
@@ -37,6 +39,7 @@ class StartLoader {
 
   void _loadUserData(AppUser appUser){
     userData.user = appUser;
+    userData.user!.printerMethod();
   }
 
   void loadData(AppUser appUser){

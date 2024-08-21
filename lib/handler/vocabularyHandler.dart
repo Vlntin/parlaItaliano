@@ -1,37 +1,40 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:parla_italiano/models/DBtable.dart';
-import 'package:parla_italiano/models/DBvocabulary.dart';
+import 'package:parla_italiano/dbModels/DBtable.dart';
+import 'package:parla_italiano/dbModels/DBvocabulary.dart';
 import 'package:flutter/material.dart';
-import 'package:parla_italiano/globals/vocabularyRepository.dart' as repository;
+
+import 'package:parla_italiano/models/vocabulary.dart';
+import 'package:parla_italiano/models/vocabularyTable.dart';
 
 class VocabularyHandler {
 
   VocabularyHandler();
 
-  void startConfiguration(List<DBVocabulary> dbVocabularies, List<DBTables> dbTables){
+  List<VocabularyTable> startConfiguration(List<DBVocabulary> dbVocabularies, List<DBTables> dbTables){
+    List<VocabularyTable> vocabularyTables = [];
     for (DBTables table in dbTables){
-      repository.VocabularyTable newTable = repository.VocabularyTable(table.title, table.level, table.id);
-      repository.vocabularyTables.add(newTable);
+      VocabularyTable newTable = VocabularyTable(table.title, table.level, table.id);
+      vocabularyTables.add(newTable);
     }
     for (DBVocabulary vocabulary in dbVocabularies){
-      repository.Vocabulary newVocabulary = repository.Vocabulary(vocabulary.german, vocabulary.italian, vocabulary.additional, vocabulary.id);
-      for (repository.VocabularyTable table in repository.vocabularyTables){
+      Vocabulary newVocabulary = Vocabulary(vocabulary.german, vocabulary.italian, vocabulary.additional, vocabulary.id);
+      for (VocabularyTable table in vocabularyTables){
         if (table.db_id == vocabulary.table_id){
           table.addVocabulary(newVocabulary);
           break;
         }
       }
     }
-    repository.vocabularyTables.sort((a, b) => a.level.compareTo(b.level));
+    vocabularyTables.sort((a, b) => a.level.compareTo(b.level));
+    return vocabularyTables;
   }
 
   deleteVocabularyIdsByTableId(String tableId, List<DBVocabulary> vocabularylist){
     for (DBVocabulary vocabulary in vocabularylist){
       if (vocabulary.table_id == tableId){
         final docUser = FirebaseFirestore.instance
-                                  .collection('vocabularies')
-                                  .doc(vocabulary.id);
+          .collection('vocabularies')
+          .doc(vocabulary.id);
         docUser.delete();
       }
     }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:go_router/go_router.dart';
-import 'package:parla_italiano/globals/userData.dart' as userData;
+import 'package:parla_italiano/globals/globalData.dart' as userData;
 import 'package:parla_italiano/handler/userHandler.dart';
+import 'package:parla_italiano/handler/friendsHandler.dart';
+import 'package:parla_italiano/widgets/personalizedTextformField.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
@@ -54,7 +56,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 Icons.group,
               ),
               const SizedBox(width: 4),
-              Text(userData.amount_of_friends.toString(), style: TextStyle(fontSize: 16)),
+              Text(userData.user!.friendsIDs.length.toString(), style: TextStyle(fontSize: 16)),
             ],
           ),
         ),
@@ -78,8 +80,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             icon: const Icon(Icons.logout),
             tooltip: 'Logout!',
             onPressed: () async {
+              /**
+              print('clicked');
+              context.go('/signInScreen');
+              print('go');
+              //await UserHandler().logoutUser();
+              print('finished');
+              */
+              print('clicked');
               if (await UserHandler().logoutUser()){
-                context.go('/');
+                print('go');
+                context.go('/signInScreen');
               }
               
             },
@@ -112,16 +123,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               Form(
                 key: _newFriendFormKey,
-                child: TextFormField(
-                  controller: _controllerUserName,
-                  decoration: const InputDecoration(hintText: 'Benutzername'),
-                  validator: (value) {
+                child: PersonalizedTextformField(
+                  controller: _controllerUserName, 
+                  hintText: 'Benutzername',
+                  newValidator: (value) {
                     if (value == null || value.isEmpty) {
                       return  'Benutzername eingeben du Hund!';
                     }
                       return null;
                   },
-                ) 
+                )
               ),
             ]
           ),
@@ -130,7 +141,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               style: TextButton.styleFrom(
                 textStyle: Theme.of(context).textTheme.labelLarge,
               ),
-              child: const Text('Hinzufügen'),
+              child: const Text(
+                'Hinzufügen',
+                style: TextStyle(
+                  color: Colors.black
+                ),
+              ),
               onPressed: () async {
                 if (_newFriendFormKey.currentState!.validate()) {
                   final username = _controllerUserName.text;
@@ -166,13 +182,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                             ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Anfrage geschickt'))
                             );
-                            UserHandler().sendFriendRequest(username);
+                            FriendsHandler().sendFriendRequest(username);
                           }
                         }
                       }
                     }
                   }
                   _controllerUserName.clear();
+                  Navigator.of(context).pop(false);
                 } 
               }                    
             ),
@@ -187,4 +204,4 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
 
 final _formKey = GlobalKey<FormState>();
-  final _controllerEmail = TextEditingController();
+final _controllerEmail = TextEditingController();

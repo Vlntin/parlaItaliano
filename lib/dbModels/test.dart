@@ -1,10 +1,11 @@
-import 'package:parla_italiano/globals/vocabularyRepository.dart' as vocabularyRepository;
-import 'package:parla_italiano/globals/vocabularyRepository.dart';
+
+import 'package:parla_italiano/models/vocabulary.dart';
+import 'package:parla_italiano/globals/globalData.dart' as globalData;
 import 'dart:math';
 
 class Test{
 
-  final List<Vocabulary> vocabularies = vocabularyRepository.createTestVocabularies();
+  final List<Vocabulary> vocabularies = globalData.vocabularyRepo!.createTestVocabularies();
   int _amountOfPlayingWords = 20;
   int _neededCorrectAnswers = 19;
   int _vocabularyIndex = 0;

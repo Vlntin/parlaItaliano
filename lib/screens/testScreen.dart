@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:parla_italiano/globals/appBar.dart';
 import 'package:parla_italiano/globals/navigationBar.dart';
-import 'package:parla_italiano/globals/userData.dart' as userData;
+import 'package:parla_italiano/globals/globalData.dart' as userData;
 import 'package:parla_italiano/handler/userHandler.dart';
 
 import 'package:parla_italiano/handler/speaker.dart';
-import 'package:parla_italiano/models/test.dart';
+import 'package:parla_italiano/dbModels/test.dart';
+import 'package:parla_italiano/routes.dart' as routes;
 
 class VocabularyTestScreen extends StatefulWidget {
 
@@ -26,7 +27,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      bottomNavigationBar: CustomNavigationBar(),
+      bottomNavigationBar: CustomNavigationBar(3),
       appBar: CustomAppBar(), 
       body: Padding(
         padding: EdgeInsets.all(32),
@@ -211,7 +212,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                                             ),
                                           ),
                                           onPressed: () {
-                                            //to be done
+                                            _dialogBuilderRules(context);
                                           },
                                         )
                                       )
@@ -286,16 +287,6 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                 ),
               )
             ),
-            /** 
-            Flexible(
-              flex: 2,
-              child: Center(
-                child: Text(
-                'Es gelten folgende Regeln: \nMan darf nur ein mal pro Tag zum Test antreten \nEs sind immer ${widget.test.getAmountsOfPlayingWord()} Wörter, von denen ${widget.test.getAmountOfNeededCorrects()} richtig übersetzt werden müssen \n 10 Wörter werden zufällig aus dem aktuellen Level gewählt und 10 weiter aus den anderen Leveln',
-                )
-              )
-            ),
-            */
           ]
         )
       )
@@ -303,6 +294,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
   }
 
   void _finishQuiz(){
+    routes.canTestBeLeaved = true;
     if (widget.test.getAmountOfCorrectWords() >= widget.test.getAmountOfNeededCorrects()){
       UserHandler().updateUserLevel();
       _dialogBuilderPassed(context);
@@ -391,6 +383,36 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
               child: const Text('Zurück zur Startseite'),
               onPressed: ()  {
                 context.go('/startScreen');
+              }                    
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _dialogBuilderRules(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Regeln'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Es gelten folgende Regeln: \nMan darf nur ein mal pro Tag zum Test antreten. \nEs sind immer ${widget.test.getAmountsOfPlayingWord()} Wörter, von denen ${widget.test.getAmountOfNeededCorrects()} richtig übersetzt werden müssen. \n10 Wörter werden zufällig aus dem aktuellen Level gewählt und 10 weiter aus den anderen Leveln.',
+              ),
+            ]
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('weiterspielen'),
+              onPressed: ()  {
+                Navigator.of(context).pop(false);
               }                    
             ),
           ],

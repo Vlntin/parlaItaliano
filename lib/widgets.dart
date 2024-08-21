@@ -2,9 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:parla_italiano/handler/userHandler.dart';
-import 'package:parla_italiano/models/DBtable.dart';
-import 'package:parla_italiano/globals/userData.dart' as userData;
-import 'package:parla_italiano/globals/vocabularyRepository.dart' as vocabularyRepo;
+import 'package:parla_italiano/dbModels/DBtable.dart';
+import 'package:parla_italiano/globals/globalData.dart' as globalData;
 
 import 'package:go_router/go_router.dart';
 
@@ -27,7 +26,7 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
   
   @override
   Widget build(BuildContext context) {
-    bool pressAttention = vocabularyRepo.isVocabularyInFavorites(widget.id);
+    bool pressAttention = globalData.vocabularyRepo!.isVocabularyInFavorites(widget.id);
     return Padding(
         padding: EdgeInsets.all(0),
           child: Row(
@@ -77,7 +76,7 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
                       IconButton(
                         icon: pressAttention ? Icon(Icons.star_sharp) : Icon(Icons.star_border),
                         onPressed: () => {
-                          pressAttention ? vocabularyRepo.deleteFavouriteVocabulary(widget.id) : vocabularyRepo.addVocabularyToFavorites(widget.id, widget.italian, widget.german, widget.additional),
+                          pressAttention ? globalData.vocabularyRepo!.deleteFavouriteVocabulary(widget.id) : globalData.vocabularyRepo!.addVocabularyToFavorites(widget.id, widget.italian, widget.german, widget.additional),
                           setState(() => pressAttention = !pressAttention)
                         },
                       ),
@@ -235,7 +234,7 @@ class ListWidget extends StatelessWidget {
   }
 
   Color? _getTileColor(int vocabularyListLevel){
-    if (vocabularyListLevel > userData.user!.level){
+    if (vocabularyListLevel > globalData.user!.level){
       return Colors.grey[300];
     } else {
       return Colors.white;
@@ -243,11 +242,11 @@ class ListWidget extends StatelessWidget {
   }
 
   IconButton _getLockedUnlockedItem(int vocabularyListLevel, BuildContext context){
-    if (vocabularyListLevel > userData.user!.level){
+    if (vocabularyListLevel > globalData.user!.level){
       return IconButton(
         icon: Icon(Icons.lock),
         onPressed: (){
-          if (vocabularyListLevel == userData.user!.level + 1){
+          if (vocabularyListLevel == globalData.user!.level + 1){
             _dialogBuilder(context);
           }
         },
@@ -313,7 +312,7 @@ class ListWidget extends StatelessWidget {
   }
 
   bool _checkIfTestCanStart(BuildContext context) {
-    String lastTest = userData.user!.lastTestDate;
+    String lastTest = globalData.user!.lastTestDate;
     DateTime now = new DateTime.now();
     DateTime date = new DateTime(now.year, now.month, now.day);
     return (lastTest != date.toString());

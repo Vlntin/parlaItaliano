@@ -3,9 +3,9 @@ import 'dart:js_util';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:parla_italiano/models/DBtable.dart';
+import 'package:parla_italiano/dbModels/DBtable.dart';
 import 'package:parla_italiano/screen_one.dart';
-import 'package:parla_italiano/models/DBvocabulary.dart';
+import 'package:parla_italiano/dbModels/DBvocabulary.dart';
 import 'package:parla_italiano/handler/vocabularyHandler.dart';
 
 class HomeScreen extends StatefulWidget {

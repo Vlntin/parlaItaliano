@@ -1,14 +1,11 @@
 import 'dart:js_util';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:parla_italiano/globals/appBar.dart';
-import 'package:parla_italiano/globals/userData.dart' as userData;
-import 'package:parla_italiano/globals/vocabularyRepository.dart' as repository;
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:parla_italiano/models/DBtable.dart';
-import 'package:parla_italiano/screen_one.dart';
-import 'package:parla_italiano/models/DBvocabulary.dart';
+import 'package:parla_italiano/globals/globalData.dart' as globalData;
+import 'package:parla_italiano/models/vocabularyTable.dart';
+import 'package:parla_italiano/dbModels/DBtable.dart';
+import 'package:parla_italiano/dbModels/DBvocabulary.dart';
 import 'package:parla_italiano/handler/vocabularyHandler.dart';
 import 'package:parla_italiano/widgets.dart';
 import 'package:parla_italiano/globals/navigationBar.dart';
@@ -21,21 +18,18 @@ class VocabularyListsScreen extends StatefulWidget {
 }
 
 class _VocabularyListsScreenState extends State<VocabularyListsScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _controllerTitle = TextEditingController();
-  final _controllerLevel = TextEditingController();
-  List<DBVocabulary> vocabularylist = [];
-  List<DBTables> tableList = [];
+  //List<DBVocabulary> vocabularylist = [];
+  //List<DBTables> tableList = [];
+  List<VocabularyTable> tableList = globalData.vocabularyRepo!.vocabularyTables;
   final _vocabularyHandler = VocabularyHandler();
-  bool _vocabularyListLocked = true;
-  int actualLexis = repository.calculateLexis(userData.user!.level);
-  int maxLexis = repository.calculatemaximalLexis();
-  double proportionalLexis = repository.calculateLexis(userData.user!.level) / repository.calculatemaximalLexis();
+  int actualLexis = globalData.vocabularyRepo!.calculateLexis(globalData.user!.level);
+  int maxLexis = globalData.vocabularyRepo!.calculatemaximalLexis();
+  double proportionalLexis = globalData.vocabularyRepo!.calculateLexis(globalData.user!.level) / globalData.vocabularyRepo!.calculatemaximalLexis();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: CustomNavigationBar(),
+      bottomNavigationBar: CustomNavigationBar(1),
       appBar: CustomAppBar(),
       body:
       Padding(
@@ -62,10 +56,8 @@ class _VocabularyListsScreenState extends State<VocabularyListsScreen> {
                           Expanded(
                             flex: 1,
                             child: Card(
-                                child: ListWidget(repository.favouritesTable.vocabularies.length, repository.favouritesTable.level, repository.favouritesTable.title, repository.favouritesTable.db_id),
-                              
+                                child: ListWidget(globalData.vocabularyRepo!.favouritesTable.vocabularies.length, globalData.vocabularyRepo!.favouritesTable.level, globalData.vocabularyRepo!.favouritesTable.title, globalData.vocabularyRepo!.favouritesTable.db_id),                              
                             )
-                            
                           ),
                         ],
                       )
@@ -115,17 +107,6 @@ class _VocabularyListsScreenState extends State<VocabularyListsScreen> {
                 ),
               ],)
             ),
-            StreamBuilder(
-              stream: _vocabularyHandler.readVocabularies(), 
-              builder: (context, snapshot) {
-                if (snapshot.hasData){
-                  vocabularylist = snapshot.data!;
-                  return Text('');
-                } else {
-                  return Text('');
-                }
-              }
-            ),
             Expanded(
               flex: 50,
               child:Row(
@@ -136,14 +117,13 @@ class _VocabularyListsScreenState extends State<VocabularyListsScreen> {
                             shrinkWrap: true,
                             scrollDirection: Axis.vertical,
                             //physics: NeverScrollableScrollPhysics(),
-                            itemCount: repository.vocabularyTables.length,
+                            itemCount: tableList.length,
                             itemBuilder: (context, index){
                               return Card(
-                                child: ListWidget(repository.vocabularyTables[index].vocabularies.length, repository.vocabularyTables[index].level, repository.vocabularyTables[index].title, repository.vocabularyTables[index].db_id),
+                                child: ListWidget(tableList[index].vocabularies.length, tableList[index].level, tableList[index].title, tableList[index].db_id),
                               );  
                             }
                           )
-                      
                   ),
                   Expanded(
                     flex: 1,
@@ -175,5 +155,4 @@ class _VocabularyListsScreenState extends State<VocabularyListsScreen> {
       ) 
     );
   }
-
 }

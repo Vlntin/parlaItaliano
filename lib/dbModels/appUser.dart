@@ -5,7 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:parla_italiano/handler/userHandler.dart';
-import 'package:parla_italiano/models/DBtable.dart';
+import 'package:parla_italiano/dbModels/DBtable.dart';
 
 class AppUser {
   String userID;
@@ -14,25 +14,41 @@ class AppUser {
   List<String> friendsIDs;
   List<String> friendsRequestsSend;
   List<String> friendsRequestsReceived;
+  List<String> friendsRequestsAccepted;
+  List<String> friendsRequestsRejected;
   List<String> favouriteVocabulariesIDs;
   String lastTestDate;
   
-  AppUser({required this.userID, required this.username, required this.level, required this.friendsIDs, required this.friendsRequestsSend, required this.friendsRequestsReceived, required this.favouriteVocabulariesIDs, required this.lastTestDate});
+  AppUser({required this.userID, required this.username, required this.level, required this.friendsIDs, required this.friendsRequestsSend, required this.friendsRequestsReceived, required this.friendsRequestsAccepted, required this.friendsRequestsRejected, required this.favouriteVocabulariesIDs, required this.lastTestDate});
+
+  void printerMethod(){
+    print(userID);
+    print(username);
+    print(level);
+    print(friendsIDs);
+    print(friendsRequestsSend);
+    print(friendsRequestsReceived);
+    print(favouriteVocabulariesIDs);
+    print(lastTestDate);
+  }
 
   Map<String, dynamic> toJson() => {
     'userID': userID,
     'username': username,
     'level': level,
-    'friendsIDs': friendsIDs,
+    'friendsIDS': friendsIDs,
     'friendsRequestsSend': friendsRequestsSend,
     'friendsRequestsReceived': friendsRequestsReceived,
+    'friendsRequestsAccepted': friendsRequestsAccepted,
+    'friendsRequestsRejected': friendsRequestsRejected,
     'favouriteVocabulariesIDs': favouriteVocabulariesIDs,
     'lastTestDate': lastTestDate
   };
 
   static AppUser fromJson(QueryDocumentSnapshot<Map<String, dynamic>> doc){
     Map<String, dynamic> json = doc.data();
-    var friendsIdsJson = json['friendsIDs'];
+
+    var friendsIdsJson = json['friendsIDS'];
     List<String> friendsIds =[];
     for (String element in friendsIdsJson){
       friendsIds.add(element);
@@ -47,7 +63,16 @@ class AppUser {
     for (String element in friendsRequestsReceivedJson){
       friendsRequestsReceived.add(element);
     }
-    print(json);
+    var friendsRequestsAcceptedJson = json['friendsRequestsAccepted'];
+    List<String> friendsRequestsAccepted =[];
+    for (String element in friendsRequestsAcceptedJson){
+      friendsRequestsAccepted.add(element);
+    }
+    var friendsRequestsRejectedJson = json['friendsRequestsRejected'];
+    List<String> friendsRequestsRejected =[];
+    for (String element in friendsRequestsRejectedJson){
+      friendsRequestsRejected.add(element);
+    }
     var favouriteVocabulariesIDsJson = json['favouriteVocabulariesIDs'];
     List<String> favouriteVocabulariesIDs =[];
     for (String element in favouriteVocabulariesIDsJson){
@@ -60,6 +85,8 @@ class AppUser {
       friendsIDs: friendsIds,
       friendsRequestsSend: friendsRequestsSend,
       friendsRequestsReceived: friendsRequestsReceived,
+      friendsRequestsAccepted: friendsRequestsAccepted,
+      friendsRequestsRejected: friendsRequestsRejected,
       favouriteVocabulariesIDs: favouriteVocabulariesIDs,
       lastTestDate: json['lastTestDate']
     );

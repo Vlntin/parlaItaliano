@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:parla_italiano/globals/globalData.dart' as globalData;
+import 'package:parla_italiano/models/vocabulary.dart';
+import 'package:parla_italiano/models/vocabularyTable.dart';
 import 'package:parla_italiano/globals/appBar.dart';
 import 'package:parla_italiano/widgets.dart';
-import 'package:parla_italiano/globals/vocabularyRepository.dart' as repository;
 import 'package:parla_italiano/globals/navigationBar.dart';
 
 
@@ -21,7 +23,7 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
   String? table_id;
   String? tablename;
   VocabularyDetailsScreenState({required this.table_id, required this.tablename});
-  List<repository.Vocabulary> vocabularylist = [];
+  List<Vocabulary> vocabularylist = [];
   
 
   @override
@@ -29,7 +31,7 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
     return PopScope(
     canPop: false,
     child: Scaffold(
-      bottomNavigationBar: CustomNavigationBar(),
+      bottomNavigationBar: CustomNavigationBar(1),
       appBar: CustomAppBar(),
         body: Container(
           decoration: new BoxDecoration(
@@ -94,14 +96,14 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
    
   } 
 
-  List<repository.Vocabulary> _getAllVocabularies(){
-    for (repository.VocabularyTable table in repository.vocabularyTables){
+  List<Vocabulary> _getAllVocabularies(){
+    for (VocabularyTable table in globalData.vocabularyRepo!.vocabularyTables){
       if (table.db_id == table_id || table.title == tablename){
         return  table.vocabularies;
       }
     }
     if (table_id == '0'){
-      return repository.favouritesTable.vocabularies;
+      return globalData.vocabularyRepo!.favouritesTable.vocabularies;
     }
     return [];
   }

@@ -3,12 +3,14 @@ import 'dart:js_util';
 import 'package:flutter/rendering.dart';
 import 'package:parla_italiano/routes.dart';
 import 'package:go_router/go_router.dart';
-import 'package:parla_italiano/globals/userData.dart' as userData;
+import 'package:parla_italiano/globals/globalData.dart' as userData;
 
 
 class CustomNavigationBar extends StatefulWidget {
 
-  CustomNavigationBar();
+  CustomNavigationBar(this.givenIndex);
+
+  int givenIndex;
 
   @override
   CustomNavigationBarState createState() => CustomNavigationBarState();
@@ -18,23 +20,23 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
 
   Widget build(BuildContext context){
     return NavigationBar(
+        selectedIndex: widget.givenIndex,
         backgroundColor: Color.fromRGBO(248, 225, 174, 1),
         onDestinationSelected: (int index) {
           setState(() {
-            userData.naviBarIndex = index;
-            if (userData.naviBarIndex == 0){
+            widget.givenIndex = index;
+            if (widget.givenIndex == 0){
               context.go('/startScreen');
             }
-            if (userData.naviBarIndex == 1){
+            if (widget.givenIndex == 1){
               context.go('/vocabularyListsScreen');
             }
-            if (userData.naviBarIndex == 3){
+            if (widget.givenIndex == 3){
               context.go('/vocabularies_test');
             }
           });
         },
         indicatorColor: const Color.fromARGB(255, 238, 232, 216),
-        selectedIndex: userData.naviBarIndex,
         destinations: const <Widget>[
           NavigationDestination(
             selectedIcon: Icon(Icons.home),
