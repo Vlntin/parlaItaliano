@@ -2,12 +2,22 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:parla_italiano/handler/userHandler.dart';
+import 'package:parla_italiano/handler/vocabularyHandler.dart';
 import 'package:parla_italiano/dbModels/DBtable.dart';
 import 'package:parla_italiano/globals/globalData.dart' as globalData;
 
 import 'package:go_router/go_router.dart';
 
 import 'package:parla_italiano/handler/speaker.dart';
+import 'package:parla_italiano/models/vocabulary.dart';
+import 'package:parla_italiano/models/vocabularyTable.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:convert';
+import 'dart:html';
+import 'dart:ui';
+
+import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'dart:io';
 
 class VocabularyWidget extends StatefulWidget {
   const VocabularyWidget(this.id, this.italian, this.german, this.additional, {super.key});
@@ -210,11 +220,99 @@ class ListWidget extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.download),
               tooltip: 'PDF generieren',
-              onPressed:() {}
+              onPressed:() => _createPDF(this.title, this.id, this.level)
             )
           ]
         ) 
       );
+  }
+
+  Future<void> _createPDF(String title, String id, int level) async {
+    List<Vocabulary> vocabularies = VocabularyHandler().getAllVocabularies(id, title);
+
+    PdfDocument document = PdfDocument();
+    PdfPageTemplateElement header2 = PdfPageTemplateElement(
+    Rect.fromLTWH(0, 0, document.pageSettings.size.width, 50));
+
+    PdfCompositeField compositefields = PdfCompositeField(
+        font: PdfStandardFont(PdfFontFamily.timesRoman, 19),
+        brush: PdfSolidBrush(PdfColor(0, 0, 0)),
+        text: '${title}(${level})');
+
+    compositefields.draw(header2.graphics,
+        Offset(220, 10 - PdfStandardFont(PdfFontFamily.timesRoman, 11).height));
+
+    document.template.top = header2;
+
+    PdfPageTemplateElement footer = PdfPageTemplateElement(
+      Rect.fromLTWH(0, 0, document.pageSettings.size.width, 40));
+
+    PdfPageNumberField pageNumber = PdfPageNumberField(
+      font: PdfStandardFont(PdfFontFamily.timesRoman, 10),
+      brush: PdfSolidBrush(PdfColor(0, 0, 0)));
+
+    //Sets the number style for page number
+    pageNumber.numberStyle = PdfNumberStyle.numeric;
+
+    PdfPageCountField count = PdfPageCountField(
+    font: PdfStandardFont(PdfFontFamily.timesRoman, 10),
+    brush: PdfSolidBrush(PdfColor(0, 0, 0)));
+
+    //set the number style for page count
+    count.numberStyle = PdfNumberStyle.numeric;
+
+    PdfCompositeField compositeField = PdfCompositeField(
+        font: PdfStandardFont(PdfFontFamily.timesRoman, 10),
+        brush: PdfSolidBrush(PdfColor(0, 0, 0)),
+        text: 'Seite {0} von {1}',
+        fields: <PdfAutomaticField>[pageNumber, count]);
+    compositeField.bounds = footer.bounds;
+
+    compositeField.draw(footer.graphics,
+      Offset(450, 20 - PdfStandardFont(PdfFontFamily.timesRoman, 19).height));
+
+    document.template.bottom = footer;
+
+    PdfGrid grid = PdfGrid();
+    grid.columns.add(count: 3);
+    grid.headers.add(1);
+
+    PdfGridRow header = grid.headers[0];
+    header.cells[0].value = "italienisch";
+    header.cells[1].value = "deutsch";
+    header.cells[2].value = "zusätzliches";
+
+    header.style = PdfGridCellStyle(
+      backgroundBrush: PdfBrushes.lightGray,
+      textBrush: PdfBrushes.black,
+      font: PdfStandardFont(PdfFontFamily.timesRoman, 12),
+    );
+
+    for (final vocabulary in vocabularies) {
+      PdfGridRow row = grid.rows.add();
+      row.cells[0].value = vocabulary.italian;
+      row.cells[1].value = vocabulary.german;
+      row.cells[2].value = vocabulary.additional;
+    }
+
+    grid.style = PdfGridStyle(
+      cellPadding: PdfPaddings(left: 10, right: 3, top: 4, bottom: 4),
+      backgroundBrush: PdfBrushes.white,
+      textBrush: PdfBrushes.black,
+      font: PdfStandardFont(PdfFontFamily.timesRoman, 12),
+    );
+
+    grid.draw(
+        page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+    List<int> bytes = await document.save();
+
+    AnchorElement(
+        href:
+            "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
+      ..setAttribute("download", "parlaItaliano_${title}(${level}).pdf")
+      ..click();
+
+    document.dispose();
   }
 
   Icon _getLevelIcon(int vocabularyListLevel){

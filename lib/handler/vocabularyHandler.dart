@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:parla_italiano/models/vocabulary.dart';
 import 'package:parla_italiano/models/vocabularyTable.dart';
+import 'package:parla_italiano/globals/globalData.dart' as globalData;
 
 class VocabularyHandler {
 
@@ -82,6 +83,18 @@ class VocabularyHandler {
       }
     }
     return amount;
+  }
+
+  List<Vocabulary> getAllVocabularies(String table_id, String tablename){
+    for (VocabularyTable table in globalData.vocabularyRepo!.vocabularyTables){
+      if (table.db_id == table_id || table.title == tablename){
+        return  table.vocabularies;
+      }
+    }
+    if (table_id == '0'){
+      return globalData.vocabularyRepo!.favouritesTable.vocabularies;
+    }
+    return [];
   }
   
 }
