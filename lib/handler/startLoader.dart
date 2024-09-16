@@ -37,7 +37,7 @@ class StartLoader {
 
   }
 
-  void _loadUserData(AppUser appUser){
+  void _loadUserData(AppUser appUser) async{
     userData.user = appUser;
     userData.user!.printerMethod();
   }

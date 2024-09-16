@@ -237,7 +237,7 @@ class ListWidget extends StatelessWidget {
     PdfCompositeField compositefields = PdfCompositeField(
         font: PdfStandardFont(PdfFontFamily.timesRoman, 19),
         brush: PdfSolidBrush(PdfColor(0, 0, 0)),
-        text: '${title}(${level})');
+        text: '${title} (${level})');
 
     compositefields.draw(header2.graphics,
         Offset(220, 10 - PdfStandardFont(PdfFontFamily.timesRoman, 11).height));
@@ -251,14 +251,12 @@ class ListWidget extends StatelessWidget {
       font: PdfStandardFont(PdfFontFamily.timesRoman, 10),
       brush: PdfSolidBrush(PdfColor(0, 0, 0)));
 
-    //Sets the number style for page number
     pageNumber.numberStyle = PdfNumberStyle.numeric;
 
     PdfPageCountField count = PdfPageCountField(
     font: PdfStandardFont(PdfFontFamily.timesRoman, 10),
     brush: PdfSolidBrush(PdfColor(0, 0, 0)));
 
-    //set the number style for page count
     count.numberStyle = PdfNumberStyle.numeric;
 
     PdfCompositeField compositeField = PdfCompositeField(
@@ -309,7 +307,7 @@ class ListWidget extends StatelessWidget {
     AnchorElement(
         href:
             "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
-      ..setAttribute("download", "parlaItaliano_${title}(${level}).pdf")
+      ..setAttribute("download", "parlaItaliano_${title}_(${level}).pdf")
       ..click();
 
     document.dispose();
@@ -343,6 +341,7 @@ class ListWidget extends StatelessWidget {
     if (vocabularyListLevel > globalData.user!.level){
       return IconButton(
         icon: Icon(Icons.lock),
+        tooltip: 'noch nicht freigeschaltet',
         onPressed: (){
           if (vocabularyListLevel == globalData.user!.level + 1){
             _dialogBuilder(context);
@@ -352,6 +351,7 @@ class ListWidget extends StatelessWidget {
     } else {
       return IconButton(
         icon: Icon(Icons.done_rounded),
+        tooltip: 'freigeschaltet',
         onPressed: (){},
       );
     }

@@ -31,6 +31,9 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
             if (widget.givenIndex == 1){
               context.go('/vocabularyListsScreen');
             }
+            if (widget.givenIndex == 2){
+              context.go('/oneVsOneScreen');
+            }
             if (widget.givenIndex == 3){
               context.go('/vocabularies_test');
             }

@@ -6,9 +6,11 @@ import 'package:parla_italiano/models/vocabularyTable.dart';
 import 'package:parla_italiano/globals/appBar.dart';
 import 'package:parla_italiano/widgets.dart';
 import 'package:parla_italiano/globals/navigationBar.dart';
+import 'package:parla_italiano/handler/vocabularyHandler.dart';
 
 
 class VocabularyDetailsScreen extends StatefulWidget {
+  
   String? tablename;
   String? table_id;
   VocabularyDetailsScreen({super.key, this.tablename, this.table_id});
@@ -23,7 +25,7 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
   String? table_id;
   String? tablename;
   VocabularyDetailsScreenState({required this.table_id, required this.tablename});
-  List<Vocabulary> vocabularylist = [];
+  late List<Vocabulary> vocabularylist = VocabularyHandler().getAllVocabularies(table_id!, tablename!);
   
 
   @override
@@ -77,9 +79,10 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
                   child: ListView.builder(
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
-                    itemCount: this._getAllVocabularies().length,
+                    itemCount: this.vocabularylist.length,
                     itemBuilder: (context, index){
-                      return VocabularyWidget(_getAllVocabularies()[index].id, _getAllVocabularies()[index].italian, _getAllVocabularies()[index].german, _getAllVocabularies()[index].additional)      
+                      Vocabulary actualVocabulary = this.vocabularylist[index];
+                      return VocabularyWidget(actualVocabulary.id, actualVocabulary.italian, actualVocabulary.german, actualVocabulary.additional)      
                       ;
                     }
                   )

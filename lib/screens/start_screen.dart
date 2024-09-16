@@ -9,7 +9,7 @@ import 'package:parla_italiano/widgets/newsWidgets.dart';
 
 class StartScreen extends StatefulWidget {
 
-  StartScreen({super.key});
+  const StartScreen({super.key});
 
   @override
   StartScreenState createState() => StartScreenState();
@@ -60,7 +60,7 @@ class StartScreenState extends State<StartScreen> {
                 color: Colors.grey
               ),
               Expanded(
-                flex: 3,
+                flex: 4,
                 child: 
                   Row(
                     children: [

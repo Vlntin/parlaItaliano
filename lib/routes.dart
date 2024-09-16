@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:parla_italiano/handler/startLoader.dart';
 import 'package:parla_italiano/handler/userHandler.dart';
 import 'package:parla_italiano/dbModels/appUser.dart';
+import 'package:parla_italiano/screens/oneVsOneScreen.dart';
 
 import 'screens/ugoScreen.dart';
 import 'screen_one.dart';
@@ -30,14 +31,9 @@ final _router = GoRouter(
     }
    },
   routes: [
-    GoRoute(path: '/ugoScreen', builder: (context, state) => const HomeScreen()),
     GoRoute(
-      path: '/startScreen',
-      builder: (context, state) => StartScreen(),
-    ),
-    GoRoute(
-      path: '/vocabularyListsScreen', 
-      builder: (context, state) => const VocabularyListsScreen(),
+      path: '/ugoScreen', 
+      builder: (context, state) => const HomeScreen()
     ),
     GoRoute(
       path: '/', 
@@ -45,16 +41,20 @@ final _router = GoRouter(
 
     ),
     GoRoute(
-      path: '/signInScreen', 
-      builder: (context, state) => const SignInScreen(),
-
+      path: '/startScreen',
+      builder: (context, state) => const StartScreen(),
     ),
-    GoRoute(path: '/screen_one/:id/:tablename', name:'screen_one', builder: (context, state) => ScreenOne(id: state.pathParameters['id'], tableName: state.pathParameters['tablename']),),
-    GoRoute(path: '/vocabularies_details/:tablename/:table_id', name:'vocabularies_details', builder: (context, state) => VocabularyDetailsScreen(tablename: state.pathParameters['tablename'], table_id: state.pathParameters['table_id']),),
+    GoRoute(
+      path: '/vocabularyListsScreen', 
+      builder: (context, state) => const VocabularyListsScreen(),
+    ),
+    GoRoute(
+      path: '/oneVsOneScreen', 
+      builder: (context, state) => const OneVSOneScreen(),
+    ),
     GoRoute(
       path: '/vocabularies_test', 
-      builder: (context, state) => VocabularyTestScreen(),
-      
+      builder: (context, state) => VocabularyTestScreen(),     
       onExit: (BuildContext context) async {
         if (routes.canTestBeLeaved){
           routes.canTestBeLeaved = false;
@@ -63,7 +63,22 @@ final _router = GoRouter(
           return await _buildLeaveDialog(context);
         }
       }
-    )
+    ),   
+    GoRoute(
+      path: '/signInScreen', 
+      builder: (context, state) => const SignInScreen(),
+
+    ),
+    GoRoute(
+      path: '/screen_one/:id/:tablename', 
+      name:'screen_one', 
+      builder: (context, state) => ScreenOne(id: state.pathParameters['id'], tableName: state.pathParameters['tablename']),
+    ),
+    GoRoute(
+      path: '/vocabularies_details/:tablename/:table_id', 
+      name:'vocabularies_details', 
+      builder: (context, state) => VocabularyDetailsScreen(tablename: state.pathParameters['tablename'], table_id: state.pathParameters['table_id']),
+    ),
   ]
 );
 
