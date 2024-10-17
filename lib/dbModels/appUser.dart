@@ -1,11 +1,6 @@
-import 'dart:js_util';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:parla_italiano/handler/userHandler.dart';
-import 'package:parla_italiano/dbModels/DBtable.dart';
 
 class AppUser {
   String userID;
@@ -18,8 +13,10 @@ class AppUser {
   List<String> friendsRequestsRejected;
   List<String> favouriteVocabulariesIDs;
   String lastTestDate;
+  List<String> finishedGamesIDsNews;
+  List<String> friendsLevelUpdate;
   
-  AppUser({required this.userID, required this.username, required this.level, required this.friendsIDs, required this.friendsRequestsSend, required this.friendsRequestsReceived, required this.friendsRequestsAccepted, required this.friendsRequestsRejected, required this.favouriteVocabulariesIDs, required this.lastTestDate});
+  AppUser({required this.userID, required this.username, required this.level, required this.friendsIDs, required this.friendsRequestsSend, required this.friendsRequestsReceived, required this.friendsRequestsAccepted, required this.friendsRequestsRejected, required this.favouriteVocabulariesIDs, required this.lastTestDate, required this.finishedGamesIDsNews, required this.friendsLevelUpdate});
 
   void printerMethod(){
     print(userID);
@@ -30,6 +27,8 @@ class AppUser {
     print(friendsRequestsReceived);
     print(favouriteVocabulariesIDs);
     print(lastTestDate);
+    print(finishedGamesIDsNews);
+    print(friendsLevelUpdate);
   }
 
   Map<String, dynamic> toJson() => {
@@ -42,7 +41,9 @@ class AppUser {
     'friendsRequestsAccepted': friendsRequestsAccepted,
     'friendsRequestsRejected': friendsRequestsRejected,
     'favouriteVocabulariesIDs': favouriteVocabulariesIDs,
-    'lastTestDate': lastTestDate
+    'lastTestDate': lastTestDate,
+    'finishedGamesIDsNews': finishedGamesIDsNews,
+    'friendsLevelUpdate': friendsLevelUpdate
   };
 
   static AppUser fromJson(QueryDocumentSnapshot<Map<String, dynamic>> doc){
@@ -78,6 +79,16 @@ class AppUser {
     for (String element in favouriteVocabulariesIDsJson){
       favouriteVocabulariesIDs.add(element);
     }
+    var finishedGamesIDsNewsJson = json['finishedGamesIDsNews'];
+    List<String> finishedGamesIDsNews =[];
+    for (String element in finishedGamesIDsNewsJson){
+      finishedGamesIDsNews.add(element);
+    }
+    var friendsLevelUpdateJson = json['friendsLevelUpdate'];
+    List<String> friendsLevelUpdate =[];
+    for (String element in friendsLevelUpdateJson){
+      friendsLevelUpdate.add(element);
+    }
     AppUser user = AppUser(
       userID: json['userID'],
       username: json['username'],
@@ -88,7 +99,9 @@ class AppUser {
       friendsRequestsAccepted: friendsRequestsAccepted,
       friendsRequestsRejected: friendsRequestsRejected,
       favouriteVocabulariesIDs: favouriteVocabulariesIDs,
-      lastTestDate: json['lastTestDate']
+      lastTestDate: json['lastTestDate'],
+      finishedGamesIDsNews: finishedGamesIDsNews,
+      friendsLevelUpdate: friendsLevelUpdate
     );
     return user;
   } 
@@ -96,10 +109,8 @@ class AppUser {
   Future<bool> hasFriendWithUserName(String userName) async {
     for (String id in this.friendsIDs){
       var user = await UserHandler().findUserByID(id);
-      if (user != null){
-        if(user.username == userName){
-          return true;
-        }
+      if(user.username == userName){
+        return true;
       }
     }
     return false;
@@ -108,10 +119,8 @@ class AppUser {
   Future<bool> hasAlreadySendAnRequest(String checkingUserName) async{
     for (String id in this.friendsRequestsSend){
       var user = await UserHandler().findUserByID(id);
-      if (user != null){
-        if(user.username == checkingUserName){
-          return true;
-        }
+      if(user.username == checkingUserName){
+        return true;
       }
     }
     return false;
@@ -120,10 +129,8 @@ class AppUser {
   Future<bool> hasAlreadyReceivedAnRequest(String checkingUserName) async{
     for (String id in this.friendsRequestsReceived){
       var user = await UserHandler().findUserByID(id);
-      if (user != null){
-        if(user.username == checkingUserName){
-          return true;
-        }
+      if(user.username == checkingUserName){
+        return true;
       }
     }
     return false;

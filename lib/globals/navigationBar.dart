@@ -4,6 +4,11 @@ import 'package:flutter/rendering.dart';
 import 'package:parla_italiano/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:parla_italiano/globals/globalData.dart' as userData;
+import 'package:parla_italiano/routes.dart' as routes;
+import 'package:parla_italiano/screens/oneVsOneScreen.dart';
+import 'package:parla_italiano/screens/start_screen.dart';
+import 'package:parla_italiano/screens/testScreen.dart';
+import 'package:parla_italiano/screens/vocabularyListScreen.dart';
 
 
 class CustomNavigationBar extends StatefulWidget {
@@ -18,24 +23,76 @@ class CustomNavigationBar extends StatefulWidget {
 
 class CustomNavigationBarState extends State<CustomNavigationBar> {
 
+  int prevIndex = 0;
+
   Widget build(BuildContext context){
     return NavigationBar(
         selectedIndex: widget.givenIndex,
         backgroundColor: Color.fromRGBO(248, 225, 174, 1),
         onDestinationSelected: (int index) {
-          setState(() {
-            widget.givenIndex = index;
+          setState(() async {
+            print('prev ${prevIndex}');
+            print('giv ${widget.givenIndex}');
             if (widget.givenIndex == 0){
-              context.go('/startScreen');
+              if (prevIndex == 3){
+                bool leave = await _onExit();
+                if (leave){
+                  prevIndex = widget.givenIndex ;
+                  widget.givenIndex = index;
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => StartScreen(), ));
+                }
+              } else {
+                prevIndex = widget.givenIndex ;
+                widget.givenIndex = index;
+                context.push('/startScreen');
+              }
             }
             if (widget.givenIndex == 1){
-              context.go('/vocabularyListsScreen');
+              if (prevIndex == 3){
+                bool leave = await _onExit();
+                if (leave){
+                  prevIndex = widget.givenIndex ;
+                  widget.givenIndex = index;
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => VocabularyListsScreen(),));
+                }
+              } else {
+                prevIndex = widget.givenIndex ;
+                widget.givenIndex = index;
+                context.push('/vocabularyListsScreen');
+              }
             }
             if (widget.givenIndex == 2){
-              context.go('/oneVsOneScreen');
+              if (prevIndex == 3){
+                bool leave = await _onExit();
+                if (leave){
+                  prevIndex = widget.givenIndex ;
+                  widget.givenIndex = index;
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => OneVSOneScreen(),));
+                }
+              } else {
+                prevIndex = widget.givenIndex ;
+                widget.givenIndex = index;
+                context.push('/oneVsOneScreen');
+              }
             }
             if (widget.givenIndex == 3){
-              context.go('/vocabularies_test');
+              print(1);
+              bool start = await routes.dialogBuilder(context);
+              print(start);
+              if (start){
+                prevIndex = widget.givenIndex ;
+                widget.givenIndex = index;
+                Navigator.push(context,
+                  MaterialPageRoute(
+                    builder: (context) => new VocabularyTestScreen(),
+                  ),
+                );
+              } else {
+                widget.givenIndex = prevIndex;
+              }
+              prevIndex = widget.givenIndex ;
+              widget.givenIndex = index;
+              routes.dialogBuilder(context);
             }
           });
         },
@@ -63,5 +120,15 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
           ),
         ],
       );
+  }
+
+  _onExit() async{
+    if (routes.canTestBeLeaved){
+      routes.canTestBeLeaved = false;
+      return true;
+    } else {
+      print('blub else');
+      return await routes.buildLeaveDialog(context);
+    }
   }
 }

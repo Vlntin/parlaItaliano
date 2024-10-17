@@ -55,6 +55,48 @@ class UserHandler {
     FirebaseFirestore.instance.collection('users').doc(firestoreInstanceId).update({'lastTestDate': date.toString()});
   }
 
+  void updateFinishedGamesIDsNews(AppUser user, String gameID) async {
+    var query = await FirebaseFirestore.instance.collection('users').where('userID', isEqualTo: user.userID).get();
+    var firestoreInstanceId = query.docs.first.id;
+    user.finishedGamesIDsNews.add(gameID);
+    await FirebaseFirestore.instance.collection('users').doc(firestoreInstanceId).update({'finishedGamesIDsNews': user.finishedGamesIDsNews});
+  }
+
+  void addLevelUpdateNews(AppUser user) async {
+    var query = await FirebaseFirestore.instance.collection('users').where('userID', isEqualTo: user.userID).get();
+    var firestoreInstanceId = query.docs.first.id;
+    user.friendsLevelUpdate.add(userData.user!.userID);
+    await FirebaseFirestore.instance.collection('users').doc(firestoreInstanceId).update({'friendsLevelUpdate': user.friendsLevelUpdate});
+  }
+
+  void deletFinishedGamesIDsNews(String gameID) async {
+    var query = await FirebaseFirestore.instance.collection('users').where('userID', isEqualTo: userData.user!.userID).get();
+    var firestoreInstanceId = query.docs.first.id;
+    userData.user!.finishedGamesIDsNews.remove(gameID);
+    await FirebaseFirestore.instance.collection('users').doc(firestoreInstanceId).update({'finishedGamesIDsNews': userData.user!.finishedGamesIDsNews});
+  }
+
+  void deleteFriendsRequestsAccepted(String friendID) async {
+    var query = await FirebaseFirestore.instance.collection('users').where('userID', isEqualTo: userData.user!.userID).get();
+    var firestoreInstanceId = query.docs.first.id;
+    userData.user!.friendsRequestsAccepted.remove(friendID);
+    await FirebaseFirestore.instance.collection('users').doc(firestoreInstanceId).update({'friendsRequestsAccepted': userData.user!.friendsRequestsAccepted});
+  }
+
+  void deleteFriendsRequestsRejected(String friendID) async {
+    var query = await FirebaseFirestore.instance.collection('users').where('userID', isEqualTo: userData.user!.userID).get();
+    var firestoreInstanceId = query.docs.first.id;
+    userData.user!.friendsRequestsRejected.remove(friendID);
+    await FirebaseFirestore.instance.collection('users').doc(firestoreInstanceId).update({'friendsRequestsRejected': userData.user!.friendsRequestsRejected});
+  }
+
+  void deleteFriendsLevelUpdate(String friendID) async {
+    var query = await FirebaseFirestore.instance.collection('users').where('userID', isEqualTo: userData.user!.userID).get();
+    var firestoreInstanceId = query.docs.first.id;
+    userData.user!.friendsLevelUpdate.remove(friendID);
+    await FirebaseFirestore.instance.collection('users').doc(firestoreInstanceId).update({'friendsLevelUpdate': userData.user!.friendsLevelUpdate});
+  }
+
   void deleteFavouriteIds(String id) async {
     List<String> actualFavorites = [];
     await for (List<AppUser> list in readUsers()){
@@ -72,7 +114,7 @@ class UserHandler {
     FirebaseFirestore.instance.collection('users').doc(firestoreInstanceId).update({'favouriteVocabulariesIDs': actualFavorites});
   }
 
-  Future createUser({required userID, required username, required level, required friendsIDs, required friendsRequestsSend, required friendsRequestsRecieved, required friendsRequestsAccepted, required friendsRequestsRejected, required favouriteVocabulariesIDs, required lastTestDate}) async{
+  Future createUser({required userID, required username, required level, required friendsIDs, required friendsRequestsSend, required friendsRequestsRecieved, required friendsRequestsAccepted, required friendsRequestsRejected, required favouriteVocabulariesIDs, required lastTestDate, required finishedGamesIDsNews, required friendsLevelUpdate}) async{
     var users = FirebaseFirestore.instance.collection('users').doc();
     final json = {
       'userID': userID,
@@ -84,7 +126,9 @@ class UserHandler {
       'friendsRequestsAccepted': friendsRequestsAccepted,
       'friendsRequestsRejected': friendsRequestsRejected,
       'favouriteVocabulariesIDs': favouriteVocabulariesIDs,
-      'lastTestDate' : lastTestDate
+      'lastTestDate' : lastTestDate,
+      'finishedGamesIDsNews': finishedGamesIDsNews,
+      'friendsLevelUpdate': friendsLevelUpdate
       };
     await users.set(json);
   }
@@ -129,16 +173,13 @@ class UserHandler {
   }
 
   Future<bool> logoutUser() async{
-    print('a');
     await FirebaseAuth.instance.signOut();
-    print('b');
     userData.user = null;
     userData.vocabularyRepo = null;
     /** 
     userData.vocabularyRepo!.favouritesTable = VocabularyTable('Meine Favoriten', 0, '0');
     userData.vocabularyRepo!.vocabularyTables = [];
     */
-    print('return');
     return true;
   }
   

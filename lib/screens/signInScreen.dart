@@ -10,6 +10,7 @@ import 'package:parla_italiano/handler/startLoader.dart';
 
 import 'package:parla_italiano/screens/start_screen.dart';
 import 'package:parla_italiano/widgets/personalizedTextformField.dart';
+import 'package:parla_italiano/adminScreens/ugoScreen.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -95,18 +96,36 @@ class _SignInScreenState extends State<SignInScreen> {
                                         email: email,
                                         password: password
                                       );
+                                      print(1);
                                       final user = credential.user;
+                                      print(2);
                                       if (await _userHandler.findUserByID(user!.uid) != null){
+                                        print(3);
                                         AppUser? appUser = await _userHandler.findUserByID(user!.uid); 
+                                        print(4);
                                         _controllerEmail.clear();
                                         _controllerPassword.clear();
-                                        StartLoader().loadData(appUser!);
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => StartScreen(),
-                                          ),
-                                        );
+                                        print(5);
+                                        await StartLoader().loadData(appUser!, context);
+                                        print(6);
+                                        if (appUser!.username == 'admin' || appUser!.username == 'admin2' || appUser!.username == 'admin3'){
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => new HomeScreen(),
+                                            ),
+                                          );
+                                        } else {
+                                          /** 
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => new StartScreen(),
+                                            ),
+                                          );
+                                          */
+                                        }
+                                        
                                       }
                                     } on FirebaseAuthException catch (e) {
                                       if (e.code == 'user-not-found') {
@@ -144,7 +163,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                   ),
                                   onPressed: () async {
                                     if (_formKey.currentState!.validate()) {
-                                      _dialogBuilder(context);
+                                      //_dialogBuilder(context);
                                     }
                                   },
                                   child: const Text(
@@ -258,11 +277,16 @@ class _SignInScreenState extends State<SignInScreen> {
                       List<String> friendsRequestsAccepted = [];
                       List<String> friendsRequestsRejected = [];
                       List<String> favouriteVocabulariesIDs= [];
-                      _userHandler.createUser(userID: user!.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsRequestsSend: friendsRequestsSend, friendsRequestsRecieved: friendsRequestsReceived, friendsRequestsAccepted: friendsRequestsAccepted, friendsRequestsRejected: friendsRequestsRejected, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: '');
-                      UserDataGlobals.user = AppUser(userID: user.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsRequestsSend: friendsRequestsSend, friendsRequestsReceived: friendsRequestsReceived, friendsRequestsAccepted: friendsRequestsAccepted, friendsRequestsRejected: friendsRequestsRejected, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: "");
+                      List<String> finishedGamesIDsNews = [];
+                      List<String> friendsLevelUpdate =[];
+                      print(1);
+                      _userHandler.createUser(userID: user!.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsRequestsSend: friendsRequestsSend, friendsRequestsRecieved: friendsRequestsReceived, friendsRequestsAccepted: friendsRequestsAccepted, friendsRequestsRejected: friendsRequestsRejected, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: '', finishedGamesIDsNews: finishedGamesIDsNews, friendsLevelUpdate: friendsLevelUpdate);
+                      print(2);
+                      UserDataGlobals.user = AppUser(userID: user.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsRequestsSend: friendsRequestsSend, friendsRequestsReceived: friendsRequestsReceived, friendsRequestsAccepted: friendsRequestsAccepted, friendsRequestsRejected: friendsRequestsRejected, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: "", finishedGamesIDsNews: finishedGamesIDsNews, friendsLevelUpdate: friendsLevelUpdate);
+                      print(3);
                       if (await _userHandler.findUserByID(user!.uid) != null){
                         AppUser? appUser = await _userHandler.findUserByID(user!.uid);
-                        StartLoader().loadData(appUser);
+                        await StartLoader().loadData(appUser, context);
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(

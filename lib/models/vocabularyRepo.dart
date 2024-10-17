@@ -47,6 +47,21 @@ class VocabularyRepo{
     }
   }
 
+  List<Vocabulary> findVocabulariesByIDs(List<String> ids){
+    List<Vocabulary> vocabularies = [];
+    for (String id in ids){
+      for (VocabularyTable table in vocabularyTables){
+        for (Vocabulary vocabulary in table.vocabularies){
+          if (vocabulary.id == id){
+            vocabularies.add(vocabulary);
+            break;
+          }
+        }
+      }
+    }
+    return vocabularies;
+  }
+
   void deleteFavouriteVocabulary(String vocabularyId){
     for (Vocabulary vocabulary in favouritesTable.vocabularies){
       if (vocabulary.id == vocabularyId){
@@ -56,9 +71,9 @@ class VocabularyRepo{
     UserHandler().deleteFavouriteIds(vocabularyId);
   }
 
-  void addVocabularyToFavorites(String vocabularyId, String italian, String german, String additional){
-    favouritesTable.vocabularies.add(Vocabulary(german, italian, additional, vocabularyId));
-    UserHandler().addFavouriteIds(vocabularyId);
+  void addVocabularyToFavorites(String id, String italian, String german, String additional){
+    favouritesTable.vocabularies.add(Vocabulary(id, german, italian, additional));
+    UserHandler().addFavouriteIds(id);
   }
 
   bool isVocabularyInFavorites(String vocabularyId){
@@ -87,7 +102,7 @@ class VocabularyRepo{
         }
       }
       if (counter > 0){
-        List<Vocabulary> vocabularies = selectVocabulariesOfTable(counter, vocabularyTables.firstWhere((element) => element.level == i));
+        List<Vocabulary> vocabularies = selectVocabulariesOfTable(counter, vocabularyTables.firstWhere((element) => element.level == i).vocabularies);
         for (Vocabulary vocabulary in vocabularies){
           vocabularyListForTest.add(vocabulary);
         }
@@ -96,20 +111,20 @@ class VocabularyRepo{
     return vocabularyListForTest;
   }
 
-  List<Vocabulary> selectVocabulariesOfTable(int amountOfWords, VocabularyTable vocabularyTable){
+  List<Vocabulary> selectVocabulariesOfTable(int amountOfWords, List<Vocabulary> vocabularies){
     List<Vocabulary> vocabularyListForTest = [];
     int amountOfSelectedWords = 0;
     List<int> selectedWordIndizes = [];
     while (amountOfSelectedWords < amountOfWords){
       Random random = new Random();
-      int randomNumber = random.nextInt(vocabularyTable.vocabularies.length);
+      int randomNumber = random.nextInt(vocabularies.length);
       if (!selectedWordIndizes.contains(randomNumber)){
         selectedWordIndizes.add(randomNumber);
         amountOfSelectedWords = amountOfSelectedWords + 1;
       }
     }
     for (int index in selectedWordIndizes){
-      vocabularyListForTest.add(vocabularyTable.vocabularies[index]);
+      vocabularyListForTest.add(vocabularies[index]);
     }
     return vocabularyListForTest;
   }
@@ -119,9 +134,9 @@ class VocabularyRepo{
     VocabularyTable actualLevelTable = vocabularyTables.firstWhere((element) => element.level == actualUserLevel);
     List<Vocabulary> vocabularyListForTest = [];
     if (actualUserLevel == 1){
-      vocabularyListForTest = selectVocabulariesOfTable(20, actualLevelTable);
+      vocabularyListForTest = selectVocabulariesOfTable(20, actualLevelTable.vocabularies);
     } else {
-      vocabularyListForTest = selectVocabulariesOfTable(10, actualLevelTable);
+      vocabularyListForTest = selectVocabulariesOfTable(10, actualLevelTable.vocabularies);
       List<Vocabulary> oldVocabularies = selectOldVocabularies(10, actualUserLevel);
       for(Vocabulary vocabulary in oldVocabularies){
         vocabularyListForTest.add(vocabulary);
@@ -131,4 +146,25 @@ class VocabularyRepo{
     return vocabularyListForTest;
   }
 
+  List<Vocabulary> generateVocabulariesTillLevel(int lowestLevel, int amount){
+    List<Vocabulary> allVocabularies = [];
+    for (VocabularyTable table in vocabularyTables){
+      if (table.level <= lowestLevel){
+        for (Vocabulary vocabulary in table.vocabularies){
+          allVocabularies.add(vocabulary);
+        }
+      }
+    }
+    List<Vocabulary> allSelectedVocabularies = selectVocabulariesOfTable(amount, allVocabularies);
+    return allSelectedVocabularies;
+  }
+
+  List<Vocabulary> getVocabulariesFromID(String id) {
+    for (VocabularyTable table in vocabularyTables){
+      if (table.db_id == id){
+        return table.vocabularies;
+      }
+    }
+    return [];
+  }
 }

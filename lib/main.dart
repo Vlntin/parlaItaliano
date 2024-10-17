@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'routes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:parla_italiano/constants/colors.dart' as colors;
 
 final _router = createRouter();
 
@@ -28,7 +29,7 @@ class App extends StatelessWidget{
         ),
         //onTertiary: Colors.orange,
         //onPrimary: Colors.blue
-        scaffoldBackgroundColor: Colors.green[200],
+        scaffoldBackgroundColor: colors.appGreen,
         primaryColor: Colors.black,
         textTheme: TextTheme(
           bodyMedium: TextStyle(

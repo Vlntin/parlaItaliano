@@ -18,6 +18,8 @@ import 'dart:ui';
 
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'dart:io';
+import 'package:parla_italiano/constants/colors.dart' as colors;
+import 'package:parla_italiano/routes.dart' as routes;
 
 class VocabularyWidget extends StatefulWidget {
   const VocabularyWidget(this.id, this.italian, this.german, this.additional, {super.key});
@@ -124,7 +126,7 @@ class _VocabularyListTileWidgetState extends State<VocabularyListTileWidget> {
                 flex: 4,
                 child: Center(
                   child: Text(
-                    'italienisch',
+                    'Italienisch',
                     style:TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold
@@ -137,7 +139,7 @@ class _VocabularyListTileWidgetState extends State<VocabularyListTileWidget> {
                 flex: 4,
                 child: Center(
                   child: Text(
-                    'deutsch',
+                    'Deutsch',
                     style:TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold
@@ -150,7 +152,7 @@ class _VocabularyListTileWidgetState extends State<VocabularyListTileWidget> {
                 flex: 4,
                 child: Center(
                   child: Text(
-                    'zusätzliches',
+                    'Zusätzliches',
                     style:TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold
@@ -208,19 +210,37 @@ class ListWidget extends StatelessWidget {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            _getTrainingStartItem(this.level, context),
             SizedBox(width: 14),
             _getLockedUnlockedItem(this.level, context),
             SizedBox(width: 14), 
             IconButton(
               icon: Icon(Icons.search),
               tooltip: 'Vokabeln anschauen',
-              onPressed:() => context.goNamed('vocabularies_details', pathParameters: {'tablename': this.title, 'table_id': this.id})
+              onPressed:() {
+                if (this.level <= globalData.user!.level){
+                  context.pushNamed('vocabularies_details', pathParameters: {'tablename': this.title, 'table_id': this.id});
+                  //context.goNamed('vocabularies_details', pathParameters: {'tablename': this.title, 'table_id': this.id}); 
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Level noch nicht freigeschalten!'))
+                  );
+                }
+              }
             ),
             SizedBox(width: 14),
             IconButton(
               icon: Icon(Icons.download),
               tooltip: 'PDF generieren',
-              onPressed:() => _createPDF(this.title, this.id, this.level)
+              onPressed:() {
+                if (this.level <= globalData.user!.level){
+                  _createPDF(this.title, this.id, this.level);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Level noch nicht freigeschalten!'))
+                  );
+                }
+              }
             )
           ]
         ) 
@@ -237,7 +257,7 @@ class ListWidget extends StatelessWidget {
     PdfCompositeField compositefields = PdfCompositeField(
         font: PdfStandardFont(PdfFontFamily.timesRoman, 19),
         brush: PdfSolidBrush(PdfColor(0, 0, 0)),
-        text: '${title} (${level})');
+        text: '${title} (${level !=0 ? level : ''})');
 
     compositefields.draw(header2.graphics,
         Offset(220, 10 - PdfStandardFont(PdfFontFamily.timesRoman, 11).height));
@@ -337,76 +357,51 @@ class ListWidget extends StatelessWidget {
     }
   }
 
+  Widget _getTrainingStartItem(int vocabularyListLevel, BuildContext context) {
+    if (vocabularyListLevel == globalData.user!.level + 1){
+      return IconButton(
+        icon: Icon(Icons.fitness_center),
+        tooltip: 'Training starten',
+        onPressed: (){
+          routes.dialogBuilder(context);
+        },
+      );
+    } else {
+      return Visibility(
+        maintainSize: true, 
+        maintainAnimation: true,
+        maintainState: true,
+        visible: false, 
+        child: IconButton(
+          icon: Icon(Icons.fitness_center),
+          tooltip: 'Training starten',
+          onPressed: (){
+            routes.dialogBuilder(context);
+          },
+        )
+      );
+    }
+  }
+
   IconButton _getLockedUnlockedItem(int vocabularyListLevel, BuildContext context){
     if (vocabularyListLevel > globalData.user!.level){
       return IconButton(
         icon: Icon(Icons.lock),
         tooltip: 'noch nicht freigeschaltet',
         onPressed: (){
-          if (vocabularyListLevel == globalData.user!.level + 1){
-            _dialogBuilder(context);
-          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Level noch nicht freigeschalten!'))
+          );
         },
       );
     } else {
       return IconButton(
         icon: Icon(Icons.done_rounded),
         tooltip: 'freigeschaltet',
-        onPressed: (){},
+        onPressed: (){
+        },
       );
     }
-  }
-
-  Future<void> _dialogBuilder(BuildContext context) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Center(
-            child: Text('Nächstes Level freischalten')
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Center(
-                child: const Text(
-                  'Du kannst nur einen Test pro Tag absolvieren. Möchtest du diesen jetzt starten?',
-                ),
-              ),
-            ]
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Starten'),
-              onPressed:() {
-                var startBool = _checkIfTestCanStart(context);
-                if (startBool){
-                  UserHandler().updateTestDate();
-                  context.go('/vocabularies_test');
-                } else {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Du hast heute schon einen Test gestartet'))
-                  );
-                }
-                //to delete:
-                context.go('/vocabularies_test');
-              }
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Schließen'),
-              onPressed:() => Navigator.pop(context)
-            ),
-          ],
-        );
-      },
-    );
   }
 
   bool _checkIfTestCanStart(BuildContext context) {

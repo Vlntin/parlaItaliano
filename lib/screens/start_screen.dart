@@ -2,9 +2,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:parla_italiano/dbModels/DBclassicGame.dart';
+import 'package:parla_italiano/dbModels/appUser.dart';
+import 'package:parla_italiano/games/classicGame.dart';
 import 'package:parla_italiano/globals/appBar.dart';
 import 'package:parla_italiano/globals/navigationBar.dart';
 import 'package:parla_italiano/globals/globalData.dart' as userData;
+import 'package:parla_italiano/handler/gameHandler.dart';
+import 'package:parla_italiano/handler/userHandler.dart';
 import 'package:parla_italiano/widgets/newsWidgets.dart';
 
 class StartScreen extends StatefulWidget {
@@ -17,7 +22,7 @@ class StartScreen extends StatefulWidget {
 
 class StartScreenState extends State<StartScreen> {
 
-  late List<NewsWidget> news = _createNews();
+  List<NewsWidget> news =  userData.news;
   int currentPageIndex = 0;
 
   @override
@@ -29,7 +34,7 @@ class StartScreenState extends State<StartScreen> {
         padding: EdgeInsets.symmetric(horizontal: 12),
         child:
           Column(
-            children: [
+            children: [              
               Expanded(
                 flex: 1,
                 child:
@@ -168,7 +173,6 @@ class StartScreenState extends State<StartScreen> {
             ),
             child: Padding(
               padding: EdgeInsets.all(10),
-                child:Flexible(
                   child: ListView.builder(
                     scrollDirection: Axis.vertical,
                     //shrinkWrap: true,
@@ -177,56 +181,12 @@ class StartScreenState extends State<StartScreen> {
                       return news[index];
                     }
                   )
-                )
+                
             )
           )
         ) 
       );
     }
     
-  }
-
-  List<FriendsRequestWidget> _getAllFriendsRequests() {
-    List<FriendsRequestWidget> requests = [];
-    /** 
-    for (String id in userData.user!.friendsRequestsReceived){
-      String appuser = await UserHandler().findUserNameByID(id);
-      await appuser;
-      requests.add(appuser);
-    }
-    */
-    for (String id in userData.user!.friendsRequestsReceived){
-      requests.add(FriendsRequestWidget(id));
-    }
-    return requests;
-  }
-
-  List<FriendsRequestAcceptedWidget> _getAllFriendsAccepted() {
-    List<FriendsRequestAcceptedWidget> friendRequests = [];
-    /** 
-    for (String id in userData.user!.friendsRequestsReceived){
-      String appuser = await UserHandler().findUserNameByID(id);
-      await appuser;
-      requests.add(appuser);
-    }
-    */
-    for (String id in userData.user!.friendsRequestsAccepted){
-      friendRequests.add(FriendsRequestAcceptedWidget(id));
-    }
-    return friendRequests;
-  }
-
-  _createNews(){
-    List<NewsWidget> news = [];
-    List<FriendsRequestWidget> friendRequests = _getAllFriendsRequests();
-    for (FriendsRequestWidget element in friendRequests){
-      news.add(element);
-    }
-
-    List<FriendsRequestAcceptedWidget> friendAccepts = _getAllFriendsAccepted();
-    for (FriendsRequestAcceptedWidget element in friendAccepts){
-      news.add(element);
-    }
-    return news;
   }
 }

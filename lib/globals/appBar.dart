@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:parla_italiano/globals/globalData.dart' as userData;
 import 'package:parla_italiano/handler/userHandler.dart';
 import 'package:parla_italiano/handler/friendsHandler.dart';
-import 'package:parla_italiano/widgets/personalizedTextformField.dart';
+import 'package:parla_italiano/constants/colors.dart' as colors;
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
@@ -21,20 +21,35 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context){
     return AppBar(
-        //backgroundColor: Color.fromRGBO(249, 228, 183, 1),
-        backgroundColor: Color.fromRGBO(248, 225, 174, 1),
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('This is a snackbar')));
-            },
-        ),
-        title:Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
+        backgroundColor: colors.appBarColor,
+        automaticallyImplyLeading: false,
+        title:Row(
             children: [
               Expanded(
+                flex: 1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.person_rounded,
+                    ),
+                    const SizedBox(width: 20),
+                    Icon(
+                      Icons.emoji_events,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(userData.user!.level.toString(), style: TextStyle(fontSize: 16)),
+                    const SizedBox(width: 20),
+                    Icon(
+                      Icons.group,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(userData.user!.friendsIDs.length.toString(), style: TextStyle(fontSize: 16)),
+                  ],
+                )
+              ),
+              Expanded(
+                flex: 2,
                 child:  Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -45,64 +60,48 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ],
                 ),
               ),
-              /*3*/
-              Icon(
-                Icons.emoji_events,
-              ),
-              const SizedBox(width: 4),
-              Text(userData.user!.level.toString(), style: TextStyle(fontSize: 16)),
-              const SizedBox(width: 20),
-              Icon(
-                Icons.group,
-              ),
-              const SizedBox(width: 4),
-              Text(userData.user!.friendsIDs.length.toString(), style: TextStyle(fontSize: 16)),
+              Expanded(
+                flex: 1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    
+                    IconButton(
+                      icon: const Icon(Icons.person_add_alt_1),
+                      tooltip: 'Füge neue Freunde hinzu!',
+                      onPressed: () {
+                        _dialogBuilderAddFriend(context);
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.person_3),
+                      tooltip: 'Ändere dein Profil!',
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('This is a snackbar')));
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.logout),
+                      tooltip: 'Logout!',
+                      onPressed: () async {
+                        if (await UserHandler().logoutUser()){
+                          context.go('/signInScreen');
+                        }
+                      },
+                    ),
+                  ],
+                )
+              )     
             ],
-          ),
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.person_add_alt_1),
-            tooltip: 'Füge neue Freunde hinzu!',
-            onPressed: () {
-              _dialogBuilderAddFriend(context);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.person_3),
-            tooltip: 'Ändere dein Profil!',
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('This is a snackbar')));
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Logout!',
-            onPressed: () async {
-              /**
-              print('clicked');
-              context.go('/signInScreen');
-              print('go');
-              //await UserHandler().logoutUser();
-              print('finished');
-              */
-              print('clicked');
-              if (await UserHandler().logoutUser()){
-                print('go');
-                context.go('/signInScreen');
-              }
-              
-            },
-          )
-        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(2.0),
-            child: Container(
-              color: Colors.black,
-              height: 2.0,
-     ),
-   )
+          child: Container(
+            color: Colors.black,
+            height: 2.0,
+          ),
+        )
     );
   }
 
@@ -110,11 +109,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 
   Future<void> _dialogBuilderAddFriend(BuildContext context) {
+    dynamic _validationMsg;
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Freund hinzufügen'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(color: Colors.black, width: 2.0)),
+          backgroundColor: Colors.white,
+          title: const Text('Freund hinzufügen', textAlign: TextAlign.center,),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -123,75 +127,48 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               Form(
                 key: _newFriendFormKey,
-                child: PersonalizedTextformField(
+                child: TextFormField(
                   controller: _controllerUserName, 
-                  hintText: 'Benutzername',
-                  newValidator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return  'Benutzername eingeben du Hund!';
-                    }
-                      return null;
+                  onFieldSubmitted: (value) async {
+                    _validationMsg = await checkUsername(value, context, _controllerUserName);
+                    _newFriendFormKey.currentState!.validate();
                   },
+                  decoration: const InputDecoration(
+                    hintText: 'Benutzername',
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black),
+                    ),
+                  ),
+                  validator: (value) => _validationMsg,
                 )
               ),
             ]
           ),
           actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text(
-                'Hinzufügen',
-                style: TextStyle(
-                  color: Colors.black
+            Flexible(
+                child: Center(
+                  child: ElevatedButton(
+                    style: TextButton.styleFrom(
+                      textStyle: Theme.of(context).textTheme.labelLarge,
+                      backgroundColor: colors.popUpButtonColor
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(5), 
+                      child:const Text(
+                        'Hinzufügen',
+                        style: TextStyle(
+                          color: Colors.black
+                        ),
+                      ),
+                    ),
+                    onPressed: () async {
+                      _validationMsg = await checkUsername(_controllerUserName.text, context, _controllerUserName);
+                      _newFriendFormKey.currentState!.validate();
+                    } 
+                      
+                  )
                 ),
-              ),
-              onPressed: () async {
-                if (_newFriendFormKey.currentState!.validate()) {
-                  final username = _controllerUserName.text;
-                  if ( username== userData.user!.username){
-                    ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Das bist du du Fisch'))
-                    );
-                  } else {
-                    bool hasAlreadyThisFriend = await userData.user!.hasFriendWithUserName(username);
-                    if (hasAlreadyThisFriend){
-                      ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Der Nutzer ist schon dein Freund'))
-                      );
-                    } else {
-                      bool isSearchedUserNotExisting = await UserHandler().isUsernameNotUsed(username);
-                      if (isSearchedUserNotExisting){
-                        ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Der Nutzer existiert nicht'))
-                        );
-                      } else {
-                        bool hasAlreadySend = await userData.user!.hasAlreadySendAnRequest(username);
-                        if (hasAlreadySend){
-                          ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Du hast ihm schonmal eine Anfrage geschickt'))
-                          );
-                        } else {
-                          bool hasAlreadyReceived = await userData.user!.hasAlreadyReceivedAnRequest(username);
-                          if (hasAlreadyReceived){
-                            ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Er hat dir schon eine Anfrage geschickt'))
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Anfrage geschickt'))
-                            );
-                            FriendsHandler().sendFriendRequest(username);
-                          }
-                        }
-                      }
-                    }
-                  }
-                  _controllerUserName.clear();
-                  Navigator.of(context).pop(false);
-                } 
-              }                    
+                               
             ),
           ],
         );
@@ -200,8 +177,32 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   } 
 }
 
-
-
-
-final _formKey = GlobalKey<FormState>();
-final _controllerEmail = TextEditingController();
+Future<dynamic> checkUsername(String username, context, controllerUserName) async {
+  if ( username== userData.user!.username){
+    return 'Das bist du du Fisch';
+  } else {
+    if (await userData.user!.hasFriendWithUserName(username)){
+      return 'Der Nutzer ist schon dein Freund';
+    } else {
+      if (await UserHandler().isUsernameNotUsed(username)){
+        return 'Der Nutzer existiert nicht';
+      } else {
+        if (await userData.user!.hasAlreadySendAnRequest(username)){
+          return 'Du hast ihm schonmal eine Anfrage geschickt';
+        } else {
+          if (await userData.user!.hasAlreadyReceivedAnRequest(username)){
+            return 'Er hat dir schon eine Anfrage geschickt';
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Anfrage geschickt'))
+            );
+            FriendsHandler().sendFriendRequest(username);
+            controllerUserName.clear();
+            Navigator.of(context).pop(false);
+            return null;
+          }
+        }
+      }
+    }
+  }
+}

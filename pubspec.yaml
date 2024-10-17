@@ -52,6 +52,14 @@ dependencies:
   syncfusion_flutter_pdf: ^25.2.7
 
   carousel_slider: ^4.2.1
+  time_remaining: ^2.0.0+1
+
+ 
+  confetti: ^0.7.0
+  animated_text_kit: ^4.2.1
+  csv: ^6.0.0
+  sqflite: ^2.3.2
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:
@@ -110,3 +118,4 @@ flutter:
     - images/ABMQ2581.JPG
     - images/BFWA0922.JPG
     - images/BSRO2840.JPG
+   # - assets/

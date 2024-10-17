@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:parla_italiano/dbModels/DBtable.dart';
 import 'package:parla_italiano/dbModels/DBvocabulary.dart';
@@ -41,6 +43,13 @@ class VocabularyHandler {
     }
   }
 
+  deleteVocabularyById(String vocabID){
+    final docUser = FirebaseFirestore.instance
+      .collection('vocabularies')
+      .doc(vocabID);
+    docUser.delete();
+  }
+
   Stream<List<DBVocabulary>> readVocabularies() => FirebaseFirestore.instance
     .collection('vocabularies')
     .snapshots()
@@ -64,15 +73,86 @@ class VocabularyHandler {
     await tables.set(json);
   }
 
-  Future createVocabulary({required String italian, required String german, required String additonal, required String id}) async{
-    var vocabularies = FirebaseFirestore.instance.collection('vocabularies').doc();
-    final json = {
-            'italian': italian,
-            'german': german,
-            'additional': additonal,
-            'table_id': id,
-          };
-    await vocabularies.set(json);
+  Future<bool> createVocabulary({required String italian, required String german, required String additional, required String id}) async{
+    bool isAlreadyUsedWord = false;
+    for (VocabularyTable table in globalData.vocabularyRepo!.vocabularyTables){
+      for (Vocabulary vocab in table.vocabularies){
+        if (vocab.german == german || vocab.italian == italian){
+          isAlreadyUsedWord = true;
+          break;
+        }
+      }
+    }
+    if (isAlreadyUsedWord){
+      return false;
+    } else {
+      var vocabularies = FirebaseFirestore.instance.collection('vocabularies').doc();
+      final json = {
+              'italian': italian,
+              'german': german,
+              'additional': additional,
+              'table_id': id,
+            };
+      await vocabularies.set(json);
+      String newVocabID = vocabularies.id;
+      Vocabulary newVocab = Vocabulary(german, italian, additional, newVocabID);
+      for (VocabularyTable table in globalData.vocabularyRepo!.vocabularyTables){
+        if (table.db_id == id){
+          table.vocabularies.add(newVocab);
+          for (VocabularyTable table2 in globalData.vocabularyRepo!.vocabularyTables){
+            if (table2.db_id == id){
+              //print(table.vocabularies.length);
+            }
+          }
+        }
+      }
+      return true;
+    }
+  }
+
+  Future<bool> changeVocabulary({required String italian, required String german, required String additional, required Vocabulary vocabulary}) async{
+    bool isAlreadyUsedWord = false;
+    for (VocabularyTable table in globalData.vocabularyRepo!.vocabularyTables){
+      for (Vocabulary vocab in table.vocabularies){
+        if ((vocab.german == german || vocab.italian == italian) && vocab.id != vocabulary.id){
+          isAlreadyUsedWord = true;
+          break;
+        }
+      }
+    }
+    if (isAlreadyUsedWord){
+      return false;
+    } else {
+      var query = await FirebaseFirestore.instance.collection('vocabularies').where('german', isEqualTo: vocabulary.german).get();
+      var firestoreInstanceId = query.docs.first.id;
+      FirebaseFirestore.instance.collection('vocabularies').doc(firestoreInstanceId).update({'german': german, 'italian': italian, 'additional': additional});
+      for (VocabularyTable table in globalData.vocabularyRepo!.vocabularyTables){
+        for (Vocabulary vocab in table.vocabularies){
+          if (vocab.id == vocabulary.id){
+            vocab.german = german;
+            vocab.italian = italian;
+            vocab.additional = additional;
+            break;
+          }
+        }
+      }
+      return true;
+    }
+  }
+
+  void moveVocabularyToTable(Vocabulary vocab, VocabularyTable table) async{
+    for (VocabularyTable vocabularyTable in globalData.vocabularyRepo!.vocabularyTables){
+      if (vocabularyTable.vocabularies.contains(vocab)){
+        vocabularyTable.vocabularies.remove(vocab);
+      }
+      if (vocabularyTable.db_id == table.db_id){
+        vocabularyTable.addVocabulary(vocab);
+      }
+    }
+    var query = await FirebaseFirestore.instance.collection('vocabularies').where('german', isEqualTo: vocab.german).get();
+    var firestoreInstanceId = query.docs.first.id;
+    FirebaseFirestore.instance.collection('vocabularies').doc(firestoreInstanceId).update({'table_id': table.db_id});
+      
   }
 
   int calculateAmounts(String tableId, List<DBVocabulary> vocabularylist){
@@ -95,6 +175,19 @@ class VocabularyHandler {
       return globalData.vocabularyRepo!.favouritesTable.vocabularies;
     }
     return [];
+  }
+
+  changeTableName(String id, newName, BuildContext context) async {
+    int level = 0;
+    for (VocabularyTable table in globalData.vocabularyRepo!.vocabularyTables){
+      if (table.db_id == id){
+        table.title = newName;
+        level = table.level;
+      }
+    }
+    var query = await FirebaseFirestore.instance.collection('tables').where('level', isEqualTo: level).get();
+    var firestoreInstanceId = query.docs.first.id;
+    FirebaseFirestore.instance.collection('tables').doc(firestoreInstanceId).update({'title': newName});
   }
   
 }

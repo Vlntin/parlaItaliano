@@ -2,14 +2,18 @@
 import 'dart:js_util';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:parla_italiano/dbModels/appUser.dart';
 import 'package:parla_italiano/globals/appBar.dart';
 import 'package:parla_italiano/globals/navigationBar.dart';
 import 'package:parla_italiano/globals/globalData.dart' as userData;
+import 'package:parla_italiano/constants/texts.dart' as texts;
+import 'package:parla_italiano/constants/colors.dart' as colors;
 import 'package:parla_italiano/handler/userHandler.dart';
 
 import 'package:parla_italiano/handler/speaker.dart';
-import 'package:parla_italiano/dbModels/test.dart';
+import 'package:parla_italiano/games/test.dart';
 import 'package:parla_italiano/routes.dart' as routes;
+import 'package:parla_italiano/widgets/rulesDialogBuilder.dart' as rulesBuilder;
 
 class VocabularyTestScreen extends StatefulWidget {
 
@@ -23,6 +27,9 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
 
   final _formKey = GlobalKey<FormState>();
   final _controllerAnswer = TextEditingController();
+
+  bool _gameFinished = false;
+  bool _testPassed = false;
 
   @override
   Widget build(BuildContext context){
@@ -96,134 +103,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                     //ital deutsch und enter
                     Flexible(
                       flex: 5,
-                      child: Container(
-                        alignment:  Alignment.center,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.black,
-                            width: 1.5
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(20)),
-                          color: Color.fromRGBO(248, 225, 174, 1),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Column(
-                              children: [
-                                Flexible(
-                                  flex: 4,
-                                  child: Padding( 
-                                    padding: EdgeInsets.symmetric(horizontal: 20),
-                                    child:SizedBox.expand(  
-                                      child: Center(
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: Center(
-                                                child: _getWidget()
-                                              )
-                                            ),
-                                            const SizedBox(width: 30),
-                                            Expanded(
-                                              child: TextFormField(
-                                                controller: _controllerAnswer,
-                                                decoration: InputDecoration(
-                                                  hintText: 'Übersetzung',
-                                                  /** 
-                                                  focusedBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(25.0),
-                                                    borderSide: BorderSide(
-                                                      color: Colors.black,
-                                                    ),
-                                                  ),
-                                                  enabledBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(25.0),
-                                                    borderSide: BorderSide(
-                                                      color: Colors.red,
-                                                      width: 2.0,
-                                                    ),
-                                                  ),
-                                                  */
-                                                ),
-                                                validator: (value) {
-                                                  if (value == null || value.isEmpty) {
-                                                    return 'Passwort eingeben du Hund!';
-                                                  }
-                                                    return null;
-                                                },
-                                              )
-                                            ),
-                                          ],
-                                        )
-                                      )
-                                    ) 
-                                  )
-                                ),
-                                Flexible(
-                                  flex: 4,
-                                  child: Center(
-                                    child: ElevatedButton(
-                                      //style: ElevatedButton.styleFrom(
-                                      //  minimumSize: Size(20, 20),
-                                      //),
-                                      child: Padding(
-                                        padding: EdgeInsets.all(5),
-                                        child: Text(
-                                          'überprüfen',
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            color: Colors.black
-                                          ),
-                                        ),
-                                      ),
-                                      onPressed: () => {
-                                        setState(() {
-                                          _controllerAnswer.clear();
-                                          widget.test.validateAnswer(_controllerAnswer.text);
-                                          if (widget.test.isTestFinished()){
-                                            _finishQuiz();
-                                          }
-                                        }) 
-                                      }, 
-                                    )
-                                  )
-                                ),
-                                Flexible(
-                                  flex: 1,
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 6,
-                                        child: Center()
-                                      ),
-                                      Flexible(
-                                        flex: 1,
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            alignment: Alignment.bottomRight,
-                                            backgroundColor: Colors.white,
-                                          ),
-                                          child: Padding(
-                                            padding: EdgeInsets.all(5),
-                                            child:Icon(
-                                              Icons.question_mark_outlined,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          onPressed: () {
-                                            _dialogBuilderRules(context);
-                                          },
-                                        )
-                                      )
-                                    ]
-                                  )
-                                )
-                              ],
-                            )
-                          )
-                        )
-                      )
+                      child: _gameFinished ? _getFinishedContainer() : _getMainContainer()
                     ),
                     //false 
                     Flexible(
@@ -293,14 +173,221 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
     );
   }
 
-  void _finishQuiz(){
+  void _finishQuiz() async {
     routes.canTestBeLeaved = true;
     if (widget.test.getAmountOfCorrectWords() >= widget.test.getAmountOfNeededCorrects()){
       UserHandler().updateUserLevel();
-      _dialogBuilderPassed(context);
+      for (String friendID in userData.user!.friendsIDs){
+        AppUser friend = await UserHandler().findUserByID(friendID);
+        UserHandler().addLevelUpdateNews(friend);
+      }
+      _testPassed = true;
     } else {
-      _dialogBuilderNotPassed(context);
+      _testPassed = false;
     }
+    _gameFinished = true;
+  }
+
+  _getFinishedContainer(){
+    String text1;
+    String text2;
+    if(_testPassed){
+      text1 = 'Glückwunsch! Du hast von ${widget.test.getAmountsOfPlayingWord()} Wörtern ${widget.test.getAmountOfCorrectWords()} Wörter richtig übersetzt!';
+      text2 = 'Damit bist du jetzt in Level ${userData.user!.level}. Schau dir die neuen Vokabeln an!';
+    } else {
+      text1 = 'Du hast von ${widget.test.getAmountsOfPlayingWord()} Wörtern ${widget.test.getAmountOfCorrectWords()} Wörter richtig übersetzt!';
+      text2 = 'Damit bleibst du in Level ${userData.user!.level}. Probiere es morgen nochmal!';
+    }
+    return Container(
+      alignment:  Alignment.center,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.black,
+          width: 1.5
+        ),
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        color: colors.appBarColor,
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: Center(
+          child: Column(
+            children: [
+              Flexible(
+                flex: 1,
+                child: Padding( 
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Center(
+                    child: Text(
+                      text1,
+                      style: TextStyle(
+                        fontSize: 22
+                      ),
+                    )
+                  )
+                )
+              ),
+              Flexible(
+                flex: 1,
+                child: Padding( 
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Center(
+                    child: Text(
+                      text2,
+                      style: TextStyle(
+                        fontSize: 22
+                      ),
+                    )
+                  )
+                )
+              ),
+              Flexible(
+                flex: 1,
+                child: Center(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      alignment: Alignment.center,
+                    ),
+                    onPressed:() => context.go('/startScreen'),
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Text(
+                        "Zurück zur Startseite",
+                        style: TextStyle(
+                          fontSize: 20
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              )
+            ],
+          )
+        )
+      )
+    );
+  }
+
+  _getMainContainer(){
+    return Container(
+      alignment:  Alignment.center,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.black,
+          width: 1.5
+        ),
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        color: colors.appBarColor,
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: Center(
+          child: Column(
+            children: [
+              Flexible(
+                flex: 4,
+                child: Padding( 
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child:SizedBox.expand(  
+                    child: Center(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Center(
+                              child: _getWidget()
+                            )
+                          ),
+                          const SizedBox(width: 30),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _controllerAnswer,
+                              decoration: InputDecoration(
+                                hintText: 'Übersetzung',
+                              ),
+                              onFieldSubmitted: (value) async {
+                                setState(() {
+                                  _controllerAnswer.clear();
+                                  widget.test.validateAnswer(_controllerAnswer.text);
+                                  if (widget.test.isTestFinished()){
+                                    _finishQuiz();
+                                  }
+                                });
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Passwort eingeben du Hund!';
+                                }
+                                  return null;
+                              },
+                            )
+                          ),
+                        ],
+                      )
+                    )
+                  ) 
+                )
+              ),
+              Flexible(
+                flex: 4,
+                child: Center(
+                  child: ElevatedButton(
+                    child: Padding(
+                      padding: EdgeInsets.all(5),
+                      child: Text(
+                        'überprüfen',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.black
+                        ),
+                      ),
+                    ),
+                    onPressed: () => {
+                      setState(() {
+                        _controllerAnswer.clear();
+                        widget.test.validateAnswer(_controllerAnswer.text);
+                        if (widget.test.isTestFinished()){
+                          _finishQuiz();
+                        }
+                      }) 
+                    }, 
+                  )
+                )
+              ),
+              Flexible(
+                flex: 1,
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 6,
+                      child: Center()
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          alignment: Alignment.bottomRight,
+                          backgroundColor: Colors.white,
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child:Icon(
+                            Icons.question_mark_outlined,
+                            color: Colors.black,
+                          ),
+                        ),
+                        onPressed: () {
+                          rulesBuilder.dialogBuilderRules(context, texts.testRules);
+                        },
+                      )
+                    )
+                  ]
+                )
+              )
+            ],
+          )
+        )
+      )
+    );
   }
 
   _getWidget(){
@@ -328,96 +415,5 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
       );
     }
   }
-
-  Future<void> _dialogBuilderNotPassed(BuildContext context) {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Testergebnis'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Leider waren von den ${widget.test.getAmountsOfPlayingWord()} Wörtern ${widget.test.getAmountOfWrongWords()} Wörter falsch, sodass du den Test nicht bestanden hast.\nProbiere es morgen erneut!',
-              ),
-            ]
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Zurück zur Startseite'),
-              onPressed: ()  {
-                context.go('/startScreen');
-              }                    
-            ),
-          ],
-        );
-      },
-    );
-  }    
-
-  Future<void> _dialogBuilderPassed(BuildContext context) {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Testergebnis'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Glückwunsch! Du hast von ${widget.test.getAmountsOfPlayingWord()} Wörtern ${widget.test.getAmountOfCorrectWords()} Wörter richtig übersetzt, sodass du nun in Level ${userData.user!.level}  bist!\nSchau dir direkt die neuen Vokabeln an!',
-              ),
-            ]
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Zurück zur Startseite'),
-              onPressed: ()  {
-                context.go('/startScreen');
-              }                    
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _dialogBuilderRules(BuildContext context) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Regeln'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Es gelten folgende Regeln: \nMan darf nur ein mal pro Tag zum Test antreten. \nEs sind immer ${widget.test.getAmountsOfPlayingWord()} Wörter, von denen ${widget.test.getAmountOfNeededCorrects()} richtig übersetzt werden müssen. \n10 Wörter werden zufällig aus dem aktuellen Level gewählt und 10 weiter aus den anderen Leveln.',
-              ),
-            ]
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('weiterspielen'),
-              onPressed: ()  {
-                Navigator.of(context).pop(false);
-              }                    
-            ),
-          ],
-        );
-      },
-    );
-  }     
+   
 }
