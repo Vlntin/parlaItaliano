@@ -54,6 +54,7 @@ final _router = GoRouter(
       path: '/oneVsOneScreen', 
       builder: (context, state) => const OneVSOneScreen(),
     ),
+    /** 
     GoRoute(
       path: '/vocabularies_test', 
       builder: (context, state) => VocabularyTestScreen(),     
@@ -65,7 +66,8 @@ final _router = GoRouter(
           return await buildLeaveDialog(context);
         }
       }
-    ),   
+    ),
+    */   
     GoRoute(
       path: '/signInScreen', 
       builder: (context, state) => const SignInScreen(),
