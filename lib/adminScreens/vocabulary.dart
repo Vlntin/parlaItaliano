@@ -1,10 +1,11 @@
 
-class Vocabulary{
+class Vocab{
   String german;
   String italian;
   String additional;
+  String id;
 
-  Vocabulary(this.german, this.italian, this.additional);
+  Vocab(this.german, this.italian, this.additional, this.id);
 
   String getGerman(){
     return this.german;

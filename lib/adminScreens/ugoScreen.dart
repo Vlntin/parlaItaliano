@@ -1,13 +1,6 @@
-import 'dart:js_util';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:parla_italiano/dbModels/DBtable.dart';
-import 'package:parla_italiano/adminScreens/screen_one.dart';
-import 'package:parla_italiano/dbModels/DBvocabulary.dart';
-import 'package:parla_italiano/handler/vocabularyHandler.dart';
-import 'package:parla_italiano/globals/globalData.dart' as gD;
+import 'package:parla_italiano/adminScreens/globalData.dart' as gD;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,19 +10,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _controllerTitle = TextEditingController();
-  final _controllerLevel = TextEditingController();
-  final _vocabularyHandler = VocabularyHandler();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(body:
       SingleChildScrollView(child:
-        Column(children: [
-          Form(
-            key: _formKey,
-            child: Column(
+        Column(
               children: [
                 const SizedBox(height: 8),
                 const Text('Generelle Idee:',
@@ -94,8 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             )
           )
-        ])
-      )
     );
   }
 

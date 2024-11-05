@@ -13,7 +13,10 @@ import 'package:parla_italiano/handler/userHandler.dart';
 import 'package:parla_italiano/handler/speaker.dart';
 import 'package:parla_italiano/games/test.dart';
 import 'package:parla_italiano/routes.dart' as routes;
+import 'package:parla_italiano/screens/start_screen.dart';
 import 'package:parla_italiano/widgets/rulesDialogBuilder.dart' as rulesBuilder;
+
+
 
 class VocabularyTestScreen extends StatefulWidget {
 
@@ -30,9 +33,12 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
 
   bool _gameFinished = false;
   bool _testPassed = false;
+  String testLevel = (userData.user!.level + 1).toString();
 
-  @override
-  Widget build(BuildContext context){
+  late Widget bigScreen = getBigScreen();
+  late Widget smallScreen = getSmallScreen();
+
+  Widget getBigScreen(){
     return Scaffold(
       bottomNavigationBar: CustomNavigationBar(3),
       appBar: CustomAppBar(), 
@@ -43,7 +49,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
             Flexible(
               flex: 2,
               child: Text(
-                'Test zum Levelaufstieg für Level ${userData.user!.level + 1}',
+                'Test zum Levelaufstieg für Level $testLevel',
                 style: TextStyle(
                   fontSize: 22,
                 )
@@ -103,7 +109,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                     //ital deutsch und enter
                     Flexible(
                       flex: 5,
-                      child: _gameFinished ? _getFinishedContainer() : _getMainContainer()
+                      child: _gameFinished ? _getFinishedContainer(22) : _getMainContainer(20)
                     ),
                     //false 
                     Flexible(
@@ -170,10 +176,165 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
           ]
         )
       )
-    );
+  );
   }
 
-  void _finishQuiz() async {
+  Widget getSmallScreen(){
+    return Scaffold(
+      bottomNavigationBar: CustomNavigationBar(3),
+      appBar: CustomAppBar(), 
+      body: Padding(
+        padding: EdgeInsets.all(32),
+        child: Column(
+          children: [
+            Flexible(
+              flex: 2,
+              child: Text(
+                'Test zum Levelaufstieg für Level ${userData.user!.level + 1}',
+                style: TextStyle(
+                  fontSize: 22,
+                )
+              )
+            ),
+            Expanded(
+              flex: 1,
+              child: SizedBox()
+            ),
+            Flexible(
+              flex: 10,
+              child: Form(
+                key: _formKey,
+                child: Row(
+                  children: [
+                    // korrekt
+                    Flexible(
+                      flex: 2,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: SizedBox()
+                            ),
+                            Flexible(
+                              flex: 6,
+                              child: Center(
+                                child: RotatedBox(
+                                  quarterTurns: -1,
+                                  child: LinearProgressIndicator(
+                                    value: widget.test.getPercentageOfCorrectAnswers(),
+                                    backgroundColor: Colors.white,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                    minHeight: 30,
+                                  ),
+                                )
+                              )
+                            ),
+                            Flexible(
+                              flex: 2,
+                              child: Center(
+                                child: Text(
+                                  'Richtig: ${widget.test.getAmountOfCorrectWords()}',
+                                  style: TextStyle(
+                                    fontSize: 16
+                                  ),
+                                )
+                              )
+                            ),
+                          ],
+                        )
+                      )
+                    ),
+                    //ital deutsch und enter
+                    Flexible(
+                      flex: 5,
+                      child: _gameFinished ? _getFinishedContainer(18) : _getMainContainer(16)
+                    ),
+                    //false 
+                    Flexible(
+                      flex: 2,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: SizedBox()
+                            ),
+                            Flexible(
+                              flex: 6,
+                              child: Center(
+                                child: RotatedBox(
+                                  quarterTurns: -1,
+                                  child: LinearProgressIndicator(
+                                    value: widget.test.getPercentageOfWrongAnswers(),
+                                    backgroundColor: Colors.white,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                    minHeight: 30,
+                                  ),
+                                )
+                              )
+                            ),
+                            Flexible(
+                              flex: 2,
+                              child: Center(
+                                child: Text(
+                                  'Fehler: ${widget.test.getAmountOfWrongWords()}',
+                                  style: TextStyle(
+                                    fontSize: 16
+                                  ),
+                                )
+                              )
+                            ),
+                          ],
+                        )
+                      )
+                    )
+                  ]
+                )
+              )
+            ),
+            Expanded(
+              flex: 1,
+              child: SizedBox()
+            ),
+            //prograss bar
+            Flexible(
+              flex: 2,
+              child: Center(
+                child: LinearProgressIndicator(
+                  value: widget.test.getAmountOfFinishedWords() / widget.test.getAmountsOfPlayingWord(),
+                  backgroundColor: Colors.white,
+                  valueColor: AlwaysStoppedAnimation<Color>(const Color.fromARGB(255, 58, 58, 58)),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  minHeight: 30,
+                ),
+              )
+            ),
+          ]
+        )
+      )
+  );
+}
+  
+  @override
+  Widget build(BuildContext context){
+    return LayoutBuilder(
+          builder: ((context, constraints) {
+            if (constraints.maxWidth > 1200){
+              return bigScreen;
+            } else {
+              return smallScreen;
+            }
+            
+          })
+        );
+  }
+  
+  Future<bool> _finishQuiz() async {
     routes.canTestBeLeaved = true;
     if (widget.test.getAmountOfCorrectWords() >= widget.test.getAmountOfNeededCorrects()){
       UserHandler().updateUserLevel();
@@ -186,9 +347,10 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
       _testPassed = false;
     }
     _gameFinished = true;
+    return true;
   }
 
-  _getFinishedContainer(){
+  _getFinishedContainer(double fontsize){
     String text1;
     String text2;
     if(_testPassed){
@@ -221,7 +383,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                     child: Text(
                       text1,
                       style: TextStyle(
-                        fontSize: 22
+                        fontSize: fontsize
                       ),
                     )
                   )
@@ -235,7 +397,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                     child: Text(
                       text2,
                       style: TextStyle(
-                        fontSize: 22
+                        fontSize: fontsize
                       ),
                     )
                   )
@@ -248,13 +410,13 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                     style: ElevatedButton.styleFrom(
                       alignment: Alignment.center,
                     ),
-                    onPressed:() => context.go('/startScreen'),
+                    onPressed:() => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => StartScreen(), )),
                     child: Padding(
                       padding: EdgeInsets.all(10),
                       child: Text(
                         "Zurück zur Startseite",
                         style: TextStyle(
-                          fontSize: 20
+                          fontSize: fontsize
                         ),
                       ),
                     ),
@@ -268,7 +430,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
     );
   }
 
-  _getMainContainer(){
+  _getMainContainer(double fontsize){
     return Container(
       alignment:  Alignment.center,
       decoration: BoxDecoration(
@@ -294,7 +456,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                         children: [
                           Expanded(
                             child: Center(
-                              child: _getWidget()
+                              child: _getWidget(fontsize)
                             )
                           ),
                           const SizedBox(width: 30),
@@ -305,17 +467,19 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                                 hintText: 'Übersetzung',
                               ),
                               onFieldSubmitted: (value) async {
-                                setState(() {
+                                widget.test.validateAnswer(_controllerAnswer.text);
                                   _controllerAnswer.clear();
-                                  widget.test.validateAnswer(_controllerAnswer.text);
                                   if (widget.test.isTestFinished()){
-                                    _finishQuiz();
+                                    await _finishQuiz();
                                   }
+                                setState(() {
+                                  bigScreen = getBigScreen();
+                                  smallScreen = getSmallScreen();
                                 });
                               },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Passwort eingeben du Hund!';
+                                  return 'gib ein Wort ein';
                                 }
                                   return null;
                               },
@@ -328,7 +492,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                 )
               ),
               Flexible(
-                flex: 4,
+                flex: 3,
                 child: Center(
                   child: ElevatedButton(
                     child: Padding(
@@ -336,40 +500,36 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                       child: Text(
                         'überprüfen',
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: fontsize,
                           color: Colors.black
                         ),
                       ),
                     ),
-                    onPressed: () => {
+                    onPressed: () async {
+                      widget.test.validateAnswer(_controllerAnswer.text);
+                      _controllerAnswer.clear();
+                      if (widget.test.isTestFinished()){
+                        await _finishQuiz();
+                      }
                       setState(() {
-                        _controllerAnswer.clear();
-                        widget.test.validateAnswer(_controllerAnswer.text);
-                        if (widget.test.isTestFinished()){
-                          _finishQuiz();
-                        }
-                      }) 
+                        bigScreen = getBigScreen();
+                        smallScreen = getSmallScreen();
+                      }); 
                     }, 
                   )
                 )
               ),
               Flexible(
                 flex: 1,
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 6,
-                      child: Center()
-                    ),
-                    Flexible(
-                      flex: 1,
-                      child: ElevatedButton(
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child:  ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           alignment: Alignment.bottomRight,
                           backgroundColor: Colors.white,
                         ),
                         child: Padding(
-                          padding: EdgeInsets.all(5),
+                          padding: EdgeInsets.all(3),
                           child:Icon(
                             Icons.question_mark_outlined,
                             color: Colors.black,
@@ -379,9 +539,8 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                           rulesBuilder.dialogBuilderRules(context, texts.testRules);
                         },
                       )
-                    )
-                  ]
-                )
+                ) 
+                  
               )
             ],
           )
@@ -390,13 +549,14 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
     );
   }
 
-  _getWidget(){
+  _getWidget(double fontsize){
+    print('getWidget');
     int _translationDirectionClassificator = widget.test.getTranslationDirectionClassificator();
     if (_translationDirectionClassificator == 2){
       return Text(
         widget.test.getActualItalianWord(),
         style: TextStyle(
-          fontSize: 20,
+          fontSize: fontsize,
         )
       );
     } else if (_translationDirectionClassificator == 3){
@@ -410,10 +570,14 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
       return Text(
         widget.test.getActualGermanWord(),
         style: TextStyle(
-          fontSize: 20,
+          fontSize: fontsize,
         )
       );
     }
   }
    
 }
+
+
+
+

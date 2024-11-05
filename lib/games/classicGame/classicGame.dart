@@ -1,10 +1,11 @@
 
 import 'package:parla_italiano/dbModels/appUser.dart';
+import 'package:parla_italiano/games/generic/genericGame.dart';
 import 'package:parla_italiano/models/vocabulary.dart';
 
-class ClassicGame{
+class ClassicGame extends GenericGame{
 
-  String gameID;
+  String? gameID;
   List<Vocabulary> vocabularies = [];
   AppUser player1;
   AppUser player2;
@@ -64,6 +65,14 @@ class ClassicGame{
 
   String getActualQuestion(){
     return questions[currentIndex];
+  }
+
+  List<String> getVocabularyIDs(){
+    List<String> ids = [];
+    for(Vocabulary vocabulary in vocabularies){
+      ids.add(vocabulary.italian);
+    }
+    return ids;
   }
 
   bool setNextRound(){

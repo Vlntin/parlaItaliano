@@ -1,7 +1,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:parla_italiano/dbModels/appUser.dart';
-import 'package:parla_italiano/games/classicGame.dart';
+import 'package:parla_italiano/games/classicGame/classicGame.dart';
+import 'package:parla_italiano/games/generic/genericGame.dart';
+import 'package:parla_italiano/games/memory/memoryGame.dart';
+import 'package:parla_italiano/globals/gamesBibliothek.dart';
 
 import 'package:parla_italiano/handler/friendsHandler.dart';
 import 'package:parla_italiano/handler/userHandler.dart';
@@ -67,8 +70,6 @@ class _FriendsRequestWidgetState extends State<FriendsRequestWidget> {
                 ),
               ]
             )
-          
-          
         )
       );
     } else {
@@ -240,7 +241,7 @@ class _FriendsLevelUpdatetWidgetState extends State<FriendsLevelUpdatetWidget> {
 class GameFinishedWidget extends NewsWidget {
 
   GameFinishedWidget(this.game, {super.key});
-  ClassicGame game;
+  GenericGame game;
   var visibilityBool = true;
 
   @override
@@ -260,7 +261,7 @@ class _GameFinishedWidgetState extends State<GameFinishedWidget> {
             tooltip: 'löschen',
             onPressed:() => {
               setState((){
-                UserHandler().deletFinishedGamesIDsNews(widget.game.gameID);
+                UserHandler().deletFinishedGamesIDsNews(widget.game.gameID!);
                 widget.visibilityBool = false;
               }),
             }
@@ -288,26 +289,75 @@ class _GameFinishedWidgetState extends State<GameFinishedWidget> {
     }
   }
 
-  Text _getFinishedGamesText(ClassicGame game){
-    int totalPointsPlayer1 = game.player1Points.reduce((value, element) => value + element);
-    int totalPointsPlayer2 = game.player2Points.reduce((value, element) => value + element);
+  Widget _getFinishedGamesText(dynamic game){
+    int totalPointsPlayer1;
+    int totalPointsPlayer2;
+    IconData icon = Icons.add;
+    if (game is MemoryGame){
+      totalPointsPlayer1 = game.player1Points!;
+      totalPointsPlayer2 = game.player2Points!;
+      print('memory game if');
+      for (GameInfo info in GamesBibliothek(context).games){
+        if (info.gameCategory == 1){
+          icon = info.icon;
+        }
+      }
+    } else {
+      totalPointsPlayer1 = game.player1Points.reduce((value, element) => value + element);
+      totalPointsPlayer2 = game.player2Points.reduce((value, element) => value + element);
+      print('classic game else');
+      for (GameInfo info in GamesBibliothek(context).games){
+        if (info.gameCategory == 0){
+          icon = info.icon;
+        }
+      }
+    }
+    String text;
     if (game.player1.userID == globalData.user!.userID){
       if ( totalPointsPlayer1 > totalPointsPlayer2){
-        return Text('Du hast gegen ${game.player2.username} ${totalPointsPlayer1} : ${totalPointsPlayer2} gewonnen');
+        text = 'Du hast gegen ${game.player2.username} ${totalPointsPlayer1} : ${totalPointsPlayer2} gewonnen';
       } else if (totalPointsPlayer1 == totalPointsPlayer2){
-        return Text('Du hast gegen ${game.player2.username} ${totalPointsPlayer1} : ${totalPointsPlayer2} gespielt');
+        text = 'Du hast gegen ${game.player2.username} ${totalPointsPlayer1} : ${totalPointsPlayer2} gespielt';
       } else{
-        return Text('Du hast gegen ${game.player2.username} ${totalPointsPlayer1} : ${totalPointsPlayer2} verloren');
+        text = 'Du hast gegen ${game.player2.username} ${totalPointsPlayer1} : ${totalPointsPlayer2} verloren';
       }
     } else {
       if ( totalPointsPlayer2 > totalPointsPlayer1){
-        return Text('Du hast gegen ${game.player1.username} ${totalPointsPlayer2} : ${totalPointsPlayer1} gewonnen');
+        text = 'Du hast gegen ${game.player1.username} ${totalPointsPlayer2} : ${totalPointsPlayer1} gewonnen';
       } else if (totalPointsPlayer2 == totalPointsPlayer1){
-        return Text('Du hast gegen ${game.player1.username} ${totalPointsPlayer2} : ${totalPointsPlayer1} gespielt');
+        text = 'Du hast gegen ${game.player1.username} ${totalPointsPlayer2} : ${totalPointsPlayer1} gespielt';
       } else{
-        return Text('Du hast gegen ${game.player1.username} ${totalPointsPlayer2} : ${totalPointsPlayer1} verloren');
+        text = 'Du hast gegen ${game.player1.username} ${totalPointsPlayer2} : ${totalPointsPlayer1} verloren';
       }
     }
+    return Expanded(
+      child: Row(
+                                                              children: [
+                                                                Expanded(
+                                                                  flex: 1,
+                                                                  child: Align(
+                                                                    alignment: Alignment.centerRight,
+                                                                    child: Container(
+                                                                      padding: EdgeInsets.only(right: 10.0),
+                                                                      decoration: new BoxDecoration(
+                                                                          border: new Border(
+                                                                              right: new BorderSide(width: 1.0, color: Colors.black))),
+                                                                      child:Icon(icon),
+                                                                    ),
+                                                                  )
+                                                                ),
+                                                                Expanded(
+                                                                  flex: 8,
+                                                                  child: Container(
+                                                                      padding: EdgeInsets.only(left: 10.0),
+                                                                      child: Text(
+                                                                        text
+                                                                      ),
+                                                                    ),
+                                                                ),
+                                                              ]
+                                                            ),
+    );
   }
 }
 

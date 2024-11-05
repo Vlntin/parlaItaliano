@@ -1,19 +1,17 @@
 library globalData;
 
 import 'package:parla_italiano/dbModels/appUser.dart';
-import 'package:parla_italiano/games/generic/genericGame.dart';
-import 'package:parla_italiano/globals/gamesBibliothek.dart';
+import 'package:parla_italiano/games/classicGame/classicGame.dart';
 import 'package:parla_italiano/handler/userHandler.dart';
 import 'package:parla_italiano/models/gamesRepo.dart';
-import 'package:parla_italiano/models/vocabularyRepo.dart';
+import 'package:parla_italiano/adminScreens/vocabularyRepo.dart';
 import 'package:parla_italiano/widgets/newsWidgets.dart';
 
 
 AppUser? user;
-VocabularyRepo? vocabularyRepo;
+VocabRepo? vocabularyRepo;
 GamesRepo? gamesRepo;
 List<NewsWidget> news = [];
-GamesBibliothekInfo gamesBibliothek = GamesBibliothekInfo();
 
 
   Future<List<FriendsRequestWidget>> _getAllFriendsRequests() async {
@@ -80,7 +78,7 @@ GamesBibliothekInfo gamesBibliothek = GamesBibliothekInfo();
   List<GameFinishedWidget> _getAllFinishedGamesIDs() {
     List<GameFinishedWidget> finishedGames = [];
     for (String id in user!.finishedGamesIDsNews){
-      for (GenericGame game in gamesRepo!.finishedGames){
+      for (dynamic game in gamesRepo!.finishedGames){
         if (game.gameID == id){
           GameFinishedWidget widget = GameFinishedWidget(game);
           finishedGames.add(widget);

@@ -60,6 +60,7 @@ dependencies:
   csv: ^6.0.0
   sqflite: ^2.3.2
   path: ^1.9.0
+  grid_pad: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -118,4 +119,4 @@ flutter:
     - images/ABMQ2581.JPG
     - images/BFWA0922.JPG
     - images/BSRO2840.JPG
-   # - assets/
+    - assets/

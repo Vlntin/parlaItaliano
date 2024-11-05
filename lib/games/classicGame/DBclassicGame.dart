@@ -1,9 +1,9 @@
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:parla_italiano/games/generic/DBgeneric.dart';
 
-class DBclassicGame{
+class DBclassicGame implements DBgenericGame{
 
+  int gameCategory;
   String actualPlayerID;
   int actualRound;
   String gameID;
@@ -15,12 +15,12 @@ class DBclassicGame{
   int totalRounds;
   List<String> vocabulariesIDs;
   bool finished;
+  String timeStamp;
 
-  DBclassicGame({required this.actualPlayerID, required this.actualRound, required this.gameID, required this.italianToGerman, required this.player1ID, required this.player1Points, required this.player2ID, required this.player2Points, required this.totalRounds, required this.vocabulariesIDs, required this.finished });
+  DBclassicGame({required this.gameCategory, required this.actualPlayerID, required this.actualRound, required this.gameID, required this.italianToGerman, required this.player1ID, required this.player1Points, required this.player2ID, required this.player2Points, required this.totalRounds, required this.vocabulariesIDs, required this.finished, required this.timeStamp});
 
-
-  
   Map<String, dynamic> toJson() => {
+    'gameCategory': gameCategory,
     'actualPlayerID': actualPlayerID,
     'actualRound': actualRound,
     'italianToGerman': italianToGerman,
@@ -34,46 +34,41 @@ class DBclassicGame{
   };
 
   static DBclassicGame fromJson(QueryDocumentSnapshot<Map<String, dynamic>> doc){
-    print('from json');
+    print('start from json');
     Map<String, dynamic> json = doc.data();
-    print('vocab');
     var vocablaryIDsJson = json['vocabularyIDs'];
     List<String> vocabularyIDs =[];
     for (String element in vocablaryIDsJson){
       vocabularyIDs.add(element);
     }
-    print('italtogerman');
+    print(vocabularyIDs.length);
     var italianToGermanJson = json['italianToGerman'];
     List<bool> italianToGerman =[];
     for (bool element in italianToGermanJson){
       italianToGerman.add(element);
     }
-    print('1points');
     var player1PointsJson = json['player1Points'];
     List<int> player1Points =[];
     for (int element in player1PointsJson){
       player1Points.add(element);
     }
-    print('2points');
     var player2PointsJson = json['player2Points'];
     List<int> player2Points =[];
     for (int element in player2PointsJson){
       player2Points.add(element);
     }
-    print('1id');
     String actualPlayerID = json['actualPlayerID'];
-    print('actualround');
     int actualRound = json['actualRound'];
-    print('1id');
     String player1ID = json['player1ID'];
-    print('2id');
     String player2ID = json['player2ID'];
-    print('totalrounds');
     int totalRounds = json['totalRounds'];
     String gameID = json['gameID'];
     bool finished = json['finished'];
-    DBclassicGame game = DBclassicGame(gameID: gameID, player1ID: player1ID, player2ID: player2ID, actualPlayerID: actualPlayerID, player1Points: player1Points, player2Points: player2Points, actualRound: actualRound, totalRounds: totalRounds, vocabulariesIDs: vocabularyIDs, italianToGerman: italianToGerman, finished: finished);
-    print('finish json');
+    String timeStamp = json['timeStamp'];
+    int gameCategory = json['gameCategory'];
+    print('end from json');
+    DBclassicGame game = DBclassicGame(gameCategory: gameCategory, gameID: gameID, player1ID: player1ID, player2ID: player2ID, actualPlayerID: actualPlayerID, player1Points: player1Points, player2Points: player2Points, actualRound: actualRound, totalRounds: totalRounds, vocabulariesIDs: vocabularyIDs, italianToGerman: italianToGerman, finished: finished, timeStamp: timeStamp);
+    print('return');
     return game;
   }
 }

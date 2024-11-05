@@ -2,13 +2,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:parla_italiano/games/classicGame.dart';
+import 'package:parla_italiano/games/classicGame/classicGame.dart';
+import 'package:parla_italiano/games/generic/genericGame.dart';
 import 'package:parla_italiano/globals/appBar.dart';
 import 'package:parla_italiano/globals/navigationBar.dart';
 import 'package:parla_italiano/globals/globalData.dart' as UserDataGlobals;
-import 'package:parla_italiano/handler/gameHandler.dart';
+import 'package:parla_italiano/games/classicGame/classicGameHandler.dart';
 import 'package:parla_italiano/handler/userHandler.dart';
 import 'package:parla_italiano/routes.dart' as routes;
+import 'package:parla_italiano/screens/oneVsOneScreen.dart';
+import 'package:parla_italiano/screens/start_screen.dart';
 import 'package:parla_italiano/widgets/classicGameWidgets.dart';
 import 'package:parla_italiano/constants/texts.dart' as ruleTexts;
 import 'package:parla_italiano/widgets/rulesDialogBuilder.dart' as rulesBuilder;
@@ -30,7 +33,7 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
   String? gameID;
   int currentPageIndex = 2;
   _ClassicGameScreenState({required this.gameID});
-  late ClassicGame? game = _findRigthGame();
+  late dynamic game = _findRigthGame();
 
   final _formKey = GlobalKey<FormState>();
   final _controllerAnswer = TextEditingController();
@@ -46,10 +49,13 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
   double _usedTime = 0.0;
   bool _timerStopped = false;
 
+  late Widget bigScreen = getBigScreen();
+  late Widget smallScreen = getSmallScreen();
+
   late ConfettiController _controllerCenter;
 
-  ClassicGame? _findRigthGame(){
-    for (ClassicGame game in UserDataGlobals.gamesRepo!.games){
+  GenericGame? _findRigthGame(){
+    for (GenericGame game in UserDataGlobals.gamesRepo!.games){
       if (game.gameID == gameID){
         return game;
       }
@@ -69,31 +75,9 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context){
-    return Scaffold(
-      bottomNavigationBar: CustomNavigationBar(currentPageIndex),
-      appBar: CustomAppBar(), 
-      body: Center(
-        child: ConfettiWidget(
-        confettiController: _controllerCenter,
-        blastDirectionality: BlastDirectionality.explosive,
-        particleDrag: 0.05,
-                emissionFrequency: 0.05,
-                numberOfParticles: 50,
-                gravity: 0.05,
-                shouldLoop: false,
-                colors: const [
-                  Colors.green,
-                  Colors.blue,
-                  Colors.pink,
-                  Colors.orange,
-                  Colors.purple
-                ],
-                child: // manually specify the colors to be used
-      Padding(
-        padding: EdgeInsets.symmetric(vertical: 32, horizontal: 40),
-        child: Column(
+
+  Widget getBigScreen(){
+    return Column(
           children: [
             Flexible(
               flex: 2,
@@ -149,17 +133,53 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
                         child: Padding(
                           padding: EdgeInsets.all(10),
                           child: Center(
-                            child : _getMainContainer()
+                            child : _getMainContainer(20, 18)
                           )
                         )
                       )
                     ), 
                     Flexible(
                       flex: 3,
-                      child: ClassicGamePointBoardWidget(game!)
+                      child: ClassicGamePointBoardWidget(game!, 18)
                     )
                   ]
                 )
+              )
+            )
+          ]
+    );
+  }
+
+  Widget getSmallScreen(){
+    return Column(
+          children: [
+            Flexible(
+              flex: 2,
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: Center(
+                      child: Text(
+                        'Klassisches Spiel, Runde ${_roundNumber}',
+                        style: TextStyle(
+                          fontSize: 22,
+                        )
+                      )
+                    )
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Center(
+                      child: Text(
+                        '',
+                        style: TextStyle(
+                          fontSize: 22,
+                        )
+                      )
+                    )
+                  )
+                ],
               )
             ),
             Expanded(
@@ -167,17 +187,98 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
               child: SizedBox()
             ),
             Flexible(
-              flex: 2,
-              child: _getBottomProgressIndicator('Antworten:', _finishedWordsPercent, AlwaysStoppedAnimation<Color>(const Color.fromARGB(255, 58, 58, 58)))
-            ),
-            Flexible(
-              flex: 2,
-              child: _getBottomProgressIndicator('Zeit:', _usedTime, AlwaysStoppedAnimation<Color>(const Color.fromARGB(255, 255, 0, 0)))
-            ),
+              flex: 12,
+              child: Form(
+                key: _formKey,
+                child: Row(
+                  children: [
+                    Flexible(
+                      flex: 5,
+                      child: Container(
+                        alignment:  Alignment.center,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.black,
+                            width: 1.5
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          color: Color.fromRGBO(248, 225, 174, 1),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Center(
+                            child : _getMainContainer(18, 16)
+                          )
+                        )
+                      )
+                    ), 
+                    Flexible(
+                      flex: 3,
+                      child: ClassicGamePointBoardWidget(game!, 16)
+                    )
+                  ]
+                )
+              )
+            )
           ]
+    );
+  }
+
+  @override
+  Widget build(BuildContext context){
+    return Scaffold(
+      bottomNavigationBar: CustomNavigationBar(currentPageIndex),
+      appBar: CustomAppBar(), 
+      body: Center(
+        child: ConfettiWidget(
+          confettiController: _controllerCenter,
+          blastDirectionality: BlastDirectionality.explosive,
+          particleDrag: 0.05,
+          emissionFrequency: 0.05,
+          numberOfParticles: 50,
+          gravity: 0.05,
+          shouldLoop: false,
+          colors: const [
+                  Colors.green,
+                  Colors.blue,
+                  Colors.pink,
+                  Colors.orange,
+                  Colors.purple
+          ],
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 32, horizontal: 40),
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 15,
+                  child: LayoutBuilder(
+                    builder: ((context, constraints) {
+                      if (constraints.maxWidth > 1200){
+                        return bigScreen;
+                      } else {
+                        return smallScreen;
+                      }
+                  
+                    })
+                  
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: SizedBox()
+                ),
+                Flexible(
+                  flex: 2,
+                  child: _getBottomProgressIndicator('Antworten:', _finishedWordsPercent, AlwaysStoppedAnimation<Color>(const Color.fromARGB(255, 58, 58, 58)))
+                ),
+                Flexible(
+                  flex: 2,
+                  child: _getBottomProgressIndicator('Zeit:', _usedTime, AlwaysStoppedAnimation<Color>(const Color.fromARGB(255, 255, 0, 0)))
+                ),
+              ]
+            )
+          )
         )
-      )
-      )
       )
     );
   }
@@ -212,21 +313,22 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
   }
 
   void _finishQuiz(){
-    print('finishQuiz');
+    setState(() {
+      print('finishQuiz');
     _timerStopped = true;
     routes.canTestBeLeaved = true;
     _wrongWords = game!.getFalseWordsInRound();
     _gameFinished = true;
     if (game!.setNextRound()){
       setState(() {
-        GameHandler().updateGameStats(game!);
+        ClassicGameHandler().updateGameStats(game!);
         UserDataGlobals.gamesRepo!.updateGameState(game!);
       });
     } else {
       setState(() {
-        GameHandler().updateGameStats(game!);
+        ClassicGameHandler().updateGameStats(game!);
         UserDataGlobals.gamesRepo!.updateGameState(game!);
-        UserHandler().updateFinishedGamesIDsNews(game!.player1, game!.gameID);
+        UserHandler().updateFinishedGamesIDsNews(game!.player1, game!.gameID!);
         if (game!.player2Points.reduce((value, element) => value + element) > game!.player1Points.reduce((value, element) => value + element)){
         _controllerCenter.play();
         _showResultDialog('Sieger');
@@ -237,13 +339,17 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
         }
       });
     }
+    smallScreen = getSmallScreen();
+    bigScreen = getBigScreen();
+    });
+    
   }
 
-  _getWidget(){
+  _getWidget(double fontSize){
       return Text(
         game!.questions[game!.currentIndex],
         style: TextStyle(
-          fontSize: 20,
+          fontSize: fontSize,
         )
       );
   }    
@@ -252,6 +358,8 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
     const oneSec = const Duration(seconds: 1);
     new Timer.periodic(oneSec, (Timer t) { 
       setState(() {
+        bigScreen = bigScreen;
+        smallScreen = smallScreen;
         _usedTime += 1/60;
         if(_usedTime  >= 1.0 || _timerStopped){
           t.cancel();
@@ -261,19 +369,19 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
     });
   }   
 
-  Widget _getMainContainer(){
+  Widget _getMainContainer(double fontSizeText, double fontSizeBtns){
     if (!_gameStarted){
-      return _getStartMainContainer();
+      return _getStartMainContainer(fontSizeText);
     }
     if (_gameFinished){
-      return _getFinishedMainContainer();
+      return _getFinishedMainContainer(fontSizeText - 2, fontSizeBtns);
     }
     else {
-      return _getPlayingMainContainer();
+      return _getPlayingMainContainer(fontSizeText);
     }
   } 
 
-  Widget _getStartMainContainer(){
+  Widget _getStartMainContainer(double fontSize){
     return Column(
       children: [                                
         Flexible(
@@ -289,11 +397,12 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
                 child: Text(
                   "START",
                   style: TextStyle(
-                    fontSize: 22
+                    fontSize: fontSize
                   ),
                 ),
               ),
-              onPressed: () {
+              onPressed: () async {
+                await ClassicGameHandler().setDefault(game!);
                 _initialize();
               },
             )
@@ -312,7 +421,7 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
                 child: Text(
                   "Regeln",
                   style: TextStyle(
-                    fontSize: 22
+                    fontSize: fontSize
                   ),
                 ),
               ),
@@ -326,16 +435,16 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
     );
   }
 
-  Widget _getFinishedMainContainer(){
+  Widget _getFinishedMainContainer(double fontSizeText, double fontSizeBtns){
     return Column(
       children: [                               
         Flexible(
           flex: 1,
           child: Center(
             child: Text(
-              "Du hast in dieser Runde ${_player1IsActualPlayer ? game!.player1Points[_roundNumber - 1] : game!.player2Points[_roundNumber - 1]} von ${game!.neededVocabularies / game!.totalRounds} Punkten geholt. Folgende Wörter hast du falsch übersetzt:",
+              "Du hast ${_player1IsActualPlayer ? game!.player1Points[_roundNumber - 1] : game!.player2Points[_roundNumber - 1]} von ${game!.neededVocabularies / game!.totalRounds} Punkten geholt. Folgende Wörter hast du falsch übersetzt:",
               style: TextStyle(
-                fontSize: 20
+                fontSize: fontSizeText
               )
             )
           )
@@ -359,13 +468,13 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
         ),
         Expanded(
           flex: 1,
-          child: _getFinishedGameButtons()
+          child: _getFinishedGameButtons(fontSizeBtns - 2)
         ),      
       ]
     );
   }
 
-  Widget _getPlayingMainContainer(){
+  Widget _getPlayingMainContainer(double fontSize){
     return Column(
       children: [                                
         Flexible(
@@ -378,7 +487,7 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
                   children: [
                     Expanded(
                       child: Center(
-                        child: _getWidget()
+                        child: _getWidget(fontSize)
                       )
                     ),
                     const SizedBox(width: 30),
@@ -388,9 +497,23 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
                         decoration: InputDecoration(
                           hintText: 'Übersetzung',
                         ),
+                        onFieldSubmitted: (value) {
+                          setState(() {
+                            _finishedWordsPercent = _finishedWordsPercent + ( 1 / (game!.neededVocabularies / game!.totalRounds));
+                            game!.validateAnswer(_controllerAnswer.text);
+                            _controllerAnswer.clear();
+                            if(!game!.setNextWord()){
+                              print('if');
+                              _timerStopped = true;
+                            }
+                            print('nach if');
+                            bigScreen = getBigScreen();
+                            smallScreen = getSmallScreen();
+                          }) ;
+                        },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Passwort eingeben du Hund!';
+                            return 'gib ein Wort ein';
                           }
                             return null;
                         },
@@ -403,7 +526,7 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
           )
         ),
         Flexible(
-          flex: 4,
+          flex: 3,
           child: Center(
             child: ElevatedButton(
               child: Padding(
@@ -411,7 +534,7 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
                 child: Text(
                   'überprüfen',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: fontSize,
                     color: Colors.black
                   ),
                 ),
@@ -424,46 +547,43 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
                   if(!game!.setNextWord()){
                     _timerStopped = true;
                   }
+                  bigScreen = getBigScreen();
+                  smallScreen = getSmallScreen();
                 }) 
               }, 
             )
           )
         ),
-        Flexible(
-          flex: 1,
-          child: Row(
-            children: [
-              Expanded(
-                flex: 6,
-                child: Center()
-              ),
+        
               Flexible(
                 flex: 1,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    alignment: Alignment.bottomRight,
-                    backgroundColor: Colors.white,
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(5),
-                    child:Icon(
-                      Icons.question_mark_outlined,
-                      color: Colors.black,
-                    ),
-                  ),
-                  onPressed: () {
-                    rulesBuilder.dialogBuilderRules(context, ruleTexts.classicGameRules);
-                  },
-                )
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child:  ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          alignment: Alignment.bottomRight,
+                          backgroundColor: Colors.white,
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(3),
+                          child:Icon(
+                            Icons.question_mark_outlined,
+                            color: Colors.black,
+                          ),
+                        ),
+                        onPressed: () {
+                          rulesBuilder.dialogBuilderRules(context, ruleTexts.classicGameRules);
+                        },
+                      )
+                ) 
+                  
               )
-            ]
-          )
-        )
+            
       ],
     );
   }     
 
-  Widget _getFinishedGameButtons(){
+  Widget _getFinishedGameButtons(double fontSize){
     if (game!.actualPlayer.userID == UserDataGlobals.user!.userID && game!.actualRound <= game!.totalRounds){
       return Center(
         child: Row(
@@ -476,13 +596,13 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
                         alignment: Alignment.center,
                         backgroundColor: Colors.white,
                       ),
-                      onPressed:() => context.go('/startScreen'), 
+                      onPressed:() => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => StartScreen(), )), 
                       child: Padding(
                         padding: EdgeInsets.all(5),
                         child: Text(
                           "Zurück zur Startseite",
                           style: TextStyle(
-                            fontSize: 18
+                            fontSize: fontSize
                           ),
                         ),
                       ),
@@ -497,13 +617,14 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
                         alignment: Alignment.center,
                         backgroundColor: Colors.white,
                       ),
-                      onPressed:() => context.go('/oneVsOneScreen'),
+                      onPressed:() => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => OneVSOneScreen(), ))
+                                                          ,
                       child: Padding(
                         padding: EdgeInsets.all(5),
                         child: Text(
                           "Erstelle ein neues Spiel",
                           style: TextStyle(
-                            fontSize: 18
+                            fontSize: fontSize
                           ),
                         ),
                       ),
@@ -518,7 +639,8 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
                         alignment: Alignment.center,
                         backgroundColor: Colors.white,
                       ),
-                      onPressed: () {
+                      onPressed: () async {
+                        await ClassicGameHandler().setDefault(game!);
                         _initialize();
                       },
                       child: Padding(
@@ -526,7 +648,7 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
                         child: Text(
                           "Starte nächste Runde",
                           style: TextStyle(
-                            fontSize: 18
+                            fontSize: fontSize
                           ),
                         ),
                       ),
@@ -548,13 +670,13 @@ return Center(
                         alignment: Alignment.center,
                         backgroundColor: Colors.white,
                       ),
-                      onPressed:() => context.go('/startScreen'), 
+                      onPressed:() => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => StartScreen(), )), 
                       child: Padding(
                         padding: EdgeInsets.all(5),
                         child: Text(
                           "Zurück zur Startseite",
                           style: TextStyle(
-                            fontSize: 18
+                            fontSize: fontSize
                           ),
                         ),
                       ),
@@ -569,13 +691,13 @@ return Center(
                         alignment: Alignment.center,
                         backgroundColor: Colors.white,
                       ),
-                      onPressed:() => context.go('/oneVsOneScreen'),
+                      onPressed:() => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => OneVSOneScreen(), )),
                       child: Padding(
                         padding: EdgeInsets.all(5),
                         child: Text(
                           "Erstelle ein neues Spiel",
                           style: TextStyle(
-                            fontSize: 18
+                            fontSize: fontSize
                           ),
                         ),
                       ),
@@ -590,13 +712,17 @@ return Center(
     
   }
 
-  void _initialize(){
-    _gameStarted = true;
-    _gameFinished = false;
-    _finishedWordsPercent = 0.0;
-    _timerStopped = false;
-    _usedTime = 0.0;
-    _roundNumber = game!.actualRound;
+  void _initialize() {
+    setState(() {
+      _gameStarted = true;
+      _gameFinished = false;
+      _finishedWordsPercent = 0.0;
+      _timerStopped = false;
+      _usedTime = 0.0;
+      _roundNumber = game!.actualRound;
+      bigScreen = getBigScreen();
+      smallScreen = getSmallScreen();
+    });
     _updateProgress();
   }
 
@@ -609,13 +735,14 @@ return Center(
         }); 
         return AlertDialog( 
           content: SizedBox(
-            height: 70,
+            height: 100,
             child: Center(
               child: DefaultTextStyle(
                 style: TextStyle(
                   color: Colors.redAccent,
                   fontWeight: FontWeight.w200,
-                  fontSize: 50,
+                  fontSize: 60,
+                  backgroundColor: Color.fromARGB(0, 0, 0, 0)
                 ),
                 child: AnimatedTextKit(
                   repeatForever: true,

@@ -21,7 +21,7 @@ import 'package:parla_italiano/constants/colors.dart' as colors;
 bool canTestBeLeaved = false;
 
 final _router = GoRouter(
-  redirect: (BuildContext context, GoRouterState state) async {// your logic to check if user is authenticated
+  redirect: (BuildContext context, GoRouterState state) async {
     final FirebaseAuth auth = FirebaseAuth.instance;
     final User? user = auth.currentUser;
     if (user == null){
@@ -32,6 +32,7 @@ final _router = GoRouter(
       return null;
     }
    },
+  initialLocation: '/',
   routes: [
     GoRoute(
       path: '/ugoScreen', 
@@ -54,10 +55,11 @@ final _router = GoRouter(
       path: '/oneVsOneScreen', 
       builder: (context, state) => const OneVSOneScreen(),
     ),
-    /** 
+    
     GoRoute(
       path: '/vocabularies_test', 
-      builder: (context, state) => VocabularyTestScreen(),     
+      builder: (context, state) => VocabularyTestScreen(), 
+      /**    
       onExit: (BuildContext context) async {
         if (routes.canTestBeLeaved){
           routes.canTestBeLeaved = false;
@@ -66,8 +68,8 @@ final _router = GoRouter(
           return await buildLeaveDialog(context);
         }
       }
-    ),
-    */   
+      */ 
+    ),   
     GoRoute(
       path: '/signInScreen', 
       builder: (context, state) => const SignInScreen(),
@@ -79,9 +81,9 @@ final _router = GoRouter(
       builder: (context, state) => ScreenOne(id: state.pathParameters['id'], tableName: state.pathParameters['tablename']),
     ),
     GoRoute(
-      path: '/vocabularies_details/:tablename/:table_id', 
+      path: '/vocabularies_details/:tablename/:table_level', 
       name:'vocabularies_details', 
-      builder: (context, state) => VocabularyDetailsScreen(tablename: state.pathParameters['tablename'], table_id: state.pathParameters['table_id']),
+      builder: (context, state) => VocabularyDetailsScreen(tablename: state.pathParameters['tablename'], table_level: int.tryParse(state.pathParameters['table_level']!)),
     ),
     GoRoute(
       path: '/classicGame/:gameID', 
@@ -99,6 +101,14 @@ void clearAndNavigate(String path) {
   }
   print('b');
   _router.pushReplacement(path);
+}
+
+void navigate(String path){
+  _router.push(path);
+}
+
+void navigateAlternative(String path){
+  _router.replace(path);
 }
 
 GoRouter createRouter() {
@@ -168,6 +178,7 @@ buildLeaveDialog(BuildContext context) async {
 
 Future<bool> dialogBuilder(BuildContext context) async {
   var response = await showDialog<bool>(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -204,14 +215,13 @@ Future<bool> dialogBuilder(BuildContext context) async {
                           var startBool = _checkIfTestCanStart(context);
                           if (startBool){
                             UserHandler().updateTestDate();
-                            //context.push('/vocabularies_test');
+                            Navigator.of(context).pop(true);
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => VocabularyTestScreen(), ));
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Du hast heute schon einen Test gestartet'))
                             );
-                          }
-                          Navigator.of(context).pop(true);
-                          
+                          }                          
                         }, 
                         child: Padding(
                           padding: EdgeInsets.all(5),

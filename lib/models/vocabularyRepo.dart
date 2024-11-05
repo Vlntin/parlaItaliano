@@ -10,7 +10,7 @@ import 'dart:math';
 class VocabularyRepo{
 
   List<VocabularyTable> vocabularyTables = [];
-  VocabularyTable favouritesTable = VocabularyTable('Meine Favoriten', 0, '0');
+  VocabularyTable favouritesTable = VocabularyTable('Meine Favoriten', 0);
 
   VocabularyRepo(this.vocabularyTables, this.favouritesTable);
 
@@ -39,20 +39,20 @@ class VocabularyRepo{
     for(String wordId in currentUser.favouriteVocabulariesIDs){
       for (VocabularyTable vocabularytable in vocabularyTables){
         for (Vocabulary vocabulary in vocabularytable.vocabularies){
-          if (vocabulary.id == wordId){
-            favouritesTable.vocabularies.add(Vocabulary(vocabulary.german, vocabulary.italian, vocabulary.additional, vocabulary.id));
+          if (vocabulary.italian == wordId){
+            favouritesTable.vocabularies.add(Vocabulary(vocabulary.german, vocabulary.italian, vocabulary.additional));
           }
         }
       }
     }
   }
 
-  List<Vocabulary> findVocabulariesByIDs(List<String> ids){
+  List<Vocabulary> findVocabulariesByItalians(List<String> italians){
     List<Vocabulary> vocabularies = [];
-    for (String id in ids){
+    for (String italian in italians){
       for (VocabularyTable table in vocabularyTables){
         for (Vocabulary vocabulary in table.vocabularies){
-          if (vocabulary.id == id){
+          if (vocabulary.italian == italian){
             vocabularies.add(vocabulary);
             break;
           }
@@ -62,23 +62,23 @@ class VocabularyRepo{
     return vocabularies;
   }
 
-  void deleteFavouriteVocabulary(String vocabularyId){
+  void deleteFavouriteVocabulary(String italian){
     for (Vocabulary vocabulary in favouritesTable.vocabularies){
-      if (vocabulary.id == vocabularyId){
+      if (vocabulary.italian == italian){
         favouritesTable.vocabularies.remove(vocabulary);
       }
     }
-    UserHandler().deleteFavouriteIds(vocabularyId);
+    UserHandler().deleteFavouriteIds(italian);
   }
 
-  void addVocabularyToFavorites(String id, String italian, String german, String additional){
-    favouritesTable.vocabularies.add(Vocabulary(id, german, italian, additional));
-    UserHandler().addFavouriteIds(id);
+  void addVocabularyToFavorites(String italian, String german, String additional){
+    favouritesTable.vocabularies.add(Vocabulary(german, italian, additional));
+    UserHandler().addFavouriteIds(italian);
   }
 
-  bool isVocabularyInFavorites(String vocabularyId){
+  bool isVocabularyInFavorites(String italian){
     for (Vocabulary vocabulary in favouritesTable.vocabularies){
-      if (vocabulary.id == vocabularyId){
+      if (vocabulary.italian == italian){
         return true;
       }
     }
@@ -159,9 +159,9 @@ class VocabularyRepo{
     return allSelectedVocabularies;
   }
 
-  List<Vocabulary> getVocabulariesFromID(String id) {
+  List<Vocabulary> getVocabulariesFromLevel(int level) {
     for (VocabularyTable table in vocabularyTables){
-      if (table.db_id == id){
+      if (table.level == level){
         return table.vocabularies;
       }
     }

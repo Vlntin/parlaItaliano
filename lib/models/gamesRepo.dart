@@ -1,20 +1,19 @@
-
-import 'package:parla_italiano/games/classicGame.dart';
+import 'package:parla_italiano/games/generic/genericGame.dart';
 import 'package:parla_italiano/globals/globalData.dart' as gd;
 
 class GamesRepo{
 
-  List<ClassicGame> games = [];
-  List<ClassicGame> finishedGames = [];
+  List<GenericGame> games = [];
+  List<GenericGame> finishedGames = [];
 
   GamesRepo(this.games, this.finishedGames);
 
-  void addGame(ClassicGame game){
+  void addGame(GenericGame game){
     games.add(game);
   }
 
-  updateGameState(ClassicGame newGame){
-    for (ClassicGame game in games){
+  updateGameState(dynamic newGame){
+    for (dynamic game in games){
       if (game.gameID == newGame.gameID){
         games.remove(game);
         if (newGame.actualPlayer == gd.user! && !newGame.finished){

@@ -23,33 +23,92 @@ class CustomNavigationBar extends StatefulWidget {
 
 class CustomNavigationBarState extends State<CustomNavigationBar> {
 
-  int prevIndex = 0;
 
   Widget build(BuildContext context){
+    int prevIndex = 0;
     return NavigationBar(
-        selectedIndex: widget.givenIndex,
-        backgroundColor: Color.fromRGBO(248, 225, 174, 1),
-        onDestinationSelected: (int index) {
-          setState(() async {
+      selectedIndex: widget.givenIndex,
+      backgroundColor: Color.fromRGBO(248, 225, 174, 1),
+      onDestinationSelected: (int index) async {
+        bool canBeSwitched = false;
+        if(widget.givenIndex == 3){
+          if (index !=3 && await _onExit()){
+            canBeSwitched = true;
+          }
+        }
+        if (widget.givenIndex != 3){
+          canBeSwitched = true;
+        }
+        if (index == 0 && canBeSwitched){
+              setState(() {
+                widget.givenIndex = index; 
+              });
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => StartScreen(), ));
+        }
+        if (index == 1 && canBeSwitched){
+              setState(() {
+                widget.givenIndex = index; 
+              });
+              //Navigator.popUntil(context, ModalRoute.withName("/screen2"));
+              //routes.navigate('/startScreen');
+              //context.go('/vocabularyListsScreen');
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => VocabularyListsScreen(), ));
+        }
+        if (index == 2 && canBeSwitched){
+              setState(() {
+                widget.givenIndex = index; 
+              });
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => OneVSOneScreen(), ));
+        }
+        if (index == 3 && canBeSwitched){
+              if(await  routes.dialogBuilder(context)){
+                setState(() {
+                widget.givenIndex = index; 
+              });
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => VocabularyTestScreen(), ));
+              }
+        }
+
+
+
+
+
+
+
+          /** 
+          bool leave = true;
+          if (index == 3){
+            print('if 3');
+            leave = await routes.dialogBuilder(context);
+          } else if (widget.givenIndex == 3) {
+            print('if2 3');
+            leave = await _onExit();
+          }
+          print(leave);
+          setState(() {
+            if (index != 3){
+              print('index setted');
+              widget.givenIndex = index;      
+            }
+            
             print('prev ${prevIndex}');
             print('giv ${widget.givenIndex}');
-            if (widget.givenIndex == 0){
-              if (prevIndex == 3){
-                bool leave = await _onExit();
-                if (leave){
-                  prevIndex = widget.givenIndex ;
-                  widget.givenIndex = index;
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => StartScreen(), ));
-                }
-              } else {
-                prevIndex = widget.givenIndex ;
-                widget.givenIndex = index;
-                context.push('/startScreen');
-              }
+            if (index == 1){
+              setState(() {
+                widget.givenIndex = index; 
+              });
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => VocabularyListsScreen(), ));
             }
+            if (index == 3){
+              if(await  routes.dialogBuilder(context))
+              setState(() {
+                widget.givenIndex = index; 
+              });
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => VocabularyListsScreen(), ));
+            }
+              
             if (widget.givenIndex == 1){
               if (prevIndex == 3){
-                bool leave = await _onExit();
                 if (leave){
                   prevIndex = widget.givenIndex ;
                   widget.givenIndex = index;
@@ -58,12 +117,12 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
               } else {
                 prevIndex = widget.givenIndex ;
                 widget.givenIndex = index;
-                context.push('/vocabularyListsScreen');
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => VocabularyListsScreen(),));
+                //context.push('/vocabularyListsScreen');
               }
             }
             if (widget.givenIndex == 2){
               if (prevIndex == 3){
-                bool leave = await _onExit();
                 if (leave){
                   prevIndex = widget.givenIndex ;
                   widget.givenIndex = index;
@@ -72,14 +131,12 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
               } else {
                 prevIndex = widget.givenIndex ;
                 widget.givenIndex = index;
-                context.push('/oneVsOneScreen');
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => OneVSOneScreen(),));
               }
             }
             if (widget.givenIndex == 3){
-              print(1);
-              bool start = await routes.dialogBuilder(context);
-              print(start);
-              if (start){
+              if (leave){
+                print('leave');
                 prevIndex = widget.givenIndex ;
                 widget.givenIndex = index;
                 Navigator.push(context,
@@ -95,6 +152,7 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
               routes.dialogBuilder(context);
             }
           });
+          */
         },
         indicatorColor: const Color.fromARGB(255, 238, 232, 216),
         destinations: const <Widget>[
@@ -114,9 +172,9 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
             label: '1 vs 1',
           ),
           NavigationDestination(
-            selectedIcon: Icon(Icons.fitness_center),
-            icon: Icon(Icons.fitness_center_outlined),
-            label: 'Training',
+            selectedIcon: Icon(Icons.upgrade),
+            icon: Icon(Icons.upgrade_outlined),
+            label: 'Test',
           ),
         ],
       );
@@ -127,7 +185,6 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
       routes.canTestBeLeaved = false;
       return true;
     } else {
-      print('blub else');
       return await routes.buildLeaveDialog(context);
     }
   }

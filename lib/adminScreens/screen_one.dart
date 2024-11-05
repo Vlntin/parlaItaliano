@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:parla_italiano/models/vocabulary.dart';
-import 'package:parla_italiano/adminScreens/ugoScreen.dart';
-import 'package:parla_italiano/dbModels/DBtable.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:parla_italiano/models/vocabularyTable.dart';
-import 'package:parla_italiano/widgets.dart';
-import 'package:parla_italiano/dbModels/DBvocabulary.dart';
-import 'package:parla_italiano/handler/vocabularyHandler.dart';
+import 'package:parla_italiano/adminScreens/vocabulary.dart';
+import 'package:parla_italiano/adminScreens/DBtable.dart';
+import 'package:parla_italiano/adminScreens/DBvocabulary.dart';
+import 'package:parla_italiano/adminScreens/vocabHandler.dart';
 import 'package:parla_italiano/constants/colors.dart' as colors;
-import 'package:parla_italiano/globals/globalData.dart' as globalData;
+import 'package:parla_italiano/adminScreens/globalData.dart' as globalData;
 
 class ScreenOne extends StatefulWidget {
   String? id;
   String? tableName;
   ScreenOne({super.key, this.id, this.tableName});
-  late List<Vocabulary> vocabularies = globalData.vocabularyRepo!.getVocabulariesFromID(this.id!);
+  late List<Vocab> vocabularies = globalData.vocabularyRepo!.getVocabulariesFromID(this.id!);
 
   @override
   ScreenOneState createState() => ScreenOneState();
@@ -29,7 +25,7 @@ class ScreenOneState extends State<ScreenOne> {
   final _controllerItalian = TextEditingController();
   final _controllerAdditional = TextEditingController();
   final _controllerNewName = TextEditingController();
-  final _vocabularyHandler = VocabularyHandler();
+  final _vocabularyHandler = VocabHandler();
 
   @override
   Widget build(BuildContext context){
@@ -276,8 +272,8 @@ class VocabWidget extends StatefulWidget {
 
   VocabWidget(this.vocab, this.vocabTable, {super.key});
 
-  Vocabulary vocab;
-  List<Vocabulary> vocabTable;
+  Vocab vocab;
+  List<Vocab> vocabTable;
   bool visibilityBool = true;
 
   @override
@@ -336,7 +332,7 @@ class _VocabWidgetState extends State<VocabWidget> {
                       setState(() {
                         widget.visibilityBool = false;
                         widget.vocabTable.remove(widget.vocab);
-                        VocabularyHandler().deleteVocabularyById(widget.vocab.id);
+                        VocabHandler().deleteVocabularyById(widget.vocab.id);
                       });
                     }
                   }
@@ -369,7 +365,7 @@ class _VocabWidgetState extends State<VocabWidget> {
     
   }
 
-  Future<bool> buildDeleteDialog(BuildContext context, Vocabulary vocab) async {
+  Future<bool> buildDeleteDialog(BuildContext context, Vocab vocab) async {
     var response = await showDialog<bool>(
           context: context,
           builder: (BuildContext context) {
@@ -439,7 +435,7 @@ class _VocabWidgetState extends State<VocabWidget> {
     return response ?? false;
   }
 
-  buildModifyDialog(BuildContext context, Vocabulary vocab) async {
+  buildModifyDialog(BuildContext context, Vocab vocab) async {
     final _formKey = GlobalKey<FormState>();
     final _controllerGerman = TextEditingController();
     final _controllerItalian = TextEditingController();
@@ -512,7 +508,7 @@ class _VocabWidgetState extends State<VocabWidget> {
                                 final italian = _controllerItalian.text;
                                 final german = _controllerGerman.text;
                                 final additional = _controllerAdditional.text;
-                                if (await VocabularyHandler().changeVocabulary(italian: italian, german: german, additional: additional, vocabulary: widget.vocab)){
+                                if (await VocabHandler().changeVocabulary(italian: italian, german: german, additional: additional, vocabulary: widget.vocab)){
                                   setState(() {
                                     _controllerItalian.clear();
                                     _controllerGerman.clear();
@@ -542,7 +538,7 @@ class _VocabWidgetState extends State<VocabWidget> {
     return response ?? false;
   }
 
-  buildChangeLevelDialog(BuildContext context, Vocabulary vocab) async {
+  buildChangeLevelDialog(BuildContext context, Vocab vocab) async {
     var response = await showDialog<bool>(
           context: context,
           builder: (BuildContext context) {
@@ -577,7 +573,7 @@ class _VocabWidgetState extends State<VocabWidget> {
                                   tooltip: 'hierhin verschieben',
                                   onPressed:() {
                                     setState(() {
-                                      VocabularyHandler().moveVocabularyToTable(widget.vocab, globalData.vocabularyRepo!.vocabularyTables[index]);
+                                      VocabHandler().moveVocabularyToTable(widget.vocab, globalData.vocabularyRepo!.vocabularyTables[index]);
                                       Navigator.of(context).pop(true);
                                     });
                                   },

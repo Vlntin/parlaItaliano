@@ -2,6 +2,7 @@
 import 'package:parla_italiano/games/test.dart';
 
 String classicGameRules = "Es gelten folgende Regeln:";
+String memoryGameRules = "Es gelten folgende Regeln:";
 String testRules = "Es gelten folgende Regeln: \nMan darf nur ein mal pro Tag zum Test antreten. \nEs sind immer ${Test().getAmountsOfPlayingWord()} Wörter, von denen ${Test().getAmountOfNeededCorrects()} richtig übersetzt werden müssen. \n10 Wörter werden zufällig aus dem aktuellen Level gewählt und 10 weiter aus den anderen Leveln.";
 
 

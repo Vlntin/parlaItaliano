@@ -4,35 +4,50 @@ import 'package:parla_italiano/globals/globalData.dart' as globalData;
 import 'package:parla_italiano/models/vocabulary.dart';
 import 'package:parla_italiano/models/vocabularyTable.dart';
 import 'package:parla_italiano/globals/appBar.dart';
+import 'package:parla_italiano/screens/vocabularyListScreen.dart';
 import 'package:parla_italiano/widgets.dart';
 import 'package:parla_italiano/globals/navigationBar.dart';
 import 'package:parla_italiano/handler/vocabularyHandler.dart';
+import 'package:parla_italiano/routes.dart';
 
 
 class VocabularyDetailsScreen extends StatefulWidget {
   
   String? tablename;
-  String? table_id;
-  VocabularyDetailsScreen({super.key, this.tablename, this.table_id});
+  int? table_level;
+  VocabularyDetailsScreen({super.key, this.tablename, this.table_level});
   
 
   @override
-  VocabularyDetailsScreenState createState() => VocabularyDetailsScreenState(table_id: table_id, tablename: tablename);
+  VocabularyDetailsScreenState createState() => VocabularyDetailsScreenState(table_level: table_level, tablename: tablename);
 }
 
 class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
 
-  String? table_id;
+  int? table_level;
   String? tablename;
-  VocabularyDetailsScreenState({required this.table_id, required this.tablename});
-  late List<Vocabulary> vocabularylist = VocabularyHandler().getAllVocabularies(table_id!, tablename!);
+  VocabularyDetailsScreenState({required this.table_level, required this.tablename});
+  late List<Vocabulary> vocabularylist = VocabularyHandler().getAllVocabulariesFromLevel(table_level!);
   
 
   @override
   Widget build(BuildContext context){
     return PopScope(
-    canPop: false,
-    child: Scaffold(
+      onPopInvoked: (didPop){
+
+        clearAndNavigate('/vocabularyListsScreen');
+        /** 
+        print('onpop');
+        while (GoRouter.of(context).canPop() == true) {
+          print('canpop');
+          GoRouter.of(context).pop();
+        }
+        
+        print('finished');
+        GoRouter.of(context).pushReplacement('/vocabularyListsScreen');
+        */
+      },
+      child:Scaffold(
       bottomNavigationBar: CustomNavigationBar(1),
       appBar: CustomAppBar(),
         body: Container(
@@ -82,7 +97,7 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
                     itemCount: this.vocabularylist.length,
                     itemBuilder: (context, index){
                       Vocabulary actualVocabulary = this.vocabularylist[index];
-                      return VocabularyWidget(actualVocabulary.id, actualVocabulary.italian, actualVocabulary.german, actualVocabulary.additional)      
+                      return VocabularyWidget(actualVocabulary.italian, actualVocabulary.german, actualVocabulary.additional);      
                       ;
                     }
                   )
@@ -92,6 +107,7 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
             )
         )
       )
+
     )
   
     );
@@ -101,11 +117,11 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
 
   List<Vocabulary> _getAllVocabularies(){
     for (VocabularyTable table in globalData.vocabularyRepo!.vocabularyTables){
-      if (table.db_id == table_id || table.title == tablename){
+      if (table.level == table_level || table.title == tablename){
         return  table.vocabularies;
       }
     }
-    if (table_id == '0'){
+    if (table_level== 0){
       return globalData.vocabularyRepo!.favouritesTable.vocabularies;
     }
     return [];

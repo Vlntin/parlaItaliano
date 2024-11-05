@@ -6,7 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:parla_italiano/globals/globalData.dart' as userData;
 import 'package:parla_italiano/handler/vocabularyHandler.dart';
-import 'package:parla_italiano/models/vocabularyTable.dart';
+import 'package:parla_italiano/adminScreens/vocabularyTable.dart';
 import 'package:parla_italiano/dbModels/appUser.dart';
 
 //Bei Änderungen von User müssen diese direkt in Firebase UND globalUser gespeichert werden, 

@@ -3,14 +3,15 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:parla_italiano/handler/userHandler.dart';
 import 'package:parla_italiano/handler/vocabularyHandler.dart';
-import 'package:parla_italiano/dbModels/DBtable.dart';
+import 'package:parla_italiano/adminScreens/DBtable.dart';
 import 'package:parla_italiano/globals/globalData.dart' as globalData;
 
 import 'package:go_router/go_router.dart';
 
 import 'package:parla_italiano/handler/speaker.dart';
 import 'package:parla_italiano/models/vocabulary.dart';
-import 'package:parla_italiano/models/vocabularyTable.dart';
+import 'package:parla_italiano/adminScreens/vocabularyTable.dart';
+import 'package:parla_italiano/screens/vocabularyDetailsScreen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import 'dart:html';
@@ -22,12 +23,11 @@ import 'package:parla_italiano/constants/colors.dart' as colors;
 import 'package:parla_italiano/routes.dart' as routes;
 
 class VocabularyWidget extends StatefulWidget {
-  const VocabularyWidget(this.id, this.italian, this.german, this.additional, {super.key});
+  const VocabularyWidget(this.italian, this.german, this.additional, {super.key});
 
   final String additional;
   final String italian;
   final String german;
-  final String id;
 
   @override
   State<VocabularyWidget> createState() => _VocabularyWidgetState();
@@ -38,7 +38,7 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
   
   @override
   Widget build(BuildContext context) {
-    bool pressAttention = globalData.vocabularyRepo!.isVocabularyInFavorites(widget.id);
+    bool pressAttention = globalData.vocabularyRepo!.isVocabularyInFavorites(widget.italian);
     return Padding(
         padding: EdgeInsets.all(0),
           child: Row(
@@ -80,7 +80,7 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                flex: 1,
+                flex: 2,
                 child: Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -88,7 +88,7 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
                       IconButton(
                         icon: pressAttention ? Icon(Icons.star_sharp) : Icon(Icons.star_border),
                         onPressed: () => {
-                          pressAttention ? globalData.vocabularyRepo!.deleteFavouriteVocabulary(widget.id) : globalData.vocabularyRepo!.addVocabularyToFavorites(widget.id, widget.italian, widget.german, widget.additional),
+                          pressAttention ? globalData.vocabularyRepo!.deleteFavouriteVocabulary(widget.italian) : globalData.vocabularyRepo!.addVocabularyToFavorites(widget.italian, widget.german, widget.additional),
                           setState(() => pressAttention = !pressAttention)
                         },
                       ),
@@ -162,7 +162,7 @@ class _VocabularyListTileWidgetState extends State<VocabularyListTileWidget> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                flex: 1,
+                flex: 2,
                 child: Center(),            
               ),
             ],
@@ -172,12 +172,11 @@ class _VocabularyListTileWidgetState extends State<VocabularyListTileWidget> {
 }
 
 class ListWidget extends StatelessWidget {
-  ListWidget(this.amountOfWords, this.level, this.title, this.id, {super.key});
+  ListWidget(this.amountOfWords, this.level, this.title, {super.key});
 
   final int amountOfWords;
   final int level;
   final String title;
-  final String id;
 
   @override
   Widget build(BuildContext context) {
@@ -186,7 +185,7 @@ class ListWidget extends StatelessWidget {
       leading: Text('${this.amountOfWords.toString()} Wörter', textAlign: TextAlign.center,),
       title: 
         Padding(
-          padding: EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(4.0),
             child: Row(
               children: [
                 Expanded(
@@ -195,14 +194,14 @@ class ListWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         _getLevelIcon(this.level),
-                        SizedBox(width: 4,),
+                        SizedBox(width: 3,),
                         _getLevelText(this.level)
                       ]
                   ),
                 ),
                 Expanded(
                   child: Text ('${this.title}', textAlign: TextAlign.center,),
-                  flex: 10
+                  flex: 8
                 ),
               ],
             )
@@ -219,8 +218,10 @@ class ListWidget extends StatelessWidget {
               tooltip: 'Vokabeln anschauen',
               onPressed:() {
                 if (this.level <= globalData.user!.level){
-                  context.pushNamed('vocabularies_details', pathParameters: {'tablename': this.title, 'table_id': this.id});
-                  //context.goNamed('vocabularies_details', pathParameters: {'tablename': this.title, 'table_id': this.id}); 
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => VocabularyDetailsScreen(tablename: this.title, table_level: this.level ,), ));
+                  //routes.navigate('/startScreen');
+                  //context.pushNamed('vocabularies_details', pathParameters: {'tablename': this.title, 'table_level': this.level.toString()});
+                  //context.goNamed('vocabularies_details', pathParameters: {'tablename': this.title, 'table_level': this.level.toString()}); 
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Level noch nicht freigeschalten!'))
@@ -234,7 +235,7 @@ class ListWidget extends StatelessWidget {
               tooltip: 'PDF generieren',
               onPressed:() {
                 if (this.level <= globalData.user!.level){
-                  _createPDF(this.title, this.id, this.level);
+                  _createPDF(this.title, this.level);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Level noch nicht freigeschalten!'))
@@ -247,8 +248,8 @@ class ListWidget extends StatelessWidget {
       );
   }
 
-  Future<void> _createPDF(String title, String id, int level) async {
-    List<Vocabulary> vocabularies = VocabularyHandler().getAllVocabularies(id, title);
+  Future<void> _createPDF(String title, int level) async {
+    List<Vocabulary> vocabularies = VocabularyHandler().getAllVocabulariesFromLevel(level);
 
     PdfDocument document = PdfDocument();
     PdfPageTemplateElement header2 = PdfPageTemplateElement(
@@ -257,7 +258,7 @@ class ListWidget extends StatelessWidget {
     PdfCompositeField compositefields = PdfCompositeField(
         font: PdfStandardFont(PdfFontFamily.timesRoman, 19),
         brush: PdfSolidBrush(PdfColor(0, 0, 0)),
-        text: '${title} (${level !=0 ? level : ''})');
+        text: '${title} ${level !=0 ? '(' + level.toString() + ')' : ''}');
 
     compositefields.draw(header2.graphics,
         Offset(220, 10 - PdfStandardFont(PdfFontFamily.timesRoman, 11).height));

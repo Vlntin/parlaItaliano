@@ -5,6 +5,7 @@ import 'package:parla_italiano/globals/globalData.dart' as userData;
 import 'package:parla_italiano/handler/userHandler.dart';
 import 'package:parla_italiano/handler/friendsHandler.dart';
 import 'package:parla_italiano/constants/colors.dart' as colors;
+import 'package:parla_italiano/screens/signInScreen.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
@@ -78,7 +79,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       tooltip: 'Ändere dein Profil!',
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('This is a snackbar')));
+                            const SnackBar(content: Text('To be done')));
                       },
                     ),
                     IconButton(
@@ -86,7 +87,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       tooltip: 'Logout!',
                       onPressed: () async {
                         if (await UserHandler().logoutUser()){
-                          context.go('/signInScreen');
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SignInScreen(), ));
                         }
                       },
                     ),

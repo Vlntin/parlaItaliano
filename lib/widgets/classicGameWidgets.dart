@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:parla_italiano/games/classicGame.dart';
+import 'package:parla_italiano/games/classicGame/classicGame.dart';
 import 'package:parla_italiano/globals/globalData.dart' as globalData;
 import 'dart:ui';
 
@@ -18,7 +18,7 @@ class WrongWordWidgetState extends State<WrongWordWidget> {
   final WrongWordResponse wrongWord;
   WrongWordWidgetState({required this.wrongWord});
 
-  late bool _selectedForFavorites = globalData.vocabularyRepo!.isVocabularyInFavorites(wrongWord.vocabulary.id);
+  late bool _selectedForFavorites = globalData.vocabularyRepo!.isVocabularyInFavorites(wrongWord.vocabulary.italian);
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +56,7 @@ class WrongWordWidgetState extends State<WrongWordWidget> {
             IconButton(
               icon: _selectedForFavorites ? Icon(Icons.star_sharp) : Icon(Icons.star_border),
                 onPressed: () => {
-                  _selectedForFavorites ? globalData.vocabularyRepo!.deleteFavouriteVocabulary(wrongWord.vocabulary.id) : globalData.vocabularyRepo!.addVocabularyToFavorites(wrongWord.vocabulary.id, wrongWord.vocabulary.italian, wrongWord.vocabulary.german, wrongWord.vocabulary.additional),
+                  _selectedForFavorites ? globalData.vocabularyRepo!.deleteFavouriteVocabulary(wrongWord.vocabulary.italian) : globalData.vocabularyRepo!.addVocabularyToFavorites(wrongWord.vocabulary.italian, wrongWord.vocabulary.german, wrongWord.vocabulary.additional),
                   setState(() => _selectedForFavorites = !_selectedForFavorites)
                 },
               ),
@@ -123,7 +123,8 @@ class WrongWordWidgetHeadline extends StatelessWidget {
 class ClassicGamePointBoardWidget extends StatefulWidget{
 
   final ClassicGame game;
-  ClassicGamePointBoardWidget(this.game, {super.key});
+  final double fontSize;
+  ClassicGamePointBoardWidget(this.game, this.fontSize, {super.key});
 
   @override
   ClassicGamePointBoardWidgetState createState() => ClassicGamePointBoardWidgetState(game: game);
@@ -154,7 +155,7 @@ class ClassicGamePointBoardWidgetState extends State<ClassicGamePointBoardWidget
                       child: Text(
                         "",
                         style: TextStyle(
-                          fontSize: 18
+                          fontSize: widget.fontSize
                         ),
                       )
                     )
@@ -166,7 +167,7 @@ class ClassicGamePointBoardWidgetState extends State<ClassicGamePointBoardWidget
                       child: Text(
                         "Runde 1:",
                         style: TextStyle(
-                          fontSize: 18
+                          fontSize: widget.fontSize
                         ),
                       )
                     )
@@ -178,7 +179,7 @@ class ClassicGamePointBoardWidgetState extends State<ClassicGamePointBoardWidget
                       child: Text(
                         "Runde 2:",
                         style: TextStyle(
-                          fontSize: 18
+                          fontSize: widget.fontSize
                         ),
                       )
                     )
@@ -190,7 +191,7 @@ class ClassicGamePointBoardWidgetState extends State<ClassicGamePointBoardWidget
                       child: Text(
                         "Runde 3:",
                         style: TextStyle(
-                          fontSize: 18
+                          fontSize: widget.fontSize
                         ),
                       )
                     )
@@ -202,7 +203,7 @@ class ClassicGamePointBoardWidgetState extends State<ClassicGamePointBoardWidget
                       child: Text(
                         "Gesamt:",
                         style: TextStyle(
-                          fontSize: 18
+                          fontSize: widget.fontSize
                         ),
                       )
                     )
@@ -256,7 +257,7 @@ class ClassicGamePointBoardWidgetState extends State<ClassicGamePointBoardWidget
                               child: Text(
                                 game.player1Points[0].toString(),
                                 style: TextStyle(
-                                  fontSize: 18
+                                  fontSize: widget.fontSize
                                 ), 
                               ), 
                             ),
@@ -293,7 +294,7 @@ class ClassicGamePointBoardWidgetState extends State<ClassicGamePointBoardWidget
                             child: Text(
                               game.player1Points[1].toString(),
                               style: TextStyle(
-                                fontSize: 18
+                                fontSize: widget.fontSize
                               ), 
                             ), 
                           ),
@@ -330,7 +331,7 @@ class ClassicGamePointBoardWidgetState extends State<ClassicGamePointBoardWidget
                               child: Text(
                                 game.player1Points[2].toString(),
                                 style: TextStyle(
-                                  fontSize: 18
+                                  fontSize: widget.fontSize
                                 ), 
                               ), 
                             ),
@@ -367,7 +368,8 @@ class ClassicGamePointBoardWidgetState extends State<ClassicGamePointBoardWidget
                               child: Text(
                                 (game.player1Points[0] + game.player1Points[1] + game.player1Points[2]).toString(),
                                 style: TextStyle(
-                                  fontSize: 18
+                                  fontSize: widget.fontSize,
+                                  color: Colors.white
                                 ), 
                               ), 
                             ),
@@ -430,7 +432,7 @@ class ClassicGamePointBoardWidgetState extends State<ClassicGamePointBoardWidget
                               child: Text(
                                 game.player2Points[0].toString(),
                                 style: TextStyle(
-                                  fontSize: 18
+                                  fontSize: widget.fontSize
                                 ), 
                               ), 
                             ),
@@ -464,7 +466,7 @@ class ClassicGamePointBoardWidgetState extends State<ClassicGamePointBoardWidget
                               child: Text(
                                 game.player2Points[1].toString(),
                                 style: TextStyle(
-                                  fontSize: 18
+                                  fontSize: widget.fontSize
                                 ), 
                               ), 
                             ),
@@ -498,7 +500,7 @@ class ClassicGamePointBoardWidgetState extends State<ClassicGamePointBoardWidget
                               child: Text(
                                 game.player2Points[2].toString(),
                                 style: TextStyle(
-                                  fontSize: 18
+                                  fontSize: widget.fontSize
                                 ), 
                               ), 
                             ),
@@ -532,7 +534,8 @@ class ClassicGamePointBoardWidgetState extends State<ClassicGamePointBoardWidget
                               child: Text(
                                 (game.player2Points[0] + game.player2Points[1] + game.player2Points[2]).toString(),
                                 style: TextStyle(
-                                  fontSize: 18
+                                  fontSize: widget.fontSize,
+                                  color: Colors.white
                                 ), 
                               ), 
                             ),
