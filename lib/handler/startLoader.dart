@@ -45,15 +45,11 @@ class StartLoader {
   }
 
   Future<bool> _loadGameData() async{
-    print('start loader');
     List<GenericGame> runningGames = [];
     List<GenericGame> finishedGames = [];
     for (GameInfoCompromised entry in userData.gamesBibliothek.games){
-      print('entry');
       GenericGameHandler handler = entry.handler;
-      print('handler');
       await for (List<DBgenericGame> list in handler.readGames()){
-        print('in read games');
         List<List<GenericGame>> games = await handler.startConfiguration(list);
         for (GenericGame game in games[0]){
           runningGames.add(game);
@@ -61,8 +57,6 @@ class StartLoader {
         for (GenericGame game in games[1]){
           finishedGames.add(game);
         }
-        print('Länge running games');
-        print(runningGames.length);
         break;
       }
     }
