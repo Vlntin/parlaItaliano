@@ -1,25 +1,17 @@
-import 'dart:math';
+
 
 import 'package:flutter/material.dart';
-import 'package:parla_italiano/handler/userHandler.dart';
 import 'package:parla_italiano/handler/vocabularyHandler.dart';
-import 'package:parla_italiano/adminScreens/DBtable.dart';
 import 'package:parla_italiano/globals/globalData.dart' as globalData;
-
-import 'package:go_router/go_router.dart';
 
 import 'package:parla_italiano/handler/speaker.dart';
 import 'package:parla_italiano/models/vocabulary.dart';
-import 'package:parla_italiano/adminScreens/vocabularyTable.dart';
 import 'package:parla_italiano/screens/vocabularyDetailsScreen.dart';
-import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import 'dart:html';
 import 'dart:ui';
 
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'dart:io';
-import 'package:parla_italiano/constants/colors.dart' as colors;
 import 'package:parla_italiano/routes.dart' as routes;
 
 class VocabularyWidget extends StatefulWidget {

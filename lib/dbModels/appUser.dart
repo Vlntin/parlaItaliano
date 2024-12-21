@@ -16,20 +16,22 @@ class AppUser {
   List<String> finishedGamesIDsNews;
   List<String> friendsLevelUpdate;
   
-  AppUser({required this.userID, required this.username, required this.level, required this.friendsIDs, required this.friendsRequestsSend, required this.friendsRequestsReceived, required this.friendsRequestsAccepted, required this.friendsRequestsRejected, required this.favouriteVocabulariesIDs, required this.lastTestDate, required this.finishedGamesIDsNews, required this.friendsLevelUpdate});
+  AppUser({
+    required this.userID, 
+    required this.username, 
+    this.level = 1, 
+    this.friendsIDs = const <String>[], 
+    this.friendsRequestsSend = const <String>[], 
+    this.friendsRequestsReceived = const <String>[], 
+    this.friendsRequestsAccepted = const <String>[], 
+    this.friendsRequestsRejected = const <String>[], 
+    this.favouriteVocabulariesIDs = const <String>[], 
+    this.lastTestDate = '', 
+    this.finishedGamesIDsNews = const <String>[], 
+    this.friendsLevelUpdate = const <String>[]
+  });
 
-  void printerMethod(){
-    print(userID);
-    print(username);
-    print(level);
-    print(friendsIDs);
-    print(friendsRequestsSend);
-    print(friendsRequestsReceived);
-    print(favouriteVocabulariesIDs);
-    print(lastTestDate);
-    print(finishedGamesIDsNews);
-    print(friendsLevelUpdate);
-  }
+  
 
   Map<String, dynamic> toJson() => {
     'userID': userID,

@@ -34,14 +34,12 @@ class DBclassicGame implements DBgenericGame{
   };
 
   static DBclassicGame fromJson(QueryDocumentSnapshot<Map<String, dynamic>> doc){
-    print('start from json');
     Map<String, dynamic> json = doc.data();
     var vocablaryIDsJson = json['vocabularyIDs'];
     List<String> vocabularyIDs =[];
     for (String element in vocablaryIDsJson){
       vocabularyIDs.add(element);
     }
-    print(vocabularyIDs.length);
     var italianToGermanJson = json['italianToGerman'];
     List<bool> italianToGerman =[];
     for (bool element in italianToGermanJson){
@@ -66,9 +64,7 @@ class DBclassicGame implements DBgenericGame{
     bool finished = json['finished'];
     String timeStamp = json['timeStamp'];
     int gameCategory = json['gameCategory'];
-    print('end from json');
     DBclassicGame game = DBclassicGame(gameCategory: gameCategory, gameID: gameID, player1ID: player1ID, player2ID: player2ID, actualPlayerID: actualPlayerID, player1Points: player1Points, player2Points: player2Points, actualRound: actualRound, totalRounds: totalRounds, vocabulariesIDs: vocabularyIDs, italianToGerman: italianToGerman, finished: finished, timeStamp: timeStamp);
-    print('return');
     return game;
   }
 }

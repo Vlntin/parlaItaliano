@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:parla_italiano/dbModels/appUser.dart';
+import 'package:parla_italiano/games/GameType.dart';
+import 'package:parla_italiano/games/frontendGame.dart';
 import 'package:parla_italiano/games/generic/DBgeneric.dart';
 import 'package:parla_italiano/games/generic/genericGame.dart';
 import 'package:parla_italiano/games/generic/genericGameHandler.dart';
@@ -21,14 +23,15 @@ class MemoryGameHandler implements GenericGameHandler {
     .map((snapshot) => snapshot.docs.map((doc) => DBmemoryGame.fromJson(doc)).toList());
   
   @override
-  void updateGameStats(game) async {
-    if (game.finished){
+  void updateGameStats(GenericGame genericGame) async {
+    MemoryGame game = genericGame as MemoryGame;
+    if (game.finished!){
       DateTime now = new DateTime.now();
       DateTime date = new DateTime(now.year, now.month, now.day);
       String timeStamped = date.toString();
       FirebaseFirestore.instance.collection('memoryGames').doc(game.gameID).update({'timeStamp': timeStamped});
     } else {
-      globalData.gamesRepo!.games.add(game);
+      //globalData.gamesRepo!.games.add(FrontGame(genericGame, GameType.memory));
     }
     FirebaseFirestore.instance.collection('memoryGames').doc(game.gameID).update({'actualPlayerID': game.actualPlayer.userID});
     FirebaseFirestore.instance.collection('memoryGames').doc(game.gameID).update({'player1Points': game.player1Points});
@@ -38,12 +41,13 @@ class MemoryGameHandler implements GenericGameHandler {
 
   //not neccessary becaus only one round. If player leaves, then is it halt so xD
   @override
-  Future<bool> setDefault(game) async {
+  Future<bool> setDefault(FrontGame game) async {
     return true;
   }
 
   @override
-  Future<String> createGame(game) async {
+  Future<String> createGame(GenericGame genericGame) async {
+    MemoryGame game = genericGame as MemoryGame;
     var games = FirebaseFirestore.instance.collection('memoryGames').doc();
     final json = {
       'gameCategory': 1,
@@ -75,16 +79,18 @@ class MemoryGameHandler implements GenericGameHandler {
     return await searchedGame!;
   }
 
-  void _deleteGame(String gameID) async {
+  @override
+  void deleteGame(String gameID) async {
     var query = await FirebaseFirestore.instance.collection('memoryGames').where('gameID', isEqualTo: gameID).get();
     var firestoreInstanceId = query.docs.first.id;
     await FirebaseFirestore.instance.collection('memoryGames').doc(firestoreInstanceId).delete();
   }
 
   @override
-  Future<List<List<GenericGame>>> startConfiguration(List<dynamic> dbgames) async {
+  Future<List<List<GenericGame>>> startConfiguration(List<DBgenericGame> dbgamess) async {
     List<GenericGame> games = [];
     List<GenericGame> finishedGames = [];
+    List<DBmemoryGame> dbgames= dbgamess as List<DBmemoryGame>;
     for (dynamic dbgame in dbgames){
       if (dbgame.actualPlayerID == globalData.user!.userID || (dbgame.finished && (dbgame.player1ID == globalData.user!.userID)) || (dbgame.finished && (dbgame.player1ID == globalData.user!.userID))){
         if (dbgame.finished){
@@ -102,7 +108,7 @@ class MemoryGameHandler implements GenericGameHandler {
             MemoryGame game = MemoryGame(gameID: dbgame.gameID, player1: player1, player2: player2, actualPlayer: actualPlayer, player1Points: dbgame.player1Points, player2Points: dbgame.player2Points, vocabularies: vocabularies, finished: dbgame.finished);
             finishedGames.add(game);
           } else {
-            _deleteGame(dbgame.gameID);
+            deleteGame(dbgame.gameID);
             UserHandler().deletFinishedGamesIDsNews(dbgame.gameID);
           }
         } else {

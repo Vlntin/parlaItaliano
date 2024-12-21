@@ -2,17 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:go_router/go_router.dart';
 import 'package:parla_italiano/handler/userHandler.dart';
 import 'package:parla_italiano/dbModels/appUser.dart';
-import 'package:parla_italiano/globals/globalData.dart' as UserDataGlobals;
-import 'package:parla_italiano/adminScreens/globalData.dart' as AdminGlobals;
 import 'package:parla_italiano/handler/startLoader.dart';
 import 'package:parla_italiano/adminScreens/startLoader.dart' as startLoaderAdmin;
 
 import 'package:parla_italiano/screens/start_screen.dart';
 import 'package:parla_italiano/adminScreens/ugoScreen.dart';
-import 'package:parla_italiano/routes.dart' as routes;
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -40,16 +36,9 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context){
     return LayoutBuilder(
       builder: ((context, constraints) {
-        if (constraints.maxWidth > 1200){
-          return getLayout(200, 100);
-        } else {
-          return getLayout(100, 50);
-        }
-        
-      }
-      )
+        return (constraints.maxWidth > 1200) ? getLayout(200, 100) : getLayout(100, 50);
+      })
     );
-
   }
 
   getLayout(double paddingHorizontal, double paddingVertical){
@@ -84,7 +73,6 @@ class _SignInScreenState extends State<SignInScreen> {
                 )
               ),
               ),
-              
               const SizedBox(height: 20),
               Expanded(
                 flex: 6,
@@ -233,107 +221,6 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                     ]);
     }
-  }
-  
-  Future<void> _dialogBuilder(BuildContext context) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Benutzername eingeben'),
-          content: Column(
-            children: [
-              const Text(
-                'Bitte gib einen Benutzernamen ein, mit dem dich deine Freunde finden können:',
-              ),
-              Form(
-                key: _usernameFormKey,
-                child: TextFormField(
-                          cursorColor: Colors.black,
-                          controller: _controllerEmail,
-                          decoration: InputDecoration(
-                            hintText: 'Benutzername',
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Benutzername eingeben!';
-                            }
-                            return null;
-                          },
-                        ),
-              ),
-            ]
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Starten'),
-              onPressed: () async {
-                if (_usernameFormKey.currentState!.validate() && await _userHandler.isUsernameNotUsed(_controllerUsername.text)) {
-                  final eMail = _controllerEmail.text;
-                  final password = _controllerPassword.text;
-                  final username = _controllerUsername.text;
-                  //registrieren
-                  try {
-                    final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                      email: eMail,
-                      password: password,
-                    );
-                    //anmelden
-                    try {
-                      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-                        email: eMail,
-                        password: password
-                      );
-                      final user = credential.user;
-                      //user zu firestore liste hinzufügen
-                      List<String> friendsIDs = [];
-                      List<String> friendsRequestsSend = [];
-                      List<String> friendsRequestsReceived = [];
-                      List<String> friendsRequestsAccepted = [];
-                      List<String> friendsRequestsRejected = [];
-                      List<String> favouriteVocabulariesIDs= [];
-                      List<String> finishedGamesIDsNews = [];
-                      List<String> friendsLevelUpdate =[];
-                      print(1);
-                      _userHandler.createUser(userID: user!.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsRequestsSend: friendsRequestsSend, friendsRequestsRecieved: friendsRequestsReceived, friendsRequestsAccepted: friendsRequestsAccepted, friendsRequestsRejected: friendsRequestsRejected, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: '', finishedGamesIDsNews: finishedGamesIDsNews, friendsLevelUpdate: friendsLevelUpdate);
-                      print(2);
-                      UserDataGlobals.user = AppUser(userID: user.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsRequestsSend: friendsRequestsSend, friendsRequestsReceived: friendsRequestsReceived, friendsRequestsAccepted: friendsRequestsAccepted, friendsRequestsRejected: friendsRequestsRejected, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: "", finishedGamesIDsNews: finishedGamesIDsNews, friendsLevelUpdate: friendsLevelUpdate);
-                      print(3);
-                      if (await _userHandler.findUserByID(user!.uid) != null){
-                        AppUser? appUser = await _userHandler.findUserByID(user!.uid);
-                        await StartLoader().loadData(appUser, context);
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => StartScreen(),
-                                            ),
-                                          );
-                      }
-                      } on FirebaseAuthException catch (e) {
-                        if (e.code == 'user-not-found') {} 
-                        else if (e.code == 'wrong-password') {}
-                      };
-                  } on FirebaseAuthException catch (e) {
-                    if (e.code == 'weak-password') {} 
-                    else if (e.code == 'email-already-in-use') {}
-                  } catch (e) {}
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Benutzername entweder leer oder schon vergeben!'))
-                  );
-                }
-              }                    
-            ),
-          ],
-        );
-      },
-    );
   }
 
   getButtonsWidget(){
@@ -520,102 +407,13 @@ class _SignInScreenState extends State<SignInScreen> {
                     )
                   ),
                   onPressed: () async {
-                    if (signInSelected){
-                      if (_formKey.currentState!.validate()) {
-                                    final email = _controllerEmail.text;
-                                    final password = _controllerPassword.text;
-                                    try {
-                                      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-                                        email: email,
-                                        password: password
-                                      );
-                                      final user = credential.user;
-                                      if (await _userHandler.findUserByID(user!.uid) != null){
-                                        AppUser? appUser = await _userHandler.findUserByID(user!.uid); 
-                                        _controllerEmail.clear();
-                                        _controllerPassword.clear();
-                                        if (appUser!.username == 'admin' || appUser!.username == 'admin2' || appUser!.username == 'admin3'){
-                                          await startLoaderAdmin.StartLoader().loadData(appUser!, context);
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => new HomeScreen(),
-                                            ),
-                                          );
-                                        } else {
-                                          await StartLoader().loadData(appUser!, context);
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => new StartScreen(),
-                                            ),
-                                          );
-                                          
-                                        }
-                                        
-                                      } 
-                                    } on FirebaseAuthException catch (e) {
-                                      setState(() {
-                                          _errorMessage = 'Anmeldung fehlgeschlagen';
-                                        });
-                                    };
-                                  }
-                    } else {
-                      if (await _formKey.currentState!.validate()) {
-                        if (await _userHandler.isUsernameNotUsed(_controllerUsername.text)) {
-                          final eMail = _controllerEmail.text;
-                          final password = _controllerPassword.text;
-                          final username = _controllerUsername.text;
-                          //registrieren
-                          try {
-                            final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                              email: eMail,
-                              password: password,
-                            );
-                            //anmelden
-                            try {
-                              final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-                                email: eMail,
-                                password: password
-                              );
-                              final user = credential.user;
-                              //user zu firestore liste hinzufügen
-                              List<String> friendsIDs = [];
-                              List<String> friendsRequestsSend = [];
-                              List<String> friendsRequestsReceived = [];
-                              List<String> friendsRequestsAccepted = [];
-                              List<String> friendsRequestsRejected = [];
-                              List<String> favouriteVocabulariesIDs= [];
-                              List<String> finishedGamesIDsNews = [];
-                              List<String> friendsLevelUpdate =[];
-                              _userHandler.createUser(userID: user!.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsRequestsSend: friendsRequestsSend, friendsRequestsRecieved: friendsRequestsReceived, friendsRequestsAccepted: friendsRequestsAccepted, friendsRequestsRejected: friendsRequestsRejected, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: '', finishedGamesIDsNews: finishedGamesIDsNews, friendsLevelUpdate: friendsLevelUpdate);
-                              UserDataGlobals.user = AppUser(userID: user.uid, username: username, level: 1, friendsIDs: friendsIDs, friendsRequestsSend: friendsRequestsSend, friendsRequestsReceived: friendsRequestsReceived, friendsRequestsAccepted: friendsRequestsAccepted, friendsRequestsRejected: friendsRequestsRejected, favouriteVocabulariesIDs: favouriteVocabulariesIDs, lastTestDate: "", finishedGamesIDsNews: finishedGamesIDsNews, friendsLevelUpdate: friendsLevelUpdate);
-                              if (await _userHandler.findUserByID(user!.uid) != null){
-                                AppUser? appUser = await _userHandler.findUserByID(user!.uid);
-                                await StartLoader().loadData(appUser, context);
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) => StartScreen(),
-                                                    ),
-                                                  );
-                              }
-                            } on FirebaseAuthException catch (e) {
-                              if (e.code == 'user-not-found') {} 
-                              else if (e.code == 'wrong-password') {}
-                            };
-                          } on FirebaseAuthException catch (e) {
-                            setState(() {
-                              _errorMessage = 'Registrierung fehlgeschlagen';
-                            });
-                          }
-                        } else {
-                          setState(() {
-                            _errorMessageUserName = 'Benutzername schon vergeben';
-                          });
-                        }
+                    if (_formKey.currentState!.validate()) {
+                      if (signInSelected){
+                        _tryToSignIn();
+                      } else {
+                        _tryToRegister();
                       }
-                    }
+                    }  
                   },
                   child: Padding(
                     padding: EdgeInsets.all(5),
@@ -639,7 +437,72 @@ class _SignInScreenState extends State<SignInScreen> {
       ]
     );
   }
+
+  Future _tryToSignIn() async{
+    final email = _controllerEmail.text;
+    final password = _controllerPassword.text;
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password
+      );
+      final user = credential.user;
+      if (await _userHandler.findUserByID(user!.uid) != null){
+        AppUser? appUser = await _userHandler.findUserByID(user.uid); 
+        _controllerEmail.clear();
+        _controllerPassword.clear();
+        if (appUser!.username == 'admin' || appUser.username == 'admin2' || appUser.username == 'admin3'){
+          await startLoaderAdmin.StartLoader().loadData(appUser, context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => new HomeScreen(),
+            ),
+          );
+        } else {
+          await StartLoader().loadData(appUser, context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => new StartScreen(),
+            ),
+          );                                 
+        }                                
+      } 
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+         _errorMessage = 'Anmeldung fehlgeschlagen';
+      });
+    };
+                                  
+  }
+
+  Future _tryToRegister() async {
+    final eMail = _controllerEmail.text;
+    final password = _controllerPassword.text;
+    final username = _controllerUsername.text;
+    try {
+      AppUser? user = await _userHandler.registerNewUser(username, eMail, password);
+      if (user != null){
+        await StartLoader().loadData(user, context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StartScreen(),
+          ),
+        );
+      }
+    } catch(e){
+      if (e.toString() == 'Exception: Registrierung fehlgeschlagen'){
+        setState((){
+          _errorMessage = 'Registrierung fehlgeschlagen';
+        });
+      } else if (e.toString() == 'Exception: Benutzername schon vergeben'){
+        setState((){
+          _errorMessageUserName = 'Benutzername schon vergeben';
+        }); 
+      }
+    }                        
+  }
   
-
 }
-

@@ -34,14 +34,6 @@ class StartLoader {
     List<VocabTable> vocabularyTables = vocabularyHandler.startConfiguration(vocabularyList!, tableList!);
     VocabRepo repo = VocabRepo(vocabularyTables);
     userData.vocabularyRepo = repo;
-
-     
-    for (VocabTable table in vocabularyTables){
-      print(table.title);
-      for (Vocab vocab in table.vocabularies){
-        print(vocab.italian + ',' + vocab.german + ',' + vocab.additional);
-      }
-    }
     
   } 
 

@@ -1,26 +1,30 @@
-import 'package:parla_italiano/games/generic/genericGame.dart';
+import 'package:parla_italiano/games/frontendGame.dart';
 import 'package:parla_italiano/globals/globalData.dart' as gd;
 
 class GamesRepo{
 
-  List<GenericGame> games = [];
-  List<GenericGame> finishedGames = [];
+  List<FrontGame> games = [];
+  List<FrontGame> finishedGames = [];
 
   GamesRepo(this.games, this.finishedGames);
 
-  void addGame(GenericGame game){
+  void addGame(FrontGame game){
     games.add(game);
   }
 
-  updateGameState(dynamic newGame){
-    for (dynamic game in games){
-      if (game.gameID == newGame.gameID){
+  void updateGameState(FrontGame newGame){
+    print('in update');
+    for (FrontGame game in games){
+      if (game.getGame().gameID == newGame.getGame().gameID){
         games.remove(game);
-        if (newGame.actualPlayer == gd.user! && !newGame.finished){
+        print('removed');
+        if (newGame.getGame().getActualPlayer() == gd.user! && !newGame.getGame().isFinished()){
           games.add(newGame);
+          print('game added');
         }
-        if (newGame.finished && (newGame.player1.userID == gd.user!.userID || newGame.player2.userID == gd.user!.userID)){
+        if (newGame.getGame().isFinished() && (newGame.getGame().getPlayers()[0].userID == gd.user!.userID || newGame.getGame().getPlayers()[1].userID == gd.user!.userID)){
           finishedGames.add(newGame);
+          print('finished game added');
         }
       }
     }

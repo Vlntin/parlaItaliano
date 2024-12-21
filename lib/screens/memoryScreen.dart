@@ -1,43 +1,34 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:go_router/go_router.dart';
-import 'package:parla_italiano/games/classicGame/classicGame.dart';
+import 'package:parla_italiano/games/frontendGame.dart';
 import 'package:parla_italiano/games/memory/memoryGame.dart';
 import 'package:parla_italiano/globals/appBar.dart';
 import 'package:parla_italiano/globals/navigationBar.dart';
 import 'package:parla_italiano/globals/globalData.dart' as UserDataGlobals;
-import 'package:parla_italiano/games/classicGame/classicGameHandler.dart';
 import 'package:parla_italiano/handler/userHandler.dart';
-import 'package:parla_italiano/models/vocabulary.dart';
-import 'package:parla_italiano/models/vocabularyTable.dart';
-import 'package:parla_italiano/routes.dart' as routes;
 import 'package:parla_italiano/screens/oneVsOneScreen.dart';
 import 'package:parla_italiano/screens/start_screen.dart';
-import 'package:parla_italiano/widgets/classicGameWidgets.dart';
-import 'package:parla_italiano/constants/texts.dart' as ruleTexts;
-import 'package:parla_italiano/widgets/rulesDialogBuilder.dart' as rulesBuilder;
 
 import 'package:confetti/confetti.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:grid_pad/grid_pad.dart';
 
 import 'package:parla_italiano/constants/colors.dart' as globalColors;
 
 class MemoryScreen extends StatefulWidget {
 
-  dynamic game;
+  FrontGame game;
   MemoryScreen({super.key, required this.game});
 
 
   @override
-  _MemoryScreenState createState() => _MemoryScreenState(game: game);
+  _MemoryScreenState createState() => _MemoryScreenState(frontgame: game, game: game.getGame() as MemoryGame);
 }
 
 class _MemoryScreenState extends State<MemoryScreen> {
 
+  FrontGame frontgame;
   MemoryGame game;
   int currentPageIndex = 2;
   int selectedIndexFirstCard = -1;
@@ -47,7 +38,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
   bool isPlayerFinished = false;
 
 
-  _MemoryScreenState({required this.game}){
+  _MemoryScreenState({required this.frontgame, required this.game}){
     cardTexts = game.getCardTexts();
   }
 
@@ -169,7 +160,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                       if (game.validateAnswer(cardTexts[selectedIndexFirstCard], cardTexts[selectedIndexSecondCard])){
                         if (game.isPlayerFinished()){
                           if (game.isGameFinished()){
-                            UserDataGlobals.gamesRepo!.updateGameState(game);
+                            UserDataGlobals.gamesRepo!.updateGameState(frontgame);
                             UserHandler().updateFinishedGamesIDsNews(game.player1, game.gameID!);
                             isGameFinished = true;
                             if (game.player1Points! < game.player2Points!){
@@ -405,8 +396,6 @@ class _MemoryScreenState extends State<MemoryScreen> {
   }
 
   Widget _getPlayingMainContainer(){
-    print('Länge');
-    print(game.getCardTexts().length);
     return Expanded(
       child: Container(
         child: Expanded(

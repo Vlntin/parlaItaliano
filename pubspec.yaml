@@ -116,7 +116,4 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   assets:
-    - images/ABMQ2581.JPG
-    - images/BFWA0922.JPG
-    - images/BSRO2840.JPG
     - assets/

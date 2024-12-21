@@ -33,7 +33,6 @@ List<NewsWidget> news = [];
     List<FriendsRequestAcceptedWidget> friendRequests = [];
     List<AppUser> friends = [];
     for (String id in user!.friendsRequestsAccepted){
-      print(id);
       AppUser appuser = await UserHandler().findUserByID(id);
       await appuser;
       friends.add(appuser);

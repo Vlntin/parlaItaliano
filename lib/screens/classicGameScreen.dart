@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:parla_italiano/games/GameType.dart';
 import 'package:parla_italiano/games/classicGame/classicGame.dart';
+import 'package:parla_italiano/games/frontendGame.dart';
 import 'package:parla_italiano/games/generic/genericGame.dart';
 import 'package:parla_italiano/globals/appBar.dart';
 import 'package:parla_italiano/globals/navigationBar.dart';
@@ -21,19 +23,20 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 
 class ClassicGameScreen extends StatefulWidget {
 
-  String? gameID;
-  ClassicGameScreen({super.key, this.gameID});
+  FrontGame game;
+  ClassicGameScreen({super.key, required this.game});
 
   @override
-  _ClassicGameScreenState createState() => _ClassicGameScreenState(gameID: gameID);
+  _ClassicGameScreenState createState() => _ClassicGameScreenState(frontGame: game);
 }
 
 class _ClassicGameScreenState extends State<ClassicGameScreen> {
 
-  String? gameID;
+  FrontGame frontGame;
+  late String? gameID = frontGame.getGame().gameID;
   int currentPageIndex = 2;
-  _ClassicGameScreenState({required this.gameID});
-  late dynamic game = _findRigthGame();
+  _ClassicGameScreenState({required this.frontGame});
+  late ClassicGame game = frontGame.getGame() as ClassicGame;
 
   final _formKey = GlobalKey<FormState>();
   final _controllerAnswer = TextEditingController();
@@ -55,12 +58,7 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
   late ConfettiController _controllerCenter;
 
   GenericGame? _findRigthGame(){
-    for (GenericGame game in UserDataGlobals.gamesRepo!.games){
-      if (game.gameID == gameID){
-        return game;
-      }
-    }
-    return null;
+    return frontGame.getGame();
   }
 
   @override
@@ -313,41 +311,42 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
   }
 
   void _finishQuiz(){
+    print('finish quiz');
     setState(() {
-      print('finishQuiz');
-    _timerStopped = true;
-    routes.canTestBeLeaved = true;
-    _wrongWords = game!.getFalseWordsInRound();
-    _gameFinished = true;
-    if (game!.setNextRound()){
-      setState(() {
-        ClassicGameHandler().updateGameStats(game!);
-        UserDataGlobals.gamesRepo!.updateGameState(game!);
-      });
-    } else {
-      setState(() {
-        ClassicGameHandler().updateGameStats(game!);
-        UserDataGlobals.gamesRepo!.updateGameState(game!);
-        UserHandler().updateFinishedGamesIDsNews(game!.player1, game!.gameID!);
-        if (game!.player2Points.reduce((value, element) => value + element) > game!.player1Points.reduce((value, element) => value + element)){
-        _controllerCenter.play();
-        _showResultDialog('Sieger');
-        } else if (game!.player2Points.reduce((value, element) => value + element) == game!.player1Points.reduce((value, element) => value + element)){
-        _showResultDialog('Unentschieden');
-        } else {
-          _showResultDialog('Loooooser');
-        }
-      });
-    }
-    smallScreen = getSmallScreen();
-    bigScreen = getBigScreen();
+      _timerStopped = true;
+      routes.canTestBeLeaved = true;
+      _wrongWords = game!.getFalseWordsInRound();
+      _gameFinished = true;
+      if (game!.setNextRound()){
+        setState(() {
+          ClassicGameHandler().updateGameStats(game!);
+          UserDataGlobals.gamesRepo!.updateGameState(frontGame);
+        });
+      } else {
+        print('else statement');
+        setState(() {
+          ClassicGameHandler().updateGameStats(game!);
+          UserDataGlobals.gamesRepo!.updateGameState(frontGame);
+          UserHandler().updateFinishedGamesIDsNews(game!.player1, game!.gameID!);
+          if (game!.player2Points.reduce((value, element) => value + element) > game!.player1Points.reduce((value, element) => value + element)){
+          _controllerCenter.play();
+          _showResultDialog('Sieger');
+          } else if (game!.player2Points.reduce((value, element) => value + element) == game!.player1Points.reduce((value, element) => value + element)){
+          _showResultDialog('Unentschieden');
+          } else {
+            _showResultDialog('Loooooser');
+          }
+        });
+      }
+      smallScreen = getSmallScreen();
+      bigScreen = getBigScreen();
     });
     
   }
 
   _getWidget(double fontSize){
       return Text(
-        game!.questions[game!.currentIndex],
+        game.questions[game.currentIndex],
         style: TextStyle(
           fontSize: fontSize,
         )
@@ -362,6 +361,7 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
         smallScreen = smallScreen;
         _usedTime += 1/60;
         if(_usedTime  >= 1.0 || _timerStopped){
+          print('found');
           t.cancel();
           _finishQuiz();
         }
@@ -402,7 +402,7 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
                 ),
               ),
               onPressed: () async {
-                await ClassicGameHandler().setDefault(game!);
+                await ClassicGameHandler().setDefault(frontGame);
                 _initialize();
               },
             )
@@ -503,10 +503,9 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
                             game!.validateAnswer(_controllerAnswer.text);
                             _controllerAnswer.clear();
                             if(!game!.setNextWord()){
-                              print('if');
                               _timerStopped = true;
+                              print('timer setted');
                             }
-                            print('nach if');
                             bigScreen = getBigScreen();
                             smallScreen = getSmallScreen();
                           }) ;
@@ -541,10 +540,10 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
               ),
               onPressed: () => {
                 setState(() {
-                  _finishedWordsPercent = _finishedWordsPercent + ( 1 / (game!.neededVocabularies / game!.totalRounds));
-                  game!.validateAnswer(_controllerAnswer.text);
+                  _finishedWordsPercent = _finishedWordsPercent + ( 1 / (game.neededVocabularies / game.totalRounds));
+                  game.validateAnswer(_controllerAnswer.text);
                   _controllerAnswer.clear();
-                  if(!game!.setNextWord()){
+                  if(!game.setNextWord()){
                     _timerStopped = true;
                   }
                   bigScreen = getBigScreen();
@@ -584,7 +583,7 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
   }     
 
   Widget _getFinishedGameButtons(double fontSize){
-    if (game!.actualPlayer.userID == UserDataGlobals.user!.userID && game!.actualRound <= game!.totalRounds){
+    if (game!.actualPlayer.userID == UserDataGlobals.user!.userID && game!.actualRound <= game!.totalRounds && !game.finished){
       return Center(
         child: Row(
           children: [
@@ -640,7 +639,7 @@ class _ClassicGameScreenState extends State<ClassicGameScreen> {
                         backgroundColor: Colors.white,
                       ),
                       onPressed: () async {
-                        await ClassicGameHandler().setDefault(game!);
+                        await ClassicGameHandler().setDefault(FrontGame(game, GameType.classicGame));
                         _initialize();
                       },
                       child: Padding(

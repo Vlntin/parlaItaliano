@@ -550,7 +550,6 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
   }
 
   _getWidget(double fontsize){
-    print('getWidget');
     int _translationDirectionClassificator = widget.test.getTranslationDirectionClassificator();
     if (_translationDirectionClassificator == 2){
       return Text(

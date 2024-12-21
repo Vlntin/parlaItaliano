@@ -1,20 +1,15 @@
 library globalData;
-
 import 'package:parla_italiano/dbModels/appUser.dart';
-import 'package:parla_italiano/games/generic/genericGame.dart';
-import 'package:parla_italiano/globals/gamesBibliothek.dart';
+import 'package:parla_italiano/games/frontendGame.dart';
 import 'package:parla_italiano/handler/userHandler.dart';
 import 'package:parla_italiano/models/gamesRepo.dart';
 import 'package:parla_italiano/models/vocabularyRepo.dart';
 import 'package:parla_italiano/widgets/newsWidgets.dart';
 
-
 AppUser? user;
 VocabularyRepo? vocabularyRepo;
 GamesRepo? gamesRepo;
 List<NewsWidget> news = [];
-GamesBibliothekInfo gamesBibliothek = GamesBibliothekInfo();
-
 
   Future<List<FriendsRequestWidget>> _getAllFriendsRequests() async {
     List<FriendsRequestWidget> requests = [];
@@ -35,12 +30,9 @@ GamesBibliothekInfo gamesBibliothek = GamesBibliothekInfo();
     List<FriendsRequestAcceptedWidget> friendRequests = [];
     List<AppUser> friends = [];
     for (String id in user!.friendsRequestsAccepted){
-      print(id);
       AppUser appuser = await UserHandler().findUserByID(id);
-      await appuser;
       friends.add(appuser);
     }
-    
     for (AppUser friend in friends){
       friendRequests.add(FriendsRequestAcceptedWidget(friend));
     }
@@ -52,10 +44,8 @@ GamesBibliothekInfo gamesBibliothek = GamesBibliothekInfo();
     List<AppUser> friends = [];
     for (String id in user!.friendsRequestsRejected){
       AppUser appuser = await UserHandler().findUserByID(id);
-      await appuser;
       friends.add(appuser);
     }
-    
     for (AppUser friend in friends){
       friendRequests.add(FriendsRequestRejectedWidget(friend));
     }
@@ -67,10 +57,8 @@ GamesBibliothekInfo gamesBibliothek = GamesBibliothekInfo();
     List<AppUser> friends = [];
     for (String id in user!.friendsLevelUpdate){
       AppUser appuser = await UserHandler().findUserByID(id);
-      await appuser;
       friends.add(appuser);
     }
-    
     for (AppUser friend in friends){
       friendUpdates.add(FriendsLevelUpdateWidget(friend));
     }
@@ -80,8 +68,8 @@ GamesBibliothekInfo gamesBibliothek = GamesBibliothekInfo();
   List<GameFinishedWidget> _getAllFinishedGamesIDs() {
     List<GameFinishedWidget> finishedGames = [];
     for (String id in user!.finishedGamesIDsNews){
-      for (GenericGame game in gamesRepo!.finishedGames){
-        if (game.gameID == id){
+      for (FrontGame game in gamesRepo!.finishedGames){
+        if (game.getGame().gameID == id){
           GameFinishedWidget widget = GameFinishedWidget(game);
           finishedGames.add(widget);
         }
@@ -96,26 +84,21 @@ GamesBibliothekInfo gamesBibliothek = GamesBibliothekInfo();
     for (GameFinishedWidget element in finishedGames){
       newsList.add(element);
     }
-
     List<FriendsRequestWidget> friendRequests = await _getAllFriendsRequests();
     for (FriendsRequestWidget element in friendRequests){
       newsList.add(element);
     }
-
     List<FriendsRequestAcceptedWidget> friendAccepts = await _getAllFriendsAccepted();
     for (FriendsRequestAcceptedWidget element in friendAccepts){
       newsList.add(element);
     }
-
     List<FriendsRequestRejectedWidget> friendRejected = await _getAllFriendsRejected();
     for (FriendsRequestRejectedWidget element in friendRejected){
       newsList.add(element);
     }
-
     List<FriendsLevelUpdateWidget> friendUpdates = await _getAllFriendsLevelUpdate();
     for (FriendsLevelUpdateWidget element in friendUpdates){
       newsList.add(element);
     }
-
     return newsList;
   }

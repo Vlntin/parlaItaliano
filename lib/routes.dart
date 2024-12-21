@@ -1,9 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:parla_italiano/handler/startLoader.dart';
 import 'package:parla_italiano/handler/userHandler.dart';
-import 'package:parla_italiano/dbModels/appUser.dart';
+//import 'package:parla_italiano/dbModels/appUser.dart';
 import 'package:parla_italiano/screens/classicGameScreen.dart';
 import 'package:parla_italiano/screens/oneVsOneScreen.dart';
 
@@ -15,7 +14,6 @@ import 'screens/vocabularyDetailsScreen.dart';
 import 'screens/signInScreen.dart';
 import 'screens/testScreen.dart';
 import 'package:parla_italiano/globals/globalData.dart' as uD;
-import 'package:parla_italiano/routes.dart' as routes;
 import 'package:parla_italiano/constants/colors.dart' as colors;
 
 bool canTestBeLeaved = false;
@@ -27,7 +25,7 @@ final _router = GoRouter(
     if (user == null){
       return '/';
     } else {
-      AppUser? appUser = await UserHandler().findUserByID(user!.uid);
+      //AppUser? appUser = await UserHandler().findUserByID(user!.uid);
       //StartLoader().loadData(appUser!);
       return null;
     }
@@ -85,21 +83,13 @@ final _router = GoRouter(
       name:'vocabularies_details', 
       builder: (context, state) => VocabularyDetailsScreen(tablename: state.pathParameters['tablename'], table_level: int.tryParse(state.pathParameters['table_level']!)),
     ),
-    GoRoute(
-      path: '/classicGame/:gameID', 
-      name:'classicGame', 
-      builder: (context, state) => ClassicGameScreen(gameID: state.pathParameters['gameID']),
-    ),
   ]
 );
 
 void clearAndNavigate(String path) {
-  print('c');
   while (_router.canPop() == true) {
-    print('a');
     _router.pop();
   }
-  print('b');
   _router.pushReplacement(path);
 }
 

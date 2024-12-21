@@ -1,17 +1,13 @@
 import 'dart:async';
-
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:parla_italiano/games/classicGame/DBclassicGame.dart';
+import 'package:parla_italiano/games/GameType.dart';
 import 'package:parla_italiano/dbModels/appUser.dart';
-import 'package:parla_italiano/games/classicGame/classicGame.dart';
-import 'package:parla_italiano/games/classicGame/classicGameHandler.dart';
+import 'package:parla_italiano/games/frontendGame.dart';
 import 'package:parla_italiano/games/generic/DBgeneric.dart';
 import 'package:parla_italiano/games/generic/genericGame.dart';
 import 'package:parla_italiano/games/generic/genericGameHandler.dart';
-import 'package:parla_italiano/globals/gamesBibliothek.dart';
-import 'package:parla_italiano/handler/vocabularyHandler.dart';
 import 'package:parla_italiano/models/gamesRepo.dart';
 import 'package:parla_italiano/models/vocabularyRepo.dart';
 import 'package:parla_italiano/models/vocabularyTable.dart';
@@ -45,33 +41,37 @@ class StartLoader {
   }
 
   Future<bool> _loadGameData() async{
-    List<GenericGame> runningGames = [];
-    List<GenericGame> finishedGames = [];
-    for (GameInfoCompromised entry in userData.gamesBibliothek.games){
-      GenericGameHandler handler = entry.handler;
+    List<FrontGame> runningGames = [];
+    List<FrontGame> finishedGames = [];
+    for (GameType entry in GameType.values){
+      GenericGameHandler handler = entry.info.gameHandler;
       await for (List<DBgenericGame> list in handler.readGames()){
         List<List<GenericGame>> games = await handler.startConfiguration(list);
         for (GenericGame game in games[0]){
-          runningGames.add(game);
+          if (entry == GameType.classicGame){
+            runningGames.add(FrontGame(game, GameType.classicGame));
+          } else {
+            runningGames.add(FrontGame(game, GameType.memory));
+          }
         }
         for (GenericGame game in games[1]){
-          finishedGames.add(game);
+          if (entry == GameType.classicGame){
+            finishedGames.add(FrontGame(game, GameType.classicGame));
+          } else {
+            finishedGames.add(FrontGame(game, GameType.memory));
+          }
         }
         break;
       }
     }
-    print('after await');
     GamesRepo repo = GamesRepo(runningGames, finishedGames);
-    print('repo');
     userData.gamesRepo = repo;
-    print('repo2');
     return true;
   }
 
   void _loadUserData(AppUser appUser) async{
     userData.user = appUser;
   }
-
 
   Future<bool> loadData(AppUser appUser, BuildContext context) async {
     _loadUserData(appUser);

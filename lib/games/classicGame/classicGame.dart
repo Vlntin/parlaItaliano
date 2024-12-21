@@ -1,4 +1,3 @@
-
 import 'package:parla_italiano/dbModels/appUser.dart';
 import 'package:parla_italiano/games/generic/genericGame.dart';
 import 'package:parla_italiano/models/vocabulary.dart';
@@ -27,7 +26,6 @@ class ClassicGame extends GenericGame{
   ClassicGame({required this.gameID, required this.player1, required this.player2, required this.actualPlayer, required this.player1Points, required this.player2Points, required this.actualRound, required this.totalRounds, required this.vocabularies, required this.italianToGerman, required this.finished}) {
     neededVocabularies = vocabularies.length;
     currentIndex = (actualRound - 1) * (neededVocabularies / totalRounds).toInt();
-    print(currentIndex);
     for (int i = 0; i < vocabularies.length; i++){
       Vocabulary vocabulary = vocabularies[i];
       bool italToGerman = italianToGerman[i];
@@ -54,7 +52,6 @@ class ClassicGame extends GenericGame{
   }
 
   bool setNextWord(){
-    print(currentIndex);
     if (currentIndex < ((neededVocabularies/totalRounds) * (actualRound) -1)){
       currentIndex = currentIndex + 1;
       return true;
@@ -92,7 +89,6 @@ class ClassicGame extends GenericGame{
     
   List<WrongWordResponse> getFalseWordsInRound(){
     List<WrongWordResponse> falseWords = [];
-    print('getFalseWords');
     for (int i = (actualRound - 1) * (neededVocabularies / totalRounds).toInt(); i < (actualRound ) * (neededVocabularies / totalRounds); i++){
       if (actualPlayer.userID == player1.userID){
         if (player1Responses[i] != solutions[i]){
@@ -111,14 +107,35 @@ class ClassicGame extends GenericGame{
     return falseWords;
   }
 
-  void printerMethod(){
-    print(player1);
-    print(player2);
-    print(actualRound);
-    print(questions);
-    print(solutions);
+  @override
+  List<int> getPlayersTotalPoints(){
+    int player1PointsTotal = 0;
+    int player2PointsTotal = 0;
+    for (int value in player1Points){
+      player1PointsTotal = player1PointsTotal + value;
+    }
+    for (int value in player2Points){
+      player2PointsTotal = player2PointsTotal + value;
+    }
+    return [player1PointsTotal, player2PointsTotal];
   }
-   
+
+  List<AppUser> getPlayers(){
+    return [player1, player2];
+  }
+
+  int getActualRound(){
+    return actualRound;
+  }
+
+  AppUser getActualPlayer(){
+    return actualPlayer;
+  }
+
+  bool isFinished(){
+    return finished;
+  }
+
 }
 
 class WrongWordResponse{

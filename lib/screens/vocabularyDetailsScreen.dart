@@ -36,16 +36,6 @@ class VocabularyDetailsScreenState extends State<VocabularyDetailsScreen> {
       onPopInvoked: (didPop){
 
         clearAndNavigate('/vocabularyListsScreen');
-        /** 
-        print('onpop');
-        while (GoRouter.of(context).canPop() == true) {
-          print('canpop');
-          GoRouter.of(context).pop();
-        }
-        
-        print('finished');
-        GoRouter.of(context).pushReplacement('/vocabularyListsScreen');
-        */
       },
       child:Scaffold(
       bottomNavigationBar: CustomNavigationBar(1),

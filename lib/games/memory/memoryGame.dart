@@ -1,4 +1,3 @@
-
 import 'package:parla_italiano/dbModels/appUser.dart';
 import 'package:parla_italiano/games/generic/genericGame.dart';
 import 'package:parla_italiano/games/memory/memoryGameHandler.dart';
@@ -24,9 +23,6 @@ class MemoryGame extends GenericGame{
   MemoryGameHandler handler = MemoryGameHandler();
 
   MemoryGame({this.gameID, required this.player1, required this.player2, required this.actualPlayer, this.player1Points, this.player2Points, this.finished, this.vocabularies}) {
-    print('gameID');
-    print(gameID);
-    print(vocabularies);
     if (gameID == null){
       //generate gameID
       gameID = '2';
@@ -41,6 +37,7 @@ class MemoryGame extends GenericGame{
       cardTexts.add(vocabulary.german);
       cardTexts.add(vocabulary.italian);
     }
+    cardTexts.shuffle();
   }
 
   bool validateAnswer(String text1, String text2){
@@ -112,10 +109,6 @@ class MemoryGame extends GenericGame{
     return player2;
   }
 
-  AppUser getActualPlayer(){
-    return actualPlayer;
-  }
-
   List<String> getCardTexts(){
     return cardTexts;
   }
@@ -125,9 +118,26 @@ class MemoryGame extends GenericGame{
     for(Vocabulary vocabulary in vocabularies!){
       ids.add(vocabulary.italian);
     }
-    print(ids);
     return ids;
   }
 
-  
+  List<int> getPlayersTotalPoints(){
+    return [player1Points!, player2Points!];
+  }
+
+  List<AppUser> getPlayers(){
+    return [player1, player2];
+  }
+
+  int getActualRound(){
+    return 1;
+  }
+
+  AppUser getActualPlayer(){
+    return actualPlayer;
+  }
+
+  bool isFinished(){
+    return finished!;
+  }
 }

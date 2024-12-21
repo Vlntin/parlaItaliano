@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:parla_italiano/games/GameType.dart';
 import 'package:parla_italiano/games/classicGame/DBclassicGame.dart';
 import 'package:parla_italiano/dbModels/appUser.dart';
 import 'package:parla_italiano/games/classicGame/classicGame.dart';
+import 'package:parla_italiano/games/frontendGame.dart';
 import 'package:parla_italiano/games/generic/DBgeneric.dart';
 import 'package:parla_italiano/games/generic/genericGame.dart';
 import 'package:parla_italiano/games/generic/genericGameHandler.dart';
@@ -21,24 +23,28 @@ class ClassicGameHandler implements GenericGameHandler {
     .map((snapshot) => snapshot.docs.map((doc) => DBclassicGame.fromJson(doc)).toList());
 
   @override
-  void updateGameStats(game) async {
+  void updateGameStats(GenericGame genericGame) async {
+    ClassicGame game = genericGame as ClassicGame;
+    print(game.actualPlayer);
+    print(game.gameID);
     if (game.finished){
       DateTime now = new DateTime.now();
       DateTime date = new DateTime(now.year, now.month, now.day);
       String timeStamped = date.toString();
-      FirebaseFirestore.instance.collection('games').doc(game.gameID).update({'timeStamp': timeStamped});
+      FirebaseFirestore.instance.collection('classicGames').doc(game.gameID).update({'timeStamp': timeStamped});
     } else {
-      globalData.gamesRepo!.games.add(game);
+      //globalData.gamesRepo!.games.add(FrontGame(game, GameType.classicGame));
     }
-    FirebaseFirestore.instance.collection('games').doc(game.gameID).update({'actualPlayerID': game.actualPlayer.userID});
-    FirebaseFirestore.instance.collection('games').doc(game.gameID).update({'actualRound': game.actualRound});
-    FirebaseFirestore.instance.collection('games').doc(game.gameID).update({'player1Points': game.player1Points});
-    FirebaseFirestore.instance.collection('games').doc(game.gameID).update({'player2Points': game.player2Points});
-    FirebaseFirestore.instance.collection('games').doc(game.gameID).update({'finished': game.finished});
+    FirebaseFirestore.instance.collection('classicGames').doc(game.gameID).update({'actualPlayerID': game.actualPlayer.userID});
+    FirebaseFirestore.instance.collection('classicGames').doc(game.gameID).update({'actualRound': game.actualRound});
+    FirebaseFirestore.instance.collection('classicGames').doc(game.gameID).update({'player1Points': game.player1Points});
+    FirebaseFirestore.instance.collection('classicGames').doc(game.gameID).update({'player2Points': game.player2Points});
+    FirebaseFirestore.instance.collection('classicGames').doc(game.gameID).update({'finished': game.finished});
   }
 
   @override
-  Future<bool> setDefault(game) async {
+  Future<bool> setDefault(FrontGame frontGame) async {
+    ClassicGame game = frontGame.getGame() as ClassicGame;
     int actualRound = game.actualRound;
     String actualPlayerID = game.actualPlayer.userID;
     bool finished = game.finished;
@@ -57,13 +63,13 @@ class ClassicGameHandler implements GenericGameHandler {
     FirebaseFirestore.instance.collection('classicGames').doc(game.gameID).update({'actualRound': actualRound});
     globalData.gamesRepo!.games.remove(game);
     if (finished){
-      globalData.gamesRepo!.games.remove(game);
-      globalData.gamesRepo!.finishedGames.add(game);
+      globalData.gamesRepo!.games.remove(frontGame);
+      globalData.gamesRepo!.finishedGames.add(frontGame);
       FirebaseFirestore.instance.collection('classicGames').doc(game.gameID).update({'finished': finished});
       FirebaseFirestore.instance.collection('classicGames').doc(game.gameID).update({'timeStamp': timeStamped});
     } else {
       if (actualPlayerID != globalData.user!.userID){
-        globalData.gamesRepo!.games.remove(game);
+        globalData.gamesRepo!.games.remove(frontGame);
       }
     }
     return true;
@@ -71,7 +77,8 @@ class ClassicGameHandler implements GenericGameHandler {
   }
 
   @override
-  Future<String> createGame(game) async{
+  Future<String> createGame(GenericGame genericGame) async{
+    ClassicGame game = genericGame as ClassicGame;
     var games = FirebaseFirestore.instance.collection('classicGames').doc();
     final json = {
       'gameCategory': 0,
@@ -106,17 +113,19 @@ class ClassicGameHandler implements GenericGameHandler {
     return await searchedGame!;
   }
 
-  void _deleteGame(String gameID) async {
+  @override
+  void deleteGame(String gameID) async {
     var query = await FirebaseFirestore.instance.collection('classicGames').where('gameID', isEqualTo: gameID).get();
     var firestoreInstanceId = query.docs.first.id;
     await FirebaseFirestore.instance.collection('classicGames').doc(firestoreInstanceId).delete();
   }
 
   @override
-  Future<List<List<GenericGame>>> startConfiguration(List<dynamic> dbgames) async {
+  Future<List<List<GenericGame>>> startConfiguration(List<DBgenericGame> dbgamess) async {
     List<GenericGame> games = [];
     List<GenericGame> finishedGames = [];
-    for (dynamic dbgame in dbgames){
+    List<DBclassicGame> dbgames = dbgamess as List<DBclassicGame>;
+    for (DBclassicGame dbgame in dbgames){
       if (dbgame.actualPlayerID == globalData.user!.userID || (dbgame.finished && (dbgame.player1ID == globalData.user!.userID)) || (dbgame.finished && (dbgame.player1ID == globalData.user!.userID))){
         if (dbgame.finished){
           DateTime now = new DateTime.now();
@@ -133,7 +142,7 @@ class ClassicGameHandler implements GenericGameHandler {
             ClassicGame game = ClassicGame(gameID: dbgame.gameID, player1: player1, player2: player2, actualPlayer: actualPlayer, player1Points: dbgame.player1Points, player2Points: dbgame.player2Points, actualRound: dbgame.actualRound, totalRounds: dbgame.totalRounds, vocabularies: vocabularies, italianToGerman: dbgame.italianToGerman, finished: dbgame.finished);
             finishedGames.add(game);
           } else {
-            _deleteGame(dbgame.gameID);
+            deleteGame(dbgame.gameID);
             UserHandler().deletFinishedGamesIDsNews(dbgame.gameID);
           }
         } else {

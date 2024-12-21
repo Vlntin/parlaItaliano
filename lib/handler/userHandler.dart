@@ -114,7 +114,21 @@ class UserHandler {
     FirebaseFirestore.instance.collection('users').doc(firestoreInstanceId).update({'favouriteVocabulariesIDs': actualFavorites});
   }
 
-  Future createUser({required userID, required username, required level, required friendsIDs, required friendsRequestsSend, required friendsRequestsRecieved, required friendsRequestsAccepted, required friendsRequestsRejected, required favouriteVocabulariesIDs, required lastTestDate, required finishedGamesIDsNews, required friendsLevelUpdate}) async{
+  Future createUser({
+    required userID, 
+    required username, 
+    level = 1, 
+    friendsIDs = const <String>[], 
+    friendsRequestsSend = const <String>[], 
+    friendsRequestsRecieved = const <String>[], 
+    friendsRequestsAccepted = const <String>[], 
+    friendsRequestsRejected = const <String>[], 
+    favouriteVocabulariesIDs = const <String>[], 
+    lastTestDate = '', 
+    finishedGamesIDsNews = const <String>[], 
+    friendsLevelUpdate = const <String>[]
+  }) 
+  async{
     var users = FirebaseFirestore.instance.collection('users').doc();
     final json = {
       'userID': userID,
@@ -181,6 +195,38 @@ class UserHandler {
     userData.vocabularyRepo!.vocabularyTables = [];
     */
     return true;
+  }
+
+  Future<AppUser?> registerNewUser(String name, String email, String password) async{
+    if (await isUsernameNotUsed(name)){
+      //registrieren
+      try {
+        final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        //anmelden
+        try {
+          final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: email,
+            password: password
+          );
+          final user = credential.user;
+          createUser(userID: user!.uid, username: name);
+          AppUser appUser = AppUser(userID: user.uid, username: name);
+          userData.user = appUser;
+          return appUser;
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'user-not-found') {} 
+          else if (e.code == 'wrong-password') {}
+        };
+      } on FirebaseAuthException catch (e) {
+        throw Exception('Registrierung fehlgeschlagen');
+      }
+    } else {
+      throw Exception('Benutzername schon vergeben');
+    }
+
   }
   
 }
