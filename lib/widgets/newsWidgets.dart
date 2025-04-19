@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:parla_italiano/dbModels/appUser.dart';
 import 'package:parla_italiano/games/frontendGame.dart';
-import 'package:parla_italiano/games/generic/genericGame.dart';
 
 import 'package:parla_italiano/handler/friendsHandler.dart';
 import 'package:parla_italiano/handler/userHandler.dart';
@@ -41,7 +40,21 @@ class _FriendsRequestWidgetState extends State<FriendsRequestWidget> {
     if (widget.visibilityBool){
       return Card(
         child: ListTile(
-          title: Text('${widget.friend.username} hat dir eine Freundschaftsanfrage geschickt'),
+          title: Container(
+            padding: EdgeInsets.only(left: 0),
+            child: Wrap(
+              children: [ 
+                Text(
+                  softWrap: true,
+                  overflow: TextOverflow.clip,
+                  '${widget.friend.username} hat dir eine Freundschaftsanfrage geschickt',
+                  style: TextStyle(
+                    fontSize: 12
+                  ),
+                ),
+              ]
+            ),
+          ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
               children:[
@@ -110,7 +123,21 @@ class _FriendsRequestAcceptedWidgetState extends State<FriendsRequestAcceptedWid
     if (widget.visibilityBool){
       return Card(
         child: ListTile(
-          title: Text('${widget.friend.username} hat deine Freundschaftsanfrage angenommen'),
+          title: Container(
+            padding: EdgeInsets.only(left: 0),
+            child: Wrap(
+              children: [ 
+                Text(
+                  softWrap: true,
+                  overflow: TextOverflow.clip,
+                  '${widget.friend.username} hat deine Freundschaftsanfrage angenommen',
+                  style: TextStyle(
+                    fontSize: 12
+                  ),
+                ),
+              ]
+            ),
+          ),
           trailing: IconButton(
             icon: Icon(Icons.delete),
             tooltip: 'löschen',
@@ -163,7 +190,21 @@ class _FriendsRequestRejectedWidgetState extends State<FriendsRequestRejectedWid
     if (widget.visibilityBool){
       return Card(
         child: ListTile(
-          title: Text('${widget.friend.username} hat deine Freundschaftsanfrage abgelehnt'),
+          title: Container(
+            padding: EdgeInsets.only(left: 0),
+            child: Wrap(
+              children: [ 
+                Text(
+                  softWrap: true,
+                  overflow: TextOverflow.clip,
+                  '${widget.friend.username} hat deine Freundschaftsanfrage abgelehnt',
+                  style: TextStyle(
+                    fontSize: 12
+                  ),
+                ),
+              ]
+            ),
+          ),
           trailing: IconButton(
             icon: Icon(Icons.delete),
             tooltip: 'löschen',
@@ -217,7 +258,21 @@ class _FriendsLevelUpdatetWidgetState extends State<FriendsLevelUpdatetWidget> {
     if( widget.visibilityBool){
       return Card(
         child: ListTile(
-          title: Text('${widget.friendsName} ist in Level ${widget.newLevel.toString()} aufgestiegen'),
+          title: Container(
+            padding: EdgeInsets.only(left: 0),
+            child: Wrap(
+              children: [ 
+                Text(
+                  softWrap: true,
+                  overflow: TextOverflow.clip,
+                  '${widget.friendsName} ist in Level ${widget.newLevel.toString()} aufgestiegen',
+                  style: TextStyle(
+                    fontSize: 12
+                  ),
+                ),
+              ]
+            ),
+          ),
           trailing: IconButton(
             icon: Icon(Icons.delete),
             tooltip: 'löschen',
@@ -258,7 +313,9 @@ class _GameFinishedWidgetState extends State<GameFinishedWidget> {
             tooltip: 'löschen',
             onPressed:() => {
               setState((){
-                UserHandler().deletFinishedGamesIDsNews(widget.game.getGame().gameID!);
+                List<AppUser> playerIDs = widget.game.getGame().getPlayers();
+                UserHandler().deletFinishedGamesIDsNews(widget.game.getGame().gameID!, playerIDs[0].userID);
+                UserHandler().deletFinishedGamesIDsNews(widget.game.getGame().gameID!, playerIDs[1].userID);
                 widget.visibilityBool = false;
               }),
             }
@@ -306,7 +363,21 @@ class _FriendsLevelUpdateWidgetState extends State<FriendsLevelUpdateWidget> {
     if (widget.visibilityBool){
       return Card(
         child: ListTile(
-          title: Text('${widget.friend.username} ist in Level ${widget.friend.level} aufgestiegen'),
+          title: Container(
+            padding: EdgeInsets.only(left: 0),
+            child: Wrap(
+              children: [ 
+                Text(
+                  softWrap: true,
+                  overflow: TextOverflow.clip,
+                  '${widget.friend.username} ist in Level ${widget.friend.level} aufgestiegen',
+                  style: TextStyle(
+                    fontSize: 12
+                  ),
+                ),
+              ]
+            ),
+          ),
           trailing: IconButton(
             icon: Icon(Icons.delete),
             tooltip: 'löschen',

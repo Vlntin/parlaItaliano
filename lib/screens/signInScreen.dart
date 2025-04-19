@@ -36,15 +36,69 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context){
     return LayoutBuilder(
       builder: ((context, constraints) {
-        return (constraints.maxWidth > 1200) ? getLayout(200, 100) : getLayout(100, 50);
+        return getRightLayout(constraints.maxWidth);
       })
     );
   }
 
-  getLayout(double paddingHorizontal, double paddingVertical){
+  Scaffold getRightLayout(double layoutWidth) {
+    if (layoutWidth > 1200) {
+      return getLayout(200, 100);
+    } else if(layoutWidth > 500) {
+      return getLayout(100, 50);
+    } else {
+        return getSmartphoneLayout();
+    }
+  }
+
+  Scaffold getSmartphoneLayout() {
     return Scaffold(
-      body: Expanded(
-          child:Padding(
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Form(
+            key: _formKey,
+            child: Column(
+            children: [
+              const SizedBox(height: 10),
+              const Text(
+                        'Willkommen bei Parla Italiano',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 26,
+                          color: Colors.black
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      const Text(
+                        'Dem besten Italienisch-Trainer of se world!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+
+                        ),
+                      ),
+                      const SizedBox(height: 80),
+                      getButtonsWidget(0),
+                      const SizedBox(height: 20),
+                      _getInputFields(true),
+                      const SizedBox(height: 70),
+                      getStartButton()
+            ],
+          )
+          )
+        
+        ),
+      ),
+    );
+  }
+
+  Scaffold getLayout(double paddingHorizontal, double paddingVertical){
+    return Scaffold(
+      body: Padding(
             padding: EdgeInsets.symmetric(horizontal: paddingHorizontal, vertical: paddingVertical),
             child: Center(
             child: Column(
@@ -86,14 +140,14 @@ class _SignInScreenState extends State<SignInScreen> {
                       children: [
                         Expanded(
                           flex: 1,
-                          child: getButtonsWidget()
+                          child: getButtonsWidget(2)
                         )
                       ]
                     ),
                     ),
                     Expanded(
                       flex: 1,
-                      child: _getInputFields()
+                      child: _getInputFields(false)
                     ),
                     Expanded(
                       flex: 1,
@@ -111,119 +165,77 @@ class _SignInScreenState extends State<SignInScreen> {
           )
           )
           )
-    )
     );
   }
 
-  Widget _getInputFields(){
-    if (signInSelected){
-      return Row(children: [
-                      Expanded(
-                        child: TextFormField(
-                          cursorColor: Colors.black,
-                          controller: _controllerEmail,
-                          decoration: InputDecoration(
-                            hintText: 'E-Mail',
-                            errorText: _errorMessage,
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'E-Mail eingeben!';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 30),
-                      Expanded(
-                        child: TextFormField(
-                          cursorColor: Colors.black,
-                          controller: _controllerPassword,
-                          decoration: InputDecoration(
-                            hintText: 'Passwort',
-                            errorText: _errorMessage,
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Passwort eingeben!';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ]);
+  Widget _getInputFields(bool mobileScreen){
+    if (mobileScreen) {
+      if (signInSelected){
+        return Column(children: [
+          _getInputField(_controllerEmail, _errorMessage, 'E-Mail eingeben!', 'E-Mail'),
+          const SizedBox(width: 20),
+          _getInputField(_controllerPassword, _errorMessage, 'Passwort eingeben!', 'Passwort')
+        ]);
+      } else {
+        return Column(children: [
+          _getInputField(_controllerEmail, _errorMessage, 'E-Mail eingeben!', 'E-Mail'),
+          const SizedBox(width: 20),
+          _getInputField(_controllerPassword, _errorMessage, 'Passwort eingeben!', 'Passwort'),
+          const SizedBox(width: 20),
+          _getInputField(_controllerUsername, _errorMessageUserName, 'Benutzername eingeben!', 'Benutzername'),
+        ]);
+      }
     } else {
-      return Row(children: [
-                      Expanded(
-                        child: TextFormField(
-                          cursorColor: Colors.black,
-                          controller: _controllerEmail,
-                          decoration: InputDecoration(
-                            hintText: 'E-Mail',
-                            errorText: _errorMessage,
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'E-Mail eingeben!';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 30),
-                      Expanded(
-                        child: TextFormField(
-                          cursorColor: Colors.black,
-                          controller: _controllerPassword,
-                          decoration: InputDecoration(
-                            hintText: 'Passwort',
-                            errorText: _errorMessage,
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Passwort eingeben!';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 30),
-                      Expanded(
-                        child: TextFormField(
-                          cursorColor: Colors.black,
-                          controller: _controllerUsername,
-                          decoration: InputDecoration(
-                            hintText: 'Benutzername',
-                            errorText: _errorMessageUserName,
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Benutzername eingeben!';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ]);
+      if (signInSelected){
+        return Row(children: [
+          Expanded(
+            child: _getInputField(_controllerEmail, _errorMessage, 'E-Mail eingeben!', 'E-Mail')
+          ),
+          const SizedBox(width: 30),
+          Expanded(
+            child: _getInputField(_controllerPassword, _errorMessage, 'Passwort eingeben!', 'Passwort')
+          ),
+        ]);
+      } else {
+        return Row(children: [
+          Expanded(
+            child: _getInputField(_controllerEmail, _errorMessage, 'E-Mail eingeben!', 'E-Mail')
+          ),
+          const SizedBox(width: 30),
+          Expanded(
+            child: _getInputField(_controllerPassword, _errorMessage, 'Passwort eingeben!', 'Passwort')
+          ),
+          const SizedBox(width: 30),
+          Expanded(
+            child: _getInputField(_controllerUsername, _errorMessageUserName, 'Benutzername eingeben!', 'Benutzername')
+          ),
+        ]);
+      }
     }
+    
   }
 
-  getButtonsWidget(){
+  TextFormField _getInputField (TextEditingController controller, String? errorText, String validatorText, String hintText) {
+    return TextFormField(
+      cursorColor: Colors.black,
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hintText,
+        errorText: errorText,
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.black),
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return validatorText;
+        }
+          return null;
+      },
+    );
+  }
+
+  getButtonsWidget(int leftAndRightPadding){
     if (signInSelected){
       return Row(
       children: [
@@ -232,7 +244,7 @@ class _SignInScreenState extends State<SignInScreen> {
           child: Row(
             children: [
               Expanded(
-                flex: 2,
+                flex: leftAndRightPadding,
                 child: Text('')
               ),
               Expanded(
@@ -269,7 +281,7 @@ class _SignInScreenState extends State<SignInScreen> {
           child: Row(
             children: [
               Expanded(
-                flex: 2,
+                flex: 1,
                 child: Text('')
               ),
               Expanded(
@@ -295,7 +307,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
               ),
               Expanded(
-                flex: 1,
+                flex: leftAndRightPadding,
                 child: Text('')
               ),
             ],
@@ -311,7 +323,7 @@ class _SignInScreenState extends State<SignInScreen> {
           child: Row(
             children: [
               Expanded(
-                flex: 2,
+                flex: leftAndRightPadding,
                 child: Text('')
               ),
               Expanded(
@@ -348,7 +360,7 @@ class _SignInScreenState extends State<SignInScreen> {
           child: Row(
             children: [
               Expanded(
-                flex: 2,
+                flex: 1,
                 child: Text('')
               ),
               Expanded(
@@ -374,7 +386,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
               ),
               Expanded(
-                flex: 1,
+                flex: leftAndRightPadding,
                 child: Text('')
               ),
             ],
@@ -413,7 +425,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       } else {
                         _tryToRegister();
                       }
-                    }  
+                    }
                   },
                   child: Padding(
                     padding: EdgeInsets.all(5),

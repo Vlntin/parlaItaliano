@@ -5,8 +5,8 @@ import 'package:parla_italiano/globals/globalData.dart' as globalData;
 import 'package:parla_italiano/models/vocabularyTable.dart';
 import 'package:parla_italiano/constants/texts.dart' as texts;
 import 'package:parla_italiano/handler/vocabularyHandler.dart';
-import 'package:parla_italiano/widgets.dart';
 import 'package:parla_italiano/globals/navigationBar.dart';
+import 'package:parla_italiano/widgets/vocabularyListWidget.dart';
 
 class VocabularyListsScreen extends StatefulWidget {
   const VocabularyListsScreen({super.key});
@@ -31,8 +31,10 @@ class _VocabularyListsScreenState extends State<VocabularyListsScreen> {
       builder: ((context, constraints) {
         if (constraints.maxWidth > 1200){
           return VocabularyListsScreenBig();
-        } else {
+        } else if (constraints.maxWidth > 500) {
           return VocabularyListsScreenSmall();
+        } else {
+          return VocabularyListsScreenSmartphone();
         }
         
       })
@@ -108,7 +110,7 @@ class _VocabularyListsScreenStateBig extends State<VocabularyListsScreenBig> {
                         child: Column(
                           children: [
                             Card(
-                              child: ListWidget(globalData.vocabularyRepo!.favouritesTable.vocabularies.length, globalData.vocabularyRepo!.favouritesTable.level, globalData.vocabularyRepo!.favouritesTable.title),                              
+                              child: ListWidgetDesktop(globalData.vocabularyRepo!.favouritesTable.vocabularies.length, globalData.vocabularyRepo!.favouritesTable.level, globalData.vocabularyRepo!.favouritesTable.title),                              
                             ),
                             Expanded(
                               child: ListView.builder(
@@ -117,7 +119,7 @@ class _VocabularyListsScreenStateBig extends State<VocabularyListsScreenBig> {
                                 itemCount: tableList.length,
                                 itemBuilder: (context, index){
                                   return Card(
-                                    child: ListWidget(tableList[index].vocabularies.length, tableList[index].level, tableList[index].title),
+                                    child: ListWidgetDesktop(tableList[index].vocabularies.length, tableList[index].level, tableList[index].title),
                                   );  
                                 }
                               )
@@ -160,7 +162,7 @@ class _VocabularyListsScreenStateBig extends State<VocabularyListsScreenBig> {
                                   value: proportionalLexis,
                                   backgroundColor: Colors.white,
                                   valueColor: AlwaysStoppedAnimation<Color>(Color.fromRGBO(248, 225, 174, 1)),
-                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                                  //borderRadius: BorderRadius.all(Radius.circular(10)),
                                   minHeight: 20,
                                 ),
                             )
@@ -300,7 +302,7 @@ class _VocabularyListsScreenStateSmall extends State<VocabularyListsScreenSmall>
                                         value: proportionalLexis,
                                         backgroundColor: Colors.white,
                                         valueColor: AlwaysStoppedAnimation<Color>(Color.fromRGBO(248, 225, 174, 1)),
-                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                        //borderRadius: BorderRadius.all(Radius.circular(10)),
                                         minHeight: 20,
                                       ),
                                     )
@@ -347,7 +349,7 @@ class _VocabularyListsScreenStateSmall extends State<VocabularyListsScreenSmall>
                         child: Column(
                           children: [
                             Card(
-                              child: ListWidget(globalData.vocabularyRepo!.favouritesTable.vocabularies.length, globalData.vocabularyRepo!.favouritesTable.level, globalData.vocabularyRepo!.favouritesTable.title),                              
+                              child: ListWidgetDesktop(globalData.vocabularyRepo!.favouritesTable.vocabularies.length, globalData.vocabularyRepo!.favouritesTable.level, globalData.vocabularyRepo!.favouritesTable.title),                              
                             ),
                             Expanded(
                               child: ListView.builder(
@@ -356,7 +358,7 @@ class _VocabularyListsScreenStateSmall extends State<VocabularyListsScreenSmall>
                                 itemCount: tableList.length,
                                 itemBuilder: (context, index){
                                   return Card(
-                                    child: ListWidget(tableList[index].vocabularies.length, tableList[index].level, tableList[index].title),
+                                    child: ListWidgetDesktop(tableList[index].vocabularies.length, tableList[index].level, tableList[index].title),
                                   );  
                                 }
                               )
@@ -371,6 +373,127 @@ class _VocabularyListsScreenStateSmall extends State<VocabularyListsScreenSmall>
             )
           ]
         )        
+      ) 
+    );
+  }
+}
+
+class VocabularyListsScreenSmartphone extends StatefulWidget {
+  const VocabularyListsScreenSmartphone({super.key});
+
+  @override
+  _VocabularyListsScreenStateSmartphone createState() => _VocabularyListsScreenStateSmartphone();
+}
+
+class _VocabularyListsScreenStateSmartphone extends State<VocabularyListsScreenSmartphone> {
+  //List<DBVocabulary> vocabularylist = [];
+  //List<DBTables> tableList = [];
+  List<VocabularyTable> tableList = globalData.vocabularyRepo!.vocabularyTables;
+  final _vocabularyHandler = VocabularyHandler();
+  int actualLexis = globalData.vocabularyRepo!.calculateLexis(globalData.user!.level);
+  int maxLexis = globalData.vocabularyRepo!.calculatemaximalLexis();
+  double proportionalLexis = globalData.vocabularyRepo!.calculateLexis(globalData.user!.level) / globalData.vocabularyRepo!.calculatemaximalLexis();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      bottomNavigationBar: CustomNavigationBar(1),
+      appBar: CustomAppBarSmartphone(actualPageName: "Vokabeln"),
+      body:SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child:
+          Column(
+            children: [
+              const SizedBox(height: 10),
+              Text('Hier findest du alle Vokabellisten. Alle freigeschalteten Listen kannst du hier anschauen, als PDF speichern und innerhalb der Favoriten eine neue Liste erstellen.'),
+              Divider(
+                color: Colors.grey
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      'aktueller Wortschatz:',
+                      textAlign: TextAlign.center, 
+                    )
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      '${actualLexis}/${maxLexis}',
+                      textAlign: TextAlign.center, 
+                    )
+                  )
+                ],
+              ),
+              const SizedBox(height: 10),
+              LinearProgressIndicator(
+                value: proportionalLexis,
+                backgroundColor: Colors.white,
+                valueColor: AlwaysStoppedAnimation<Color>(Color.fromRGBO(248, 225, 174, 1)),
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                minHeight: 10,
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                height: 150,                      
+                child: Container(
+                  alignment:  Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.black,
+                      width: 1.5
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    color: Color.fromARGB(255, 233, 233, 233),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(12),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Text(
+                        texts.vocabularyListExplanations, 
+                        textAlign: TextAlign.center, 
+                        style: TextStyle(
+                          fontSize: 10
+                        ),
+                      ), 
+                    ) 
+                  )
+                )
+              ),
+               Divider(
+                color: Colors.grey
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Card(
+                        child: ListWidgetSmartphone(globalData.vocabularyRepo!.favouritesTable.vocabularies.length, globalData.vocabularyRepo!.favouritesTable.level, globalData.vocabularyRepo!.favouritesTable.title),                              
+                      ),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        scrollDirection: Axis.vertical,
+                        itemCount: tableList.length,
+                        itemBuilder: (context, index){
+                          return Card(
+                            child: ListWidgetSmartphone(tableList[index].vocabularies.length, tableList[index].level, tableList[index].title),
+                          );  
+                        }
+                      )
+                    ],
+                  )
+                )
+              ),        
+            ]
+          ), 
+        )
       ) 
     );
   }

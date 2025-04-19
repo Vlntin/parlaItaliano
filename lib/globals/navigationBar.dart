@@ -13,9 +13,13 @@ import 'package:parla_italiano/screens/vocabularyListScreen.dart';
 
 class CustomNavigationBar extends StatefulWidget {
 
-  CustomNavigationBar(this.givenIndex);
-
   int givenIndex;
+  String startSideLabel = "Startseite";
+  String vocabulariesLabel = "Vokabeln";
+  String vsLabel = "1 vs 1";
+  String testLabel = "Test";
+
+  CustomNavigationBar(this.givenIndex);
 
   @override
   CustomNavigationBarState createState() => CustomNavigationBarState();
@@ -69,27 +73,27 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
               }
         }
         },
-        indicatorColor: const Color.fromARGB(255, 238, 232, 216),
-        destinations: const <Widget>[
+        //indicatorColor: const Color.fromARGB(255, 238, 232, 216),
+        destinations: <Widget>[
           NavigationDestination(
             selectedIcon: Icon(Icons.home),
             icon: Icon(Icons.home_outlined),
-            label: 'Startseite',
+            label: widget.startSideLabel,
           ),
           NavigationDestination(
             selectedIcon: Icon(Icons.menu_book),
             icon: Icon(Icons.menu_book_outlined),
-            label: 'Vokabelübersicht',
+            label: widget.vocabulariesLabel,
           ),
           NavigationDestination(
             selectedIcon: Icon(Icons.rocket_launch),
             icon: Icon(Icons.rocket_launch_outlined),
-            label: '1 vs 1',
+            label: widget.vsLabel,
           ),
           NavigationDestination(
             selectedIcon: Icon(Icons.upgrade),
             icon: Icon(Icons.upgrade_outlined),
-            label: 'Test',
+            label: widget.testLabel,
           ),
         ],
       );

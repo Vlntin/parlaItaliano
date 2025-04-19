@@ -1,7 +1,6 @@
 
 import 'dart:js_util';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:parla_italiano/dbModels/appUser.dart';
 import 'package:parla_italiano/globals/appBar.dart';
 import 'package:parla_italiano/globals/navigationBar.dart';
@@ -35,10 +34,11 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
   bool _testPassed = false;
   String testLevel = (userData.user!.level + 1).toString();
 
-  late Widget bigScreen = getBigScreen();
-  late Widget smallScreen = getSmallScreen();
+  late Scaffold sS = getSmartphoneScreen();
+  late Scaffold mS = getSmallScreen();
+  late Scaffold bS = getBigScreen();
 
-  Widget getBigScreen(){
+  Scaffold getBigScreen(){
     return Scaffold(
       bottomNavigationBar: CustomNavigationBar(3),
       appBar: CustomAppBar(), 
@@ -85,7 +85,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                                     value: widget.test.getPercentageOfCorrectAnswers(),
                                     backgroundColor: Colors.white,
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                    //borderRadius: BorderRadius.all(Radius.circular(10)),
                                     minHeight: 30,
                                   ),
                                 )
@@ -131,7 +131,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                                     value: widget.test.getPercentageOfWrongAnswers(),
                                     backgroundColor: Colors.white,
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                    //borderRadius: BorderRadius.all(Radius.circular(10)),
                                     minHeight: 30,
                                   ),
                                 )
@@ -168,7 +168,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                   value: widget.test.getAmountOfFinishedWords() / widget.test.getAmountsOfPlayingWord(),
                   backgroundColor: Colors.white,
                   valueColor: AlwaysStoppedAnimation<Color>(const Color.fromARGB(255, 58, 58, 58)),
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  //borderRadius: BorderRadius.all(Radius.circular(10)),
                   minHeight: 30,
                 ),
               )
@@ -179,7 +179,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
   );
   }
 
-  Widget getSmallScreen(){
+  Scaffold getSmallScreen(){
     return Scaffold(
       bottomNavigationBar: CustomNavigationBar(3),
       appBar: CustomAppBar(), 
@@ -226,7 +226,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                                     value: widget.test.getPercentageOfCorrectAnswers(),
                                     backgroundColor: Colors.white,
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                    //borderRadius: BorderRadius.all(Radius.circular(10)),
                                     minHeight: 30,
                                   ),
                                 )
@@ -272,7 +272,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                                     value: widget.test.getPercentageOfWrongAnswers(),
                                     backgroundColor: Colors.white,
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                    //borderRadius: BorderRadius.all(Radius.circular(10)),
                                     minHeight: 30,
                                   ),
                                 )
@@ -309,7 +309,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                   value: widget.test.getAmountOfFinishedWords() / widget.test.getAmountsOfPlayingWord(),
                   backgroundColor: Colors.white,
                   valueColor: AlwaysStoppedAnimation<Color>(const Color.fromARGB(255, 58, 58, 58)),
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  //borderRadius: BorderRadius.all(Radius.circular(10)),
                   minHeight: 30,
                 ),
               )
@@ -320,16 +320,121 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
   );
 }
   
+  Scaffold getSmartphoneScreen() {
+    return Scaffold(
+      bottomNavigationBar: CustomNavigationBar(3),
+      appBar: CustomAppBarSmartphone(actualPageName: 'Test Level ${userData.user!.level + 1}'), 
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          children: [
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Text(
+                    'Richtig: ${widget.test.getAmountOfCorrectWords()}',
+                    style: TextStyle(
+                      fontSize: 16
+                    ),
+                  )
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  flex: 2,
+                  child: RotatedBox(
+                    quarterTurns: 0,
+                    child: LinearProgressIndicator(
+                      value: widget.test.getPercentageOfCorrectAnswers(),
+                      backgroundColor: Colors.white,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      minHeight: 20,
+                    ),
+                  )
+                ),
+              ]
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Text(
+                    'Falsch: ${widget.test.getAmountOfWrongWords()}',
+                    style: TextStyle(
+                      fontSize: 16
+                    ),
+                  )
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  flex: 2,
+                  child: RotatedBox(
+                    quarterTurns: 0,
+                    child: LinearProgressIndicator(
+                      value: widget.test.getPercentageOfWrongAnswers(),
+                      backgroundColor: Colors.white,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      minHeight: 20,
+                    ),
+                  )
+                ),
+              ]
+            ),
+            SizedBox(height: 10),
+            _gameFinished ? _getFinishedContainerSmartphone() : _getMainContainerSmartphone(),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Text(
+                    'Gesamt: ${widget.test.getAmountOfFinishedWords()}',
+                    style: TextStyle(
+                      fontSize: 16
+                    ),
+                  )
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  flex: 2,
+                  child: RotatedBox(
+                    quarterTurns: 0,
+                    child: LinearProgressIndicator(
+                      value: widget.test.getAmountOfFinishedWords() / widget.test.getAmountsOfPlayingWord(),
+                      backgroundColor: Colors.white,
+                      valueColor: AlwaysStoppedAnimation<Color>(const Color.fromARGB(255, 58, 58, 58)),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      minHeight: 20,
+              ),
+                  )
+                ),
+              ]
+            ),
+            SizedBox(height: 30),
+          ]
+        )
+      )
+      )
+    );
+  }
+
   @override
   Widget build(BuildContext context){
     return LayoutBuilder(
           builder: ((context, constraints) {
-            if (constraints.maxWidth > 1200){
-              return bigScreen;
+            if (constraints.maxWidth > 1200) {
+              return bS;
+            } else if (constraints.maxWidth > 500) {
+              return mS;
             } else {
-              return smallScreen;
+              return sS;
             }
-            
           })
         );
   }
@@ -462,6 +567,7 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                           const SizedBox(width: 30),
                           Expanded(
                             child: TextFormField(
+                              autofocus: true,
                               controller: _controllerAnswer,
                               decoration: InputDecoration(
                                 hintText: 'Übersetzung',
@@ -472,10 +578,10 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                                   if (widget.test.isTestFinished()){
                                     await _finishQuiz();
                                   }
-                                setState(() {
-                                  bigScreen = getBigScreen();
-                                  smallScreen = getSmallScreen();
-                                });
+                                  setState(() {
+                                    mS = getSmallScreen();
+                                    bS = getBigScreen();
+                                  });
                               },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -512,9 +618,9 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
                         await _finishQuiz();
                       }
                       setState(() {
-                        bigScreen = getBigScreen();
-                        smallScreen = getSmallScreen();
-                      }); 
+                        mS = getSmallScreen();
+                        bS = getBigScreen();
+                      });
                     }, 
                   )
                 )
@@ -548,6 +654,220 @@ class _VocabularyTestScreenState extends State<VocabularyTestScreen> {
       )
     );
   }
+
+  _getMainContainerSmartphone() {
+      return SizedBox(
+          width: double.infinity,
+          height: 300,
+          child: Container(
+            alignment:  Alignment.center,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.black,
+                width: 1.5
+              ),
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              color: colors.appBarColor,
+            ),
+            child:Padding(
+        padding: EdgeInsets.all(10),
+        child: Center(
+          child: Form(
+            key: _formKey,
+              child: Column(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Center(
+                            child: _getWidget(16),
+                          )
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          flex: 1,
+                          child: TextFormField(
+                              autofocus: true,
+                              controller: _controllerAnswer,
+                              decoration: InputDecoration(
+                                hintText: 'Übersetzung',
+                              ),
+                              onFieldSubmitted: (value) async {
+                                if (_formKey.currentState!.validate()) {
+                                  widget.test.validateAnswer(_controllerAnswer.text);
+                                  _controllerAnswer.clear();
+                                  if (widget.test.isTestFinished()){
+                                    await _finishQuiz();
+                                  }
+                                  setState(() {
+                                    sS = getSmartphoneScreen();
+                                  });
+                                }
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'gib ein Wort ein';
+                                }
+                                  return null;
+                              },
+                            )
+                        ),
+
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: ElevatedButton(
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Text(
+                                'überprüfen',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black
+                                ),
+                              ),
+                            ),
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                widget.test.validateAnswer(_controllerAnswer.text);
+                                _controllerAnswer.clear();
+                                if (widget.test.isTestFinished()){
+                                  await _finishQuiz();
+                                } 
+                                setState(() {
+                                    sS = getSmartphoneScreen();
+                                });
+                              }
+                            }, 
+                          )
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          flex: 1,
+                          child: ElevatedButton(
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Text(
+                                '?',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black
+                                ),
+                              ),
+                            ),
+                            onPressed: () {
+                              rulesBuilder.dialogBuilderRules(context, texts.testRules);
+                            },
+                          )
+                        ),
+                      ],
+                    ),
+                  ),
+                ]
+              ),
+            ),
+        ),
+          )   
+        )
+    );
+}
+
+  _getFinishedContainerSmartphone() {
+    String text1;
+    String text2;
+    if(_testPassed){
+      text1 = 'Glückwunsch! Du hast von ${widget.test.getAmountsOfPlayingWord()} Wörtern ${widget.test.getAmountOfCorrectWords()} Wörter richtig übersetzt!';
+      text2 = 'Damit bist du jetzt in Level ${userData.user!.level}. Schau dir die neuen Vokabeln an!';
+    } else {
+      text1 = 'Du hast von ${widget.test.getAmountsOfPlayingWord()} Wörtern ${widget.test.getAmountOfCorrectWords()} Wörter richtig übersetzt!';
+      text2 = 'Damit bleibst du in Level ${userData.user!.level}. Probiere es morgen nochmal!';
+    }
+    return SizedBox(
+      width: double.infinity,
+      height: 300,
+      child: Container(
+        alignment:  Alignment.center,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.black,
+            width: 1.5
+          ),
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          color: colors.appBarColor,
+        ),
+        child:Padding(
+          padding: EdgeInsets.all(10),
+          child: Center(
+            child: Column(
+            children: [
+              Flexible(
+                flex: 1,
+                child: Padding( 
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Center(
+                    child: Text(
+                      text1,
+                      style: TextStyle(
+                        fontSize: 14
+                      ),
+                    )
+                  )
+                )
+              ),
+              Flexible(
+                flex: 1,
+                child: Padding( 
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Center(
+                    child: Text(
+                      text2,
+                      style: TextStyle(
+                        fontSize: 14
+                      ),
+                    )
+                  )
+                )
+              ),
+              Flexible(
+                flex: 1,
+                child: Center(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      alignment: Alignment.center,
+                    ),
+                    onPressed:() => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => StartScreen(), )),
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Text(
+                        "Zurück zur Startseite",
+                        style: TextStyle(
+                          fontSize: 14
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              )
+            ],
+          )
+          )
+        )
+      )
+    );
+  }
+
+
+
 
   _getWidget(double fontsize){
     int _translationDirectionClassificator = widget.test.getTranslationDirectionClassificator();

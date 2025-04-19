@@ -1,30 +1,33 @@
 
-
 import 'package:flutter/material.dart';
-import 'package:parla_italiano/handler/vocabularyHandler.dart';
 import 'package:parla_italiano/globals/globalData.dart' as globalData;
 
 import 'package:parla_italiano/handler/speaker.dart';
-import 'package:parla_italiano/models/vocabulary.dart';
-import 'package:parla_italiano/screens/vocabularyDetailsScreen.dart';
-import 'dart:convert';
-import 'dart:html';
 import 'dart:ui';
 
-import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:parla_italiano/routes.dart' as routes;
-
-class VocabularyWidget extends StatefulWidget {
+abstract class VocabularyWidget extends StatefulWidget {
   const VocabularyWidget(this.italian, this.german, this.additional, {super.key});
+
+  final String additional;
+  final String italian;
+  final String german;
+}
+
+abstract class VocabularyListTileWidget extends StatefulWidget {
+
+}
+
+class VocabularyWidgetDesktop extends VocabularyWidget {
+  const VocabularyWidgetDesktop(this.italian, this.german, this.additional, {super.key}): super(italian, german, additional);
 
   final String additional;
   final String italian;
   final String german;
 
   @override
-  State<VocabularyWidget> createState() => _VocabularyWidgetState();
+  State<VocabularyWidgetDesktop> createState() => _VocabularyWidgetStateDesktop();
 }
-class _VocabularyWidgetState extends State<VocabularyWidget> {
+class _VocabularyWidgetStateDesktop extends State<VocabularyWidgetDesktop> {
 
   bool pressAttention = false;
   
@@ -36,7 +39,7 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
           child: Row(
             children: [
               Expanded(
-                flex: 4,
+                flex: 1,
                 child: Center(
                   child: Text(
                     widget.italian,
@@ -48,7 +51,7 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                flex: 4,
+                flex: 1,
                 child: Center(
                   child: Text(
                     widget.german,
@@ -60,7 +63,7 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                flex: 4,
+                flex: 1,
                 child: Center(
                   child: Text(
                     widget.additional,
@@ -71,11 +74,11 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
                 ) ,
               ),
               const SizedBox(width: 8),
-              Expanded(
-                flex: 2,
-                child: Center(
+              Flexible(
+                child: Align(
+                  alignment: Alignment.centerRight,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       IconButton(
                         icon: pressAttention ? Icon(Icons.star_sharp) : Icon(Icons.star_border),
@@ -89,24 +92,24 @@ class _VocabularyWidgetState extends State<VocabularyWidget> {
                         onPressed:() async {
                           VoiceSpeaker().speakItalianWord(widget.italian);
                         }
-                      )
+                      ),
                     ]
                   ),
-                ) ,             
-              ),
+                ) , 
+                )            
             ],
           )
     );
   }
 }
 
-class VocabularyListTileWidget extends StatefulWidget {
+class VocabularyListTileWidgetDesktop extends VocabularyListTileWidget {
 
   @override
-  State<VocabularyListTileWidget> createState() => _VocabularyListTileWidgetState();
+  State<VocabularyListTileWidgetDesktop> createState() => _VocabularyListTileWidgetStateDesktop();
 
 }
-class _VocabularyListTileWidgetState extends State<VocabularyListTileWidget> {
+class _VocabularyListTileWidgetStateDesktop extends State<VocabularyListTileWidgetDesktop> {
 
   @override
   Widget build(BuildContext context) {
@@ -115,12 +118,12 @@ class _VocabularyListTileWidgetState extends State<VocabularyListTileWidget> {
           child: Row(
             children: [
               Expanded(
-                flex: 4,
+                flex: 1,
                 child: Center(
                   child: Text(
                     'Italienisch',
                     style:TextStyle(
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold
                     )
                   ),
@@ -128,12 +131,12 @@ class _VocabularyListTileWidgetState extends State<VocabularyListTileWidget> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                flex: 4,
+                flex: 1,
                 child: Center(
                   child: Text(
                     'Deutsch',
                     style:TextStyle(
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold
                     )
                   ),
@@ -141,266 +144,188 @@ class _VocabularyListTileWidgetState extends State<VocabularyListTileWidget> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                flex: 4,
+                flex: 1,
                 child: Center(
                   child: Text(
                     'Zusätzliches',
                     style:TextStyle(
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold
                     )
                   ),
                 ) ,
               ),
               const SizedBox(width: 8),
-              Expanded(
-                flex: 2,
-                child: Center(),            
-              ),
+              Flexible(
+                child: Visibility(
+                  visible: false,
+                  maintainSize: true,
+                  maintainState: true,
+                  maintainAnimation: true,
+                  child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.star_sharp),
+                        onPressed: () => {},
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.mic),
+                        onPressed:() async {}
+                      ),
+                    ]
+                  ),
+                ) , 
+                  )
+                )
             ],
           )
     );
   }
 }
 
-class ListWidget extends StatelessWidget {
-  ListWidget(this.amountOfWords, this.level, this.title, {super.key});
+class VocabularyWidgetSmartphone extends VocabularyWidget {
+  const VocabularyWidgetSmartphone(this.italian, this.german, this.additional, {super.key}): super(italian, german, additional);
 
-  final int amountOfWords;
-  final int level;
-  final String title;
+  final String additional;
+  final String italian;
+  final String german;
+
+  @override
+  State<VocabularyWidgetSmartphone> createState() => _VocabularyWidgetStateSmartphone();
+}
+class _VocabularyWidgetStateSmartphone extends State<VocabularyWidgetSmartphone> {
+
+  bool pressAttention = false;
+  
+  @override
+  Widget build(BuildContext context) {
+    bool pressAttention = globalData.vocabularyRepo!.isVocabularyInFavorites(widget.italian);
+    return Padding(
+        padding: EdgeInsets.all(0),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: Center(
+                  child: Text(
+                    widget.italian,
+                    style: TextStyle(
+                      fontSize: 12,
+                    )
+                  ),
+                ) ,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 1,
+                child: Center(
+                  child: Text(
+                    widget.german,
+                    style: TextStyle(
+                      fontSize: 12,
+                    )
+                  ),
+                ) ,
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: pressAttention ? Icon(Icons.star_sharp) : Icon(Icons.star_border),
+                        onPressed: () => {
+                          pressAttention ? globalData.vocabularyRepo!.deleteFavouriteVocabulary(widget.italian) : globalData.vocabularyRepo!.addVocabularyToFavorites(widget.italian, widget.german, widget.additional),
+                          setState(() => pressAttention = !pressAttention)
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.mic),
+                        onPressed:() async {
+                          VoiceSpeaker().speakItalianWord(widget.italian);
+                        }
+                      ),
+                    ]
+                  ),
+                ) , 
+                )            
+            ],
+          )
+    );
+  }
+}
+
+class VocabularyListTileWidgetSmartphone extends VocabularyListTileWidget {
+
+  @override
+  State<VocabularyListTileWidgetSmartphone> createState() => _VocabularyListTileWidgetStateSmartphone();
+
+}
+class _VocabularyListTileWidgetStateSmartphone extends State<VocabularyListTileWidgetSmartphone> {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      tileColor: _getTileColor(this.level),
-      leading: Text('${this.amountOfWords.toString()} Wörter', textAlign: TextAlign.center,),
-      title: 
-        Padding(
-          padding: EdgeInsets.all(4.0),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        _getLevelIcon(this.level),
-                        SizedBox(width: 3,),
-                        _getLevelText(this.level)
-                      ]
+    return Padding(
+        padding: EdgeInsets.all(0),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: Center(
+                  child: Text(
+                    'Italienisch',
+                    style:TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold
+                    )
                   ),
-                ),
-                Expanded(
-                  child: Text ('${this.title}', textAlign: TextAlign.center,),
-                  flex: 8
-                ),
-              ],
-            )
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _getTrainingStartItem(this.level, context),
-            SizedBox(width: 14),
-            _getLockedUnlockedItem(this.level, context),
-            SizedBox(width: 14), 
-            IconButton(
-              icon: Icon(Icons.search),
-              tooltip: 'Vokabeln anschauen',
-              onPressed:() {
-                if (this.level <= globalData.user!.level){
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => VocabularyDetailsScreen(tablename: this.title, table_level: this.level ,), ));
-                  //routes.navigate('/startScreen');
-                  //context.pushNamed('vocabularies_details', pathParameters: {'tablename': this.title, 'table_level': this.level.toString()});
-                  //context.goNamed('vocabularies_details', pathParameters: {'tablename': this.title, 'table_level': this.level.toString()}); 
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Level noch nicht freigeschalten!'))
-                  );
-                }
-              }
-            ),
-            SizedBox(width: 14),
-            IconButton(
-              icon: Icon(Icons.download),
-              tooltip: 'PDF generieren',
-              onPressed:() {
-                if (this.level <= globalData.user!.level){
-                  _createPDF(this.title, this.level);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Level noch nicht freigeschalten!'))
-                  );
-                }
-              }
-            )
-          ]
-        ) 
-      );
-  }
-
-  Future<void> _createPDF(String title, int level) async {
-    List<Vocabulary> vocabularies = VocabularyHandler().getAllVocabulariesFromLevel(level);
-
-    PdfDocument document = PdfDocument();
-    PdfPageTemplateElement header2 = PdfPageTemplateElement(
-    Rect.fromLTWH(0, 0, document.pageSettings.size.width, 50));
-
-    PdfCompositeField compositefields = PdfCompositeField(
-        font: PdfStandardFont(PdfFontFamily.timesRoman, 19),
-        brush: PdfSolidBrush(PdfColor(0, 0, 0)),
-        text: '${title} ${level !=0 ? '(' + level.toString() + ')' : ''}');
-
-    compositefields.draw(header2.graphics,
-        Offset(220, 10 - PdfStandardFont(PdfFontFamily.timesRoman, 11).height));
-
-    document.template.top = header2;
-
-    PdfPageTemplateElement footer = PdfPageTemplateElement(
-      Rect.fromLTWH(0, 0, document.pageSettings.size.width, 40));
-
-    PdfPageNumberField pageNumber = PdfPageNumberField(
-      font: PdfStandardFont(PdfFontFamily.timesRoman, 10),
-      brush: PdfSolidBrush(PdfColor(0, 0, 0)));
-
-    pageNumber.numberStyle = PdfNumberStyle.numeric;
-
-    PdfPageCountField count = PdfPageCountField(
-    font: PdfStandardFont(PdfFontFamily.timesRoman, 10),
-    brush: PdfSolidBrush(PdfColor(0, 0, 0)));
-
-    count.numberStyle = PdfNumberStyle.numeric;
-
-    PdfCompositeField compositeField = PdfCompositeField(
-        font: PdfStandardFont(PdfFontFamily.timesRoman, 10),
-        brush: PdfSolidBrush(PdfColor(0, 0, 0)),
-        text: 'Seite {0} von {1}',
-        fields: <PdfAutomaticField>[pageNumber, count]);
-    compositeField.bounds = footer.bounds;
-
-    compositeField.draw(footer.graphics,
-      Offset(450, 20 - PdfStandardFont(PdfFontFamily.timesRoman, 19).height));
-
-    document.template.bottom = footer;
-
-    PdfGrid grid = PdfGrid();
-    grid.columns.add(count: 3);
-    grid.headers.add(1);
-
-    PdfGridRow header = grid.headers[0];
-    header.cells[0].value = "italienisch";
-    header.cells[1].value = "deutsch";
-    header.cells[2].value = "zusätzliches";
-
-    header.style = PdfGridCellStyle(
-      backgroundBrush: PdfBrushes.lightGray,
-      textBrush: PdfBrushes.black,
-      font: PdfStandardFont(PdfFontFamily.timesRoman, 12),
+                ) ,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 1,
+                child: Center(
+                  child: Text(
+                    'Deutsch',
+                    style:TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold
+                    )
+                  ),
+                ) ,
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Visibility(
+                  visible: false,
+                  maintainSize: true,
+                  maintainState: true,
+                  maintainAnimation: true,
+                  child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.star_sharp),
+                        onPressed: () => {},
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.mic),
+                        onPressed:() async {}
+                      ),
+                    ]
+                  ),
+                ) , 
+                  )
+                )
+            ],
+          )
     );
-
-    for (final vocabulary in vocabularies) {
-      PdfGridRow row = grid.rows.add();
-      row.cells[0].value = vocabulary.italian;
-      row.cells[1].value = vocabulary.german;
-      row.cells[2].value = vocabulary.additional;
-    }
-
-    grid.style = PdfGridStyle(
-      cellPadding: PdfPaddings(left: 10, right: 3, top: 4, bottom: 4),
-      backgroundBrush: PdfBrushes.white,
-      textBrush: PdfBrushes.black,
-      font: PdfStandardFont(PdfFontFamily.timesRoman, 12),
-    );
-
-    grid.draw(
-        page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
-    List<int> bytes = await document.save();
-
-    AnchorElement(
-        href:
-            "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
-      ..setAttribute("download", "parlaItaliano_${title}_(${level}).pdf")
-      ..click();
-
-    document.dispose();
-  }
-
-  Icon _getLevelIcon(int vocabularyListLevel){
-    if (vocabularyListLevel == 0){
-      return Icon(Icons.star_sharp);
-    } else {
-      return Icon(Icons.emoji_events);
-    }
-  }
-
-  Text _getLevelText(int vocabularyListLevel){
-    if (vocabularyListLevel == 0){
-      return Text("");
-    } else {
-      return Text('${vocabularyListLevel.toString()}', textAlign: TextAlign.start,);
-    }
-  }
-
-  Color? _getTileColor(int vocabularyListLevel){
-    if (vocabularyListLevel > globalData.user!.level){
-      return Colors.grey[300];
-    } else {
-      return Colors.white;
-    }
-  }
-
-  Widget _getTrainingStartItem(int vocabularyListLevel, BuildContext context) {
-    if (vocabularyListLevel == globalData.user!.level + 1){
-      return IconButton(
-        icon: Icon(Icons.fitness_center),
-        tooltip: 'Training starten',
-        onPressed: (){
-          routes.dialogBuilder(context);
-        },
-      );
-    } else {
-      return Visibility(
-        maintainSize: true, 
-        maintainAnimation: true,
-        maintainState: true,
-        visible: false, 
-        child: IconButton(
-          icon: Icon(Icons.fitness_center),
-          tooltip: 'Training starten',
-          onPressed: (){
-            routes.dialogBuilder(context);
-          },
-        )
-      );
-    }
-  }
-
-  IconButton _getLockedUnlockedItem(int vocabularyListLevel, BuildContext context){
-    if (vocabularyListLevel > globalData.user!.level){
-      return IconButton(
-        icon: Icon(Icons.lock),
-        tooltip: 'noch nicht freigeschaltet',
-        onPressed: (){
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Level noch nicht freigeschalten!'))
-          );
-        },
-      );
-    } else {
-      return IconButton(
-        icon: Icon(Icons.done_rounded),
-        tooltip: 'freigeschaltet',
-        onPressed: (){
-        },
-      );
-    }
-  }
-
-  bool _checkIfTestCanStart(BuildContext context) {
-    String lastTest = globalData.user!.lastTestDate;
-    DateTime now = new DateTime.now();
-    DateTime date = new DateTime(now.year, now.month, now.day);
-    return (lastTest != date.toString());
   }
 }

@@ -133,7 +133,9 @@ buildLeaveDialog(BuildContext context) async {
                             }, 
                             child: Padding(
                               padding: EdgeInsets.all(5),
-                              child: Text('nein, weiterspielen'),
+                              child: Text(
+                                'nein'
+                                ),
                             ),
                           ),
                         ),
@@ -151,7 +153,7 @@ buildLeaveDialog(BuildContext context) async {
                             },
                             child: Padding(
                               padding: EdgeInsets.all(5),
-                              child: Text('ja, verlassen'),
+                              child: Text('ja'),
                             ),
                           ),
                         ),
@@ -177,7 +179,10 @@ Future<bool> dialogBuilder(BuildContext context) async {
             side: BorderSide(color: Colors.black, width: 2.0)
           ),
           title: const Center(
-            child: Text('Nächstes Level freischalten')
+            child: Text(
+              'Nächstes Level freischalten',
+              textAlign: TextAlign.center,
+            )
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -214,7 +219,7 @@ Future<bool> dialogBuilder(BuildContext context) async {
                           }                          
                         }, 
                         child: Padding(
-                          padding: EdgeInsets.all(5),
+                          padding: EdgeInsets.all(1),
                           child: Text("Starten"),
                         ),
                       ),
@@ -232,7 +237,7 @@ Future<bool> dialogBuilder(BuildContext context) async {
                           Navigator.of(context).pop(false);
                         },
                         child: Padding(
-                          padding: EdgeInsets.all(5),
+                          padding: EdgeInsets.all(1),
                           child: Text("Schließen"),
                         ),
                       ),

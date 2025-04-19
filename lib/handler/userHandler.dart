@@ -69,8 +69,8 @@ class UserHandler {
     await FirebaseFirestore.instance.collection('users').doc(firestoreInstanceId).update({'friendsLevelUpdate': user.friendsLevelUpdate});
   }
 
-  void deletFinishedGamesIDsNews(String gameID) async {
-    var query = await FirebaseFirestore.instance.collection('users').where('userID', isEqualTo: userData.user!.userID).get();
+  void deletFinishedGamesIDsNews(String gameID, String playerID) async {
+    var query = await FirebaseFirestore.instance.collection('users').where('userID', isEqualTo: playerID).get();
     var firestoreInstanceId = query.docs.first.id;
     userData.user!.finishedGamesIDsNews.remove(gameID);
     await FirebaseFirestore.instance.collection('users').doc(firestoreInstanceId).update({'finishedGamesIDsNews': userData.user!.finishedGamesIDsNews});

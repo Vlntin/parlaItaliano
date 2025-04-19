@@ -30,47 +30,28 @@ class OneVSOneScreen extends StatefulWidget {
 class OneVSOneScreenState extends State<OneVSOneScreen> {
 
   int currentPageIndex = 2;
-                
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-          builder: ((context, constraints) {
-            if (constraints.maxWidth > 1200){
-              return ScalableOneVSOneScreen(fontSize: 22.0);
-            } else {
-              return ScalableOneVSOneScreen(fontSize: 18.0);
-            }
-            
-          })
-        );
-  }
-}
-
-class ScalableOneVSOneScreen extends StatefulWidget {
-
-  final double fontSize;
-
-  const ScalableOneVSOneScreen({super.key, required this.fontSize});
-
-  @override
-  ScalableOneVSOneScreenState createState() => ScalableOneVSOneScreenState();
-}
-
-class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
-
-  int currentPageIndex = 2;
-
   String selectedValueGame = 'Klassisches Spiel';
   AppUser? _selectedOpponent;
   final _formKey = GlobalKey<FormState>();
   late Future<List<AppUser>> friends = fillFriends();
                 
-
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-    canPop: false,
-    child: Scaffold(
+    return LayoutBuilder(
+      builder: ((context, constraints) {
+        if (constraints.maxWidth > 1200){
+          return getScalableOneVSOneScreen(22.0, context);
+        } else if (constraints.maxWidth > 500) {
+          return getScalableOneVSOneScreen(18.0, context);
+        } else {
+          return getSmartphoneOneVSOneScreen(context);
+        }
+      })
+    );
+  }                
+
+  Scaffold getScalableOneVSOneScreen(double fontSize, BuildContext context) {
+    return Scaffold(
       bottomNavigationBar: CustomNavigationBar(currentPageIndex),
       appBar: CustomAppBar(),
       body: Padding(
@@ -126,7 +107,7 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
                                       child: Text(
                                         'Spielstände',
                                         style: TextStyle(
-                                          fontSize: widget.fontSize,
+                                          fontSize: fontSize,
                                           fontWeight: FontWeight.bold
                                         ),
                                       ),
@@ -134,7 +115,7 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
                                   ),
                                   Expanded(
                                     flex: 5,
-                                    child: _getRunningGamesWidget()
+                                    child: _getRunningGamesWidget(false)
                                   )
                                 ]
                               )
@@ -152,7 +133,7 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
                                       child: Text(
                                         'Spielhistorie',
                                         style: TextStyle(
-                                          fontSize: widget.fontSize,
+                                          fontSize: fontSize,
                                           fontWeight: FontWeight.bold
                                         ),
                                       ),
@@ -160,7 +141,7 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
                                   ),
                                   Expanded(
                                     flex: 5,
-                                    child: _getFinishedGamesWidget()
+                                    child: _getFinishedGamesWidget(false)
                                   )
                                 ]
                               )
@@ -211,7 +192,7 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
                                                 child: Text(
                                                   'Neues Spiel',
                                                   style: TextStyle(
-                                                    fontSize: widget.fontSize,
+                                                    fontSize: fontSize,
                                                     fontWeight: FontWeight.bold
                                                   ),
                                                 ),
@@ -235,7 +216,7 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
                                                       child: Text(
                                                         'Spiel:',
                                                         style: TextStyle(
-                                                          fontSize: widget.fontSize - 2,
+                                                          fontSize: fontSize - 2,
                                                         ),
                                                       ),
                                                     ),
@@ -275,7 +256,7 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
                                                       child: Text(
                                                         'Gegner:',
                                                         style: TextStyle(
-                                                          fontSize: widget.fontSize - 2,
+                                                          fontSize: fontSize - 2,
                                                         ),
                                                       ),
                                                     ),
@@ -362,7 +343,7 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
                                                           child: Text(
                                                             "Spielen",
                                                             style: TextStyle(
-                                                              fontSize: widget.fontSize - 2
+                                                              fontSize: fontSize - 2
                                                             ),
                                                           ),
                                                         ),
@@ -386,7 +367,226 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
             ]
           )
       )
-    )
+    );
+  }
+
+  Scaffold getSmartphoneOneVSOneScreen(BuildContext context) {
+    return Scaffold(
+      bottomNavigationBar: CustomNavigationBar(currentPageIndex),
+      appBar: CustomAppBarSmartphone(actualPageName: "1 vs 1"),
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child:
+            Column(
+              children: [
+                const SizedBox(height: 10),
+                Text('Tritt hier gegen deine Freunde in 1 vs 1 Spielen an! Fordere sie heraus und zeig ihnen wie scheiße sie sind!'),
+                Divider(
+                  color: Colors.grey
+                ),
+                Text(
+                  'Spielstände',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold
+                  ),
+                ),
+                _getRunningGamesWidget(true),
+                Divider(
+                  color: Colors.grey
+                ),
+                Text(
+                  'Spielhistorie',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold
+                  ),
+                ),
+                _getFinishedGamesWidget(true),
+                Divider(
+                  color: Colors.grey
+                ),
+                Center(
+                                    child: CarouselSlider(
+                                      options: CarouselOptions(
+                                        height: 350,
+                                        aspectRatio: 16/9,
+                                        viewportFraction: 0.8,
+                                        initialPage: 0,
+                                        enableInfiniteScroll: true,
+                                        reverse: false,
+                                        autoPlay: true,
+                                        autoPlayInterval: Duration(seconds: 3),
+                                        autoPlayAnimationDuration: Duration(milliseconds: 800),
+                                        autoPlayCurve: Curves.fastOutSlowIn,
+                                        enlargeCenterPage: true,
+                                        enlargeFactor: 0.3,
+                                        scrollDirection: Axis.horizontal,
+                                      ),
+                                      items: _getCaruselItems()
+                                    )
+                ),
+                Divider(
+                  color: Colors.grey
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Neues Spiel',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold
+                  ),
+                ),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Row(
+                                                children: [
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Spiel:',
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(width: 5),
+                                                  Expanded(
+                                                        flex: 3,
+                                                        child: DropdownButtonFormField<String>(
+                                                          isDense: true,
+                                                          isExpanded: true,
+                                                          value: GameType.classicGame.info.title,
+                                                          onChanged: (String? newValue) {
+                                                            setState(() {
+                                                              selectedValueGame = newValue!;
+                                                            });
+                                                          },
+                                                          validator: (String? value) {
+                                                            if (value == null || value.isEmpty) {
+                                                              return 'Please select an option';
+                                                            }
+                                                            return null;
+                                                          },
+                                                          items: _getDropdownMenuItemsForGames(),
+                                                        ),
+                                                  )
+                                            ]
+                                                
+                                          ),
+                                          Row(
+                                                children: [
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Gegner:',
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(width: 5),
+                                                  Expanded(
+                                                        flex: 3,
+                                                        child: FutureBuilder(
+                                                          future: friends, 
+                                                          builder: (context, snapshot){
+                                                            if(snapshot.connectionState == ConnectionState.done && !snapshot.hasError){
+                                                              return DropdownButtonFormField<AppUser> (
+                                                          isDense: true,
+                                                          isExpanded: true,
+                                                          value: snapshot.data![0],
+                                                          onChanged: (AppUser? newValue) {
+                                                            setState(() {
+                                                              _selectedOpponent = newValue!;
+                                                            });
+                                                          },
+                                                          validator: (AppUser? value) {
+                                                            if (value == null ||  value.username == "---") {
+                                                              return 'Wähle einen Gegner';
+                                                            }
+                                                            return null;
+                                                          },
+                                                          
+                                                          items: snapshot.data!.map<DropdownMenuItem<AppUser>>((AppUser friend) {
+                                                            return DropdownMenuItem<AppUser>(
+                                                              value: friend,
+                                                              child: Text(friend.username),
+                                                            );
+                                                          }).toList(),
+                                                          
+                                                        );
+                                                            } else {
+                                                              return Text ('Laden...');
+                                                            }
+                                                          }
+                                                        )
+                                                  )
+                                            ]
+                                                
+                                          ),
+                                          SizedBox(height: 10),
+                                          Column(
+                                                  children: [
+                                                    _getVocabularyLevelText(),
+                                                    Center(
+                                                        child: ElevatedButton(
+                                                          onPressed: () async {
+                                                            if (_formKey.currentState!.validate() && selectedValueGame == GameType.classicGame.info.title)  {
+                                                              var data = await _collectData(userData.user!.userID, _selectedOpponent!.userID, userData.user!.userID, [0, 0, 0], [0, 0, 0], 1, 3, 30);
+                                                              ClassicGame game = ClassicGame(gameID: '1', player1: userData.user!, player2: _selectedOpponent!, actualPlayer: userData.user!, player1Points: [0, 0, 0], player2Points: [0, 0, 0], actualRound: 1, totalRounds: 3, vocabularies: data[9], italianToGerman: data[11], finished: false);                                                      
+                                                              String id = await ClassicGameHandler().createGame(game);
+                                                              game.gameID = id;
+                                                              userData.gamesRepo!.addGame(FrontGame(game, GameType.classicGame));
+                                                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ClassicGameScreen(game: FrontGame(game, GameType.classicGame)), ));
+                                                            } else if(_formKey.currentState!.validate() && selectedValueGame == GameType.memory.info.title){
+                                                              List<Vocabulary> vocabs = [];
+                                                              List<String> cardTexts = [];
+                                                              VocabularyTable table = userData.vocabularyRepo!.vocabularyTables[0];
+                                                              for (int i = 0; i < 10; i++){
+                                                                vocabs.add(table.vocabularies[i]);
+                                                                cardTexts.add(table.vocabularies[i].german);
+                                                                cardTexts.add(table.vocabularies[i].italian);
+                                                              }
+                                                              MemoryGame memoryGame = MemoryGame(player1: userData.user!, player2: _selectedOpponent!, actualPlayer: userData.user!);
+                                                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MemoryScreen(game: FrontGame(memoryGame, GameType.memory)) ));
+                                                            }
+                                                            userData.gamesRepo = userData.gamesRepo;
+                                                            
+                                                          },
+                                                          style: ElevatedButton.styleFrom(
+                                                            alignment: Alignment.center,
+                                                            backgroundColor: Colors.white,
+                                                          ),
+                                                          child: Padding(
+                                                            padding: EdgeInsets.all(5),
+                                                            child: Text(
+                                                              "Spielen",
+                                                              style: TextStyle(
+                                                                fontSize: 18
+                                                              ),
+                                                            ),
+                                                          ),
+                                                      )
+                                                    )
+                                                  ],
+                                                )
+                    ]
+                  )
+                                        
+                ),
+                SizedBox(height: 50)
+                                                  
+                                              
+                                              
+              ],
+            )
+        )
+      )
     );
   }
 
@@ -441,8 +641,8 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
   Widget _getVocabularyLevelText(){
     if (_selectedOpponent != null){
       if (_selectedOpponent!.userID != "" ){
-        return Expanded(
-          flex: 1,
+        return Padding(
+          padding:EdgeInsets.all(10),
           child: Center(
             child: Text('Das Spiel wird Vokabeln bis Level ${min(_selectedOpponent!.level, userData.user!.level)} beinhalten')
           )
@@ -455,13 +655,30 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
     );
   }
 
-  _getRunningGamesWidget(){
-    List<FrontGame> list = userData.gamesRepo!.games;
-    if(list.length == 0){
+  _getRunningGamesWidget(bool smartphoneView){
+    if(smartphoneView) {
+      return Padding( 
+        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+        child:SizedBox(
+          width: double.infinity,
+          height: 300,                       
+          child: _getRunningGamesContainer()
+        ) 
+      );
+    } else {
       return Padding( 
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-        child:SizedBox.expand(                      
-          child: Container(
+        child: SizedBox.expand(                    
+          child: _getRunningGamesContainer()
+          ) 
+      );
+    }
+  }
+
+  Container _getRunningGamesContainer() {
+    List<FrontGame> list = userData.gamesRepo!.games;
+    if (list.length == 0) {
+      return Container(
             alignment:  Alignment.center,
             decoration: BoxDecoration(
               border: Border.all(
@@ -475,14 +692,9 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
               padding: EdgeInsets.all(20),
                 child: Text('Du hast aktuell keine offenen Spiele. Fordere deine Freunde heraus!', textAlign: TextAlign.center, ),  
             )
-          )
-        ) 
-      );
+          );
     } else {
-      return Padding( 
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-        child: SizedBox.expand(                      
-          child: Container(
+      return Container(
             alignment:  Alignment.center,
             decoration: BoxDecoration(
               border: Border.all(
@@ -494,7 +706,6 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
             ),
             child: Padding(
               padding: EdgeInsets.all(10),
-                child:Flexible(
                   child: ListView.builder(
                     //shrinkWrap: true,
                     scrollDirection: Axis.vertical,
@@ -527,21 +738,35 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
                     }
                   )
                 )
-            )
-          )
-        ) 
-      );
+            );
     }
     
   }
 
-  _getFinishedGamesWidget(){
-    List<FrontGame> list = userData.gamesRepo!.finishedGames;
-    if(list.length == 0){
+  _getFinishedGamesWidget(bool isSmartphoneView) {
+    if(isSmartphoneView){
+      return Padding( 
+        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+        child:SizedBox(
+          width: double.infinity,
+          height: 300,                      
+          child: _getFinishedGamesContainer()
+        ) 
+      );
+    } else {
       return Padding( 
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-        child:SizedBox.expand(                      
-          child: Container(
+        child: SizedBox.expand(                      
+          child: _getFinishedGamesContainer()
+          ) 
+      );
+    }
+  }
+
+  Container _getFinishedGamesContainer() {
+    List<FrontGame> list = userData.gamesRepo!.finishedGames;
+    if(list.length == 0){
+      return Container(
             alignment:  Alignment.center,
             decoration: BoxDecoration(
               border: Border.all(
@@ -555,14 +780,9 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
               padding: EdgeInsets.all(20),
                 child: Text('Du hast noch keine Spiele beendet. Spiele gegen Freunde um hier deine Historie zu sehen!', textAlign: TextAlign.center, ),  
             )
-          )
-        ) 
-      );
+          );
     } else {
-      return Padding( 
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-        child: SizedBox.expand(                      
-          child: Container(
+      return Container(
             alignment:  Alignment.center,
             decoration: BoxDecoration(
               border: Border.all(
@@ -574,7 +794,6 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
             ),
             child: Padding(
               padding: EdgeInsets.all(10),
-                child:Flexible(
                   child: ListView.builder(
                     //shrinkWrap: true,
                     scrollDirection: Axis.vertical,
@@ -588,14 +807,9 @@ class ScalableOneVSOneScreenState extends State<ScalableOneVSOneScreen> {
                     }
                   )
                 )
-            )
-          )
-        ) 
-      );
+            );
     }
-    
   }
-
 
   Future<List<AppUser>> fillFriends() async{
     List<AppUser> friends = [];

@@ -134,7 +134,7 @@ class ClassicGameHandler implements GenericGameHandler {
 
           Duration difference = gameTimeStamp.difference(date);
 
-          if (difference.inDays < 7){
+          if (difference.inDays > -7) {
             AppUser player1 = await UserHandler().findUserByID(dbgame.player1ID);
             AppUser player2 = await UserHandler().findUserByID(dbgame.player2ID);
             AppUser actualPlayer = globalData.user!;
@@ -142,8 +142,11 @@ class ClassicGameHandler implements GenericGameHandler {
             ClassicGame game = ClassicGame(gameID: dbgame.gameID, player1: player1, player2: player2, actualPlayer: actualPlayer, player1Points: dbgame.player1Points, player2Points: dbgame.player2Points, actualRound: dbgame.actualRound, totalRounds: dbgame.totalRounds, vocabularies: vocabularies, italianToGerman: dbgame.italianToGerman, finished: dbgame.finished);
             finishedGames.add(game);
           } else {
+            String player1ID = dbgame.player1ID;
+            String player2ID = dbgame.player2ID;
             deleteGame(dbgame.gameID);
-            UserHandler().deletFinishedGamesIDsNews(dbgame.gameID);
+            UserHandler().deletFinishedGamesIDsNews(dbgame.gameID, player1ID);
+            UserHandler().deletFinishedGamesIDsNews(dbgame.gameID, player2ID);
           }
         } else {
             AppUser player1 = await UserHandler().findUserByID(dbgame.player1ID);

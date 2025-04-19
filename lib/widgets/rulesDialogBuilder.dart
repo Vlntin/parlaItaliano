@@ -5,7 +5,6 @@ import 'package:parla_italiano/constants/colors.dart' as colors;
 
 Future<void> dialogBuilderRules(BuildContext context, String rules) {
     return showDialog<void>(
-      
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -23,7 +22,9 @@ Future<void> dialogBuilderRules(BuildContext context, String rules) {
             ]
           ),
           actions: <Widget>[
-            Flexible(
+            Row(
+              children: [
+                Flexible(
                 child: Center(
                   child: ElevatedButton(
                     style: TextButton.styleFrom(
@@ -45,6 +46,9 @@ Future<void> dialogBuilderRules(BuildContext context, String rules) {
                   )
                 )
             )
+              ]
+            )
+            
           ],
         );
       },
@@ -71,28 +75,33 @@ Future<void> dialogBuilderRules(BuildContext context, String rules) {
             ]
           ),
           actions: <Widget>[
-            Flexible(
-                child: Center(
-                  child: ElevatedButton(
-                    style: TextButton.styleFrom(
-                      textStyle: Theme.of(context).textTheme.labelLarge,
-                      backgroundColor: colors.popUpButtonColor
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(5), 
-                      child:const Text(
-                        'zurück',
-                        style: TextStyle(
-                          color: Colors.black
+            Row(
+              children: [
+                  Flexible(
+                    child: Center(
+                      child: ElevatedButton(
+                        style: TextButton.styleFrom(
+                          textStyle: Theme.of(context).textTheme.labelLarge,
+                          backgroundColor: colors.popUpButtonColor
                         ),
-                      ),
-                    ),
-                    onPressed: ()  {
-                      Navigator.of(context).pop(false);
-                    }
-                  )
+                        child: Padding(
+                          padding: EdgeInsets.all(5), 
+                          child:const Text(
+                            'zurück',
+                            style: TextStyle(
+                              color: Colors.black
+                            ),
+                          ),
+                        ),
+                        onPressed: ()  {
+                          Navigator.of(context).pop(false);
+                        }
+                      )
+                    )
                 )
+              ],
             )
+            
           ],
         );
       },

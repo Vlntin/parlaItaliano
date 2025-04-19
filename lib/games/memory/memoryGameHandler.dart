@@ -109,7 +109,8 @@ class MemoryGameHandler implements GenericGameHandler {
             finishedGames.add(game);
           } else {
             deleteGame(dbgame.gameID);
-            UserHandler().deletFinishedGamesIDsNews(dbgame.gameID);
+            UserHandler().deletFinishedGamesIDsNews(dbgame.gameID, dbgame.player1ID);
+            UserHandler().deletFinishedGamesIDsNews(dbgame.gameID, dbgame.player2ID);
           }
         } else {
             AppUser player1 = await UserHandler().findUserByID(dbgame.player1ID);

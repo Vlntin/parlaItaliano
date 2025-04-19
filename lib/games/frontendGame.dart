@@ -60,8 +60,7 @@ class FrontGame {
 
   Widget getFinishedGamesWidget(){
     print('getFinishedGames widget');
-    return Expanded(
-      child: Row(
+    return Row(
         children: [
           Expanded(
             flex: 1,
@@ -88,7 +87,6 @@ class FrontGame {
             ),
           ),
         ]
-      ),
     );
   }
 
@@ -126,8 +124,8 @@ class FrontGame {
   void clickedOnPlaying(BuildContext context, int index){
     switch (gameType) {
       case GameType.classicGame:
-      print('brooooo');
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ClassicGameScreen(game: this), ));
+        break;
       case GameType.memory:
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MemoryScreen(game: this), ));
     }

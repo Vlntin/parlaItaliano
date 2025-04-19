@@ -65,7 +65,7 @@ class ScreenOneState extends State<ScreenOne> {
                         _controllerNewName.clear();
                       }
                     },
-                    child: const Row(
+                    child:  Row(
                       children: [
                         Icon(Icons.border_color),
                         SizedBox(width: 4),
@@ -143,7 +143,7 @@ class ScreenOneState extends State<ScreenOne> {
                         }
                       }
                     },
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(Icons.add),
                         SizedBox(width: 4),
